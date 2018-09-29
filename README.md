@@ -17,7 +17,7 @@ a valid user.
 
 
 ## Configuration
-Put the application config somewhere where SpringBoot can find it. 
+Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
 ### Example config
