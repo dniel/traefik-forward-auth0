@@ -69,6 +69,7 @@ Check out the helm chart directory `helm` for template for the Helm chart to cre
 - Kubernetes
 - Helm
 - Docker
+- Traefik
 
 # TODO
 - create unit tests
