@@ -1,12 +1,20 @@
 # Traefik Forward Auth0
+This is a SpringBoot backend application written i Kotlin and Java8 for authenticating user with Auth0 in Traefik.
+Use the forward authentication configuration in Traefik and point it to this backend to protect frontends with Auth0 login.
+
+The backend application supports multiple Auth0 applications and APIs based on the domainname/subdomainname of the
+application and will save the JWT and the Access Token received from Auth0 as a cookie in the browser. When visitors 
+access a protected frontend configured in Traefik, a http call will be sent to this backend to validate that the user is
+a valid user.
+
 
 # Development
-
 ## Compile
 `mvn clean install`
 
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
+
 
 ## Configuration
 Put the application config somewhere where SpringBoot can find it. 
@@ -68,3 +76,4 @@ Check out the helm chart directory `helm` for template for the Helm chart to cre
 - signout endpoint 
 - user profile endpoint
 - error handling, the current code is not handling much of Auth0 errormessages and does not format errors to the users.
+- fix the helm chart so that it will create a valid config without need to generate yaml and manually edit the result to deploy it.
