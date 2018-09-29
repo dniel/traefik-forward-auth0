@@ -1,0 +1,74 @@
+[accessLog]
+# with nothing
+
+[entryPoints]
+   [entryPoints.http]
+    address = ":80"
+	
+   [entryPoints.dashboard]
+    address=":81"
+	
+   [entryPoints.http.auth.forward]
+	address = "http://127.0.0.1:8080/authorize"
+	authResponseHeaders = ["X-Auth-Name", "X-Auth-User", "X-Auth-Scope", "X-Auth-Roles", "X-Auth-Email", "X-Auth-Nick", "X-Auth-Picture"]
+
+
+[api]
+entrypoint="dashboard"
+dashboard=true	
+	
+[file]
+[backends]
+[backends.nginx.servers.server0]
+url = "http://127.0.0.1:8000"
+
+[backends.oauth.servers.server0]
+url = "http://127.0.0.1:8080"
+	
+[backends.posts.servers.server0]
+url = "http://127.0.0.1:4567"
+	
+[backends.dashboard.servers.server0]
+url = "http://127.0.0.1:81"
+	
+		
+[frontends]
+  # Dashboard frontend
+  [frontends.dashboard]
+    entryPoints = ["http"]
+    backend = "dashboard"
+	passHostHeader = true
+
+    [frontends.dashboard.routes.route0]
+	rule = "Host:traefik.example.test"
+	
+  # OAuth frontend
+  [frontends.oauth]
+    entryPoints = ["http"]
+	priority = 9999999
+    backend = "oauth"
+	passHostHeader = true
+
+    [frontends.oauth.routes.route0]
+	rule = "PathPrefixStrip:/oauth2"
+		
+  # API Posts.
+  [frontends.posts]
+    entryPoints = ["http"]
+    backend = "posts"
+	passHostHeader = true
+
+    [frontends.posts.routes.route0]
+	rule = "PathPrefixStrip:/api/posts"		
+
+  # BLOG Nginx
+  [frontends.nginx]
+    entryPoints = ["http"]
+    backend = "nginx"
+	priority = 1
+	passHostHeader = true
+		
+    [frontends.nginx.routes.route0]
+	rule = "Host:www.example.test"
+			
+				
