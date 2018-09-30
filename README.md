@@ -20,6 +20,8 @@ a valid user.
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
+Check out the `example` directory for example of an application.yaml and a traefik.toml config for this application.
+
 ### Example config
 ```yaml
 domain: https://xxxxx.xx.auth0.com/
