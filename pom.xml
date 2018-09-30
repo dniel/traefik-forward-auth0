@@ -149,5 +149,15 @@
 		</plugins>
 	</build>
 
-
+	<!-- TODO use parent pom with common distributionManagement instead -->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<url>http://nexus.dniel.in/repository/maven-snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>nexus-releases</id>
+			<url>http://nexus.dniel.in/repository/maven-releases/</url>
+		</repository>
+	</distributionManagement>
 </project>
