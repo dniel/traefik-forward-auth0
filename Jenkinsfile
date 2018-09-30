@@ -33,7 +33,7 @@ pipeline {
         stage('Build') {
             steps {
                 container('maven') {
-                    sh "mvn clean deploy -X -e -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
+                    sh "mvn clean deploy -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
                 }
             }
         }
