@@ -67,7 +67,11 @@ url = "http://127.0.0.1:81"
     backend = "nginx"
 	priority = 1
 	passHostHeader = true
-		
+
+#   [frontends.nginx.auth.forward]
+#	address = "http://127.0.0.1:8080/authorize"
+#	authResponseHeaders = ["X-Auth-Name", "X-Auth-User"]
+
     [frontends.nginx.routes.route0]
 	rule = "Host:www.example.test"
 			
