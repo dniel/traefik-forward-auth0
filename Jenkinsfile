@@ -10,8 +10,6 @@ pipeline {
         stage('Prepare') {
             steps {
                 slackSend "Started ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-
-                deleteDir()
                 checkout scm
 
                 script {
