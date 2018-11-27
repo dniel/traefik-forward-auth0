@@ -40,6 +40,9 @@ spec:
 #            httpGet:
 #              path: /actuator/health
 #              port: 8080
+          env:
+            - name: ENV
+              value: "{{ .Values.logLevel }}"
           resources:
 {{ toYaml .Values.resources | indent 12 }}
 
