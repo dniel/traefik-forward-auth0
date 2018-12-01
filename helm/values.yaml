@@ -17,6 +17,35 @@ ingress:
   hosts:
     - auth.dniel.in
 
+## Uncomment and complete the following section to set the configuration
+# applicationYaml:
+#   domain: https://xxxxx.xx.auth0.com/
+#   token-endpoint: https://xxx.xx.auth0.com/oauth/token
+#   authorize-url: https://xxxx.xx.auth0.com/authorize
+#   default:
+#       name: www.example.test
+#       client-id: <from auth0 application config>
+#       client-secret: <from auth0 application config>
+#       audience: <from auth0 api config> or blank
+#       scope: "profile openid email"
+#       redirect-uri: http://www.example.test/oauth2/signin
+#       token-cookie-domain: example.test
+#   apps:
+#     - name: www.example.test
+#       client-id: <from auth0 application config>
+#       client-secret: <from auth0 application config>
+#       audience: <from auth0 api config> or blank
+#       scope: "profile openid email"
+#       redirect-uri: http://www.example.test/oauth2/signin
+#       token-cookie-domain: example.test
+#     - name: traefik.example.test
+#       client-id: <from auth0 application config>
+#       client-secret: <from auth0 application config>
+#       audience: <from auth0 api config> or blank
+#       scope: "profile openid email"
+#       redirect-uri: http://traefik.example.test/oauth2/signin
+#       token-cookie-domain: traefik.example.test
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
