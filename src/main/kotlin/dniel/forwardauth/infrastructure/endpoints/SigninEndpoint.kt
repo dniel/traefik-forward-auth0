@@ -4,7 +4,6 @@ import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.State
 import dniel.forwardauth.domain.Token
 import dniel.forwardauth.infrastructure.auth0.Auth0Service
-import dniel.forwardauth.infrastructure.auth0.Auth0Utils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.ws.rs.*
@@ -37,16 +36,16 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
             LOGGER.info("Header ${requestHeader.key} = ${requestHeader.value}")
         }
 
-        val application = properties.findApplicationOrDefault(forwardedHost)
-        val audience = application.audience
-        val tokenCookieDomain = application.tokenCookieDomain
+        val app = properties.findApplicationOrDefault(forwardedHost)
+        val audience = app.audience
+        val tokenCookieDomain = app.tokenCookieDomain
 
         val decodedState = State.decode(state)
         if (decodedState.nonce.value != nonceCookie.value) {
             LOGGER.error("Failed nonce check")
         }
 
-        val response = auth0Client.exchangeCodeForToken(code, application)!!
+        val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
         val access_token = response.get("access_token") as String
         val id_token = response.get("id_token") as String
 
