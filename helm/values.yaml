@@ -5,6 +5,9 @@ image:
   tag: latest
   pullPolicy: Always
 
+# set logLevel to DEBUG, TEST, or PRODUCTION to control the verbosity of logs
+logLevel: DEBUG
+
 service:
   type: ClusterIP
   port: 80
