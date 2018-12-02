@@ -16,9 +16,9 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: traefik
-  path: /
-  hosts:
-    - auth.dniel.in
+    traefik.frontend.rule.type: PathPrefixStrip
+    traefik.ingress.kubernetes.io/priority: "99999"
+  path: /oauth2
 
 ## Uncomment and complete the following section to set the configuration
 # applicationYaml:
