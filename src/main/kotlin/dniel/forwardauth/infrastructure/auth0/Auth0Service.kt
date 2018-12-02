@@ -17,13 +17,32 @@ class Auth0Service(val properties: AuthProperties) {
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
      */
-    fun exchangeCodeForToken(code: String, app: AuthProperties.Application): JSONObject? {
-        LOGGER.info("Entered exchangeCodeForToken: code=$code")
-        val tokenRequest = TokenRequest(
+    fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
+        LOGGER.info("Entered authorizationCodeExchange: code=$code")
+        val tokenRequest = AuthorizationCodeTokenRequest(
                 code = code,
-                clientId = app.clientId,
-                clientSecret = app.clientSecret,
-                redirectUrl = app.redirectUri)
+                clientId = clientId,
+                clientSecret = clientSecret,
+                redirectUrl = redirectUri)
+
+        val response = Unirest.post(TOKEN_ENDPOINT)
+                .header("content-type", "application/json")
+                .body(JSON.writeValueAsString(tokenRequest))
+                .asJson();
+
+        LOGGER.info("response: " + response.toString())
+        return response.getBody().getObject()
+    }
+
+    /**
+     * Call Auth0 to exchange received code with a JWT Token to decode.
+     */
+    fun clientCredentialsExchange(clientId: String, clientSecret: String, audience: String): JSONObject {
+        LOGGER.info("Entered clientCredentialsExchange")
+        val tokenRequest = ClientCredentialsTokenRequest(
+                clientId = clientId,
+                clientSecret = clientSecret,
+                audience = audience)
 
         val response = Unirest.post(TOKEN_ENDPOINT)
                 .header("content-type", "application/json")
@@ -37,12 +56,22 @@ class Auth0Service(val properties: AuthProperties) {
     /**
      * Just a simple data class for the token request.
      */
-    private data class TokenRequest(@JsonProperty("grant_type") val grantType: String = "authorization_code",
-                                    @JsonProperty("client_id") val clientId: String,
-                                    @JsonProperty("client_secret") val clientSecret: String,
-                                    @JsonProperty("redirect_uri") val redirectUrl: String,
-                                    val code: String,
-                                    val scope: String = "openid profile"
+    private data class AuthorizationCodeTokenRequest(@JsonProperty("grant_type") val grantType: String = "authorization_code",
+                                                     @JsonProperty("client_id") val clientId: String,
+                                                     @JsonProperty("client_secret") val clientSecret: String,
+                                                     @JsonProperty("redirect_uri") val redirectUrl: String,
+                                                     val code: String,
+                                                     val scope: String = "openid profile"
+    )
+
+    /**
+     * Just a simple data class for the token request.
+     */
+    private data class ClientCredentialsTokenRequest(@JsonProperty("grant_type") val grantType: String = "client_credentials",
+                                                     @JsonProperty("client_id") val clientId: String,
+                                                     @JsonProperty("client_secret") val clientSecret: String,
+                                                     @JsonProperty("audience") val audience: String
+
     )
 
 }

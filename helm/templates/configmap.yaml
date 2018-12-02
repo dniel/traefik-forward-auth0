@@ -8,4 +8,5 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  application.yaml: TODO: add config here for spring boot app.
+  application.yaml: |
+{{ toYaml .Values.applicationYaml | indent 4 }}
