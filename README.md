@@ -66,7 +66,7 @@ The pipeline will update the internal development environment and my external si
 also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
 
 ## Deployment to Kubernetes
-Check out the helm chart directory `helm` for template for the Helm chart to create Kubernetes deployment configuration.
+Check out the helm chart directory https://github.com/dniel/traefik-forward-auth0/tree/master/helm for template for the Helm chart to create Kubernetes deployment configuration.
 
 # Tech
 - Java8
