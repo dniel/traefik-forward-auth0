@@ -15,16 +15,6 @@ a valid user.
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
 
-## Release
-Jenkins has been configured to automatically poll for source code changes in a multi-branch pipeline. 
-New branches will be automatically found and built by Jenkins, when successfully compiled and packaged 
-a docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
-The images will be tagged with sourcecode commit id, timestamp and branch name.
-
-When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
-The pipeline will update the internal development environment and my external site https://www.dniel.se 
-also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
-
 ## Configuration
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
@@ -65,9 +55,15 @@ apps:
     token-cookie-domain: traefik.example.test
 ```
 
-# Publishing
-I am publishing my Docker images to https://hub.docker.com/r/dniel/forwardauth
-If you want to build your own images, use the docker CLI to build and publish images to your own repo instead.
+## Release
+Jenkins has been configured to automatically poll for source code changes in a multi-branch pipeline. 
+New branches will be automatically found and built by Jenkins, when successfully compiled and packaged 
+a docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
+The images will be tagged with sourcecode commit id, timestamp and branch name.
+
+When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
+The pipeline will update the internal development environment and my external site https://www.dniel.se 
+also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
 
 ## Deployment to Kubernetes
 Check out the helm chart directory `helm` for template for the Helm chart to create Kubernetes deployment configuration.
