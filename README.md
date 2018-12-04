@@ -56,9 +56,9 @@ apps:
 ```
 
 ## Release
-Jenkins has been configured to automatically poll for source code changes in a multi-branch pipeline. 
-New branches will be automatically found and built by Jenkins, when successfully compiled and packaged 
-a docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
+My Jenkins server has been configured to automatically poll for source code changes in a multi-branch pipeline. 
+New branches will be automatically found and built by Jenkins and when successfully compiled and packaged 
+docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
 The images will be tagged with sourcecode commit id, timestamp and branch name.
 
 When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
