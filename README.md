@@ -10,7 +10,7 @@ a valid user.
 # Pardon The Mess!
 ---
 This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
-I'm working right now on making stuff much more stable like a Beta release, something that has basic features in place.
+I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
 
 # Development
 ## Compile
