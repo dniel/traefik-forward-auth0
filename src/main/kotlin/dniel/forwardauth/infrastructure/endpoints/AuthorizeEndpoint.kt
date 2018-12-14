@@ -110,9 +110,7 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
 
     private fun authenticateClientCredentials(clientIdHeader: String, clientSecretHeader: String, audienceHeader: String, forwardedProtoHeader: String, forwardedHostHeader: String, forwardedUriHeader: String): Response {
         LOGGER.debug("Authorized Client Credentials: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [clientId=${clientIdHeader}]")
-
-        // TODO add verification that the client_id and client_secret that are trying to access
-        // the specific frontend in traefik actually has permission to access it.
+        TODO("add verification that the client_id and client_secret that are trying to access the specific frontend in traefik actually has permission to access it.")
 
         val response = auth0Client.clientCredentialsExchange(clientIdHeader, clientSecretHeader, audienceHeader)
         val accessToken = response.get("access_token") as String
