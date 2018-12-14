@@ -1,6 +1,7 @@
 package dniel.forwardauth
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import javax.validation.constraints.NotBlank
 
 @ConfigurationProperties()
 class AuthProperties {
@@ -16,6 +17,7 @@ class AuthProperties {
         lateinit var clientId: String
         lateinit var clientSecret: String
         lateinit var audience: String
+
         lateinit var scope: String
         lateinit var redirectUri: String
         lateinit var tokenCookieDomain: String

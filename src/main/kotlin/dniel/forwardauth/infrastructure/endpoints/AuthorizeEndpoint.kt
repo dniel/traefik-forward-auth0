@@ -71,6 +71,7 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
         LOGGER.debug("REDIRECT_URL = $redirectUrl")
         LOGGER.debug("AUDIENCE  = $audience")
         LOGGER.debug("ORIGIN_URL  = $originUrl")
+        LOGGER.debug("AUTH_URL  = $authorizeUrl")
         LOGGER.debug("NONCE = $nonce")
         LOGGER.debug("STATE = $state")
         LOGGER.debug("SCOPES = $scopes")
@@ -94,7 +95,7 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
                     .header("X-Auth-User", decodedAccessToken.value.subject)
 
             if (userinfo != null) {
-                val decodedUserToken = Token.verify(userinfo, audience, DOMAIN)
+                val decodedUserToken = Token.verify(userinfo, clientId, DOMAIN)
                 response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
                 response.header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
                 response.header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())

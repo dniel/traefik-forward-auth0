@@ -2,11 +2,18 @@ package dniel.forwardauth.infrastructure.auth0
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.mashape.unirest.http.HttpResponse
+import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import dniel.forwardauth.AuthProperties
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import jdk.nashorn.tools.ShellFunctions.input
+import jdk.nashorn.tools.ShellFunctions.input
+import jdk.nashorn.tools.ShellFunctions.input
+import javax.ws.rs.WebApplicationException
+
 
 @Component
 class Auth0Service(val properties: AuthProperties) {
@@ -18,19 +25,28 @@ class Auth0Service(val properties: AuthProperties) {
      * Call Auth0 to exchange received code with a JWT Token to decode.
      */
     fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
-        LOGGER.info("Entered authorizationCodeExchange: code=$code")
+        LOGGER.info("AuthorizationCodeExchange:  code=$code")
         val tokenRequest = AuthorizationCodeTokenRequest(
                 code = code,
                 clientId = clientId,
                 clientSecret = clientSecret,
                 redirectUrl = redirectUri)
 
-        val response = Unirest.post(TOKEN_ENDPOINT)
+        val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
                 .header("content-type", "application/json")
                 .body(JSON.writeValueAsString(tokenRequest))
                 .asJson();
+        val status = response.status
+        val body = response.body
+        LOGGER.debug("Got response status $status from token endpoint");
+        LOGGER.debug("BODY: " + body)
 
-        LOGGER.info("response: " + response.toString())
+        if(body.`object`.has("error")){
+            val error = body.`object`.getString("error")
+            val errorDesc = body.`object`.getString("error_description")
+            throw WebApplicationException("Received error in Code Exchange response from Auth0: $error, $errorDesc")
+        }
+
         return response.getBody().getObject()
     }
 
@@ -61,7 +77,7 @@ class Auth0Service(val properties: AuthProperties) {
                                                      @JsonProperty("client_secret") val clientSecret: String,
                                                      @JsonProperty("redirect_uri") val redirectUrl: String,
                                                      val code: String,
-                                                     val scope: String = "openid profile"
+                                                     val scope: String = "openid id_token"
     )
 
     /**

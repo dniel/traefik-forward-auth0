@@ -15,8 +15,10 @@ class AuthApplication(val auth: AuthProperties) : ResourceConfig() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     init {
+        register(AuthExceptionMapper::class.java)
         register(AuthorizeEndpoint::class.java)
         register(SigninEndpoint::class.java)
+
         LOGGER.info(auth.toString());
     }
 
