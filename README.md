@@ -7,6 +7,10 @@ application and will save the JWT and the Access Token received from Auth0 as a 
 access a protected frontend configured in Traefik, a http call will be sent to this backend to validate that the user is
 a valid user.
 
+# Pardon The Mess!
+---
+This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
+I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
 
 # Development
 ## Compile
@@ -56,9 +60,9 @@ apps:
 ```
 
 ## Release
-Jenkins has been configured to automatically poll for source code changes in a multi-branch pipeline. 
-New branches will be automatically found and built by Jenkins, when successfully compiled and packaged 
-a docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
+My Jenkins server has been configured to automatically poll for source code changes in a multi-branch pipeline. 
+New branches will be automatically found and built by Jenkins and when successfully compiled and packaged 
+docker images will be pushed to the https://hub.docker.com/r/dniel/forwardauth/ repository.
 The images will be tagged with sourcecode commit id, timestamp and branch name.
 
 When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
