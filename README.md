@@ -25,7 +25,6 @@ For example in a /config application directory.
 Check out the `example` directory for example of an application.yaml and a traefik.toml config for this application.
 
 ### Auth0 configuration
-Add Applications to your Auth0 domain. 
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
 JWT from Auth0 and it check that the audience is the expected from the loaded config.
 
@@ -40,6 +39,10 @@ To make sure you always get a valid JWT Access Token, you could create an defaul
 add the audience in Auth0 Account Settings.
 
 ### ForwardAuth-backend example configuration
+The backend uses the Authorization Code OAuth 2.0 grant-flow to do a redirect exchange of code and retrieve an
+access token and user token. Check the [Auth0 Documentation](https://auth0.com/docs/api-auth/grant/authorization-code)
+on how this flow works.
+
 When a request is received by the ForwardAuth-backend and it need to authenicate the use, it uses the x-forwarded-host 
 to match a application name to the loaded list of apps in the config. If an application is matched the backend uses the
 client-id, client-secret, scope and audience for that application to request a access token exchange code from Auth0.
