@@ -32,22 +32,21 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
                   @HeaderParam("x-audience") audienceHeader: String?,
                   @HeaderParam("x-forwarded-host") forwardedHostHeader: String,
                   @HeaderParam("x-forwarded-proto") forwardedProtoHeader: String,
-                  @HeaderParam("x-forwarded-uri") forwardedUriHeader: String): Response {
+                  @HeaderParam("x-forwarded-uri") forwardedUriHeader: String,
+                  @HeaderParam("x-forward-auth-app") forwardAuthAppHeader: String?): Response {
 
         if (LOGGER.isDebugEnabled) {
-            for (requestHeader in headers.requestHeaders) {
-                LOGGER.debug("Header ${requestHeader.key} = ${requestHeader.value}")
-            }
+            headers.requestHeaders.forEach { requestHeader -> LOGGER.debug("Header ${requestHeader.key} = ${requestHeader.value}") }
         }
 
         if (clientIdHeader != null && clientSecretHeader != null && audienceHeader != null) {
             return authenticateClientCredentials(clientIdHeader, clientSecretHeader, audienceHeader, forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
         } else {
-            return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
+            return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
         }
     }
 
-    private fun authenticateAccessToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
+    private fun authenticateAccessToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardAuthAppHeader: String?, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
         LOGGER.debug("Authorize Access Token: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [accessToken=${accessTokenCookie != null}, jwt=${userinfoCookie != null}]");
         var accessToken = accessTokenCookie?.value
         val userinfo = userinfoCookie?.value
@@ -55,7 +54,7 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
         LOGGER.debug("USER_TOKEN = $userinfo")
         LOGGER.debug("ACCESS_TOKEN = $accessToken")
 
-        val application = properties.findApplicationOrDefault(forwardedHostHeader)
+        val application = properties.findApplicationOrDefault(forwardAuthAppHeader ?: forwardedHostHeader)
         val redirectUrl = application.redirectUri
         val audience = application.audience
         val scopes = application.scope

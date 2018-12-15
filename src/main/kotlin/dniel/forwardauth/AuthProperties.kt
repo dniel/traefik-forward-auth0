@@ -54,7 +54,8 @@ class AuthProperties {
     }
 
 
-    fun findApplicationOrDefault(name: String): Application {
+    fun findApplicationOrDefault(name: String?): Application {
+        if (name == null) return default;
         return apps.find() { it.name == name } ?: default
     }
 }
