@@ -9,9 +9,6 @@ import dniel.forwardauth.AuthProperties
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import jdk.nashorn.tools.ShellFunctions.input
-import jdk.nashorn.tools.ShellFunctions.input
-import jdk.nashorn.tools.ShellFunctions.input
 import javax.ws.rs.WebApplicationException
 
 
@@ -32,6 +29,10 @@ class Auth0Service(val properties: AuthProperties) {
                 clientSecret = clientSecret,
                 redirectUrl = redirectUri)
 
+        if (LOGGER.isDebugEnabled) {
+            LOGGER.debug("tokenRequest: "+JSON.writeValueAsString(tokenRequest))
+        }
+
         val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
                 .header("content-type", "application/json")
                 .body(JSON.writeValueAsString(tokenRequest))
@@ -41,7 +42,7 @@ class Auth0Service(val properties: AuthProperties) {
         LOGGER.debug("Got response status $status from token endpoint");
         LOGGER.debug("BODY: " + body)
 
-        if(body.`object`.has("error")){
+        if (body.`object`.has("error")) {
             val error = body.`object`.getString("error")
             val errorDesc = body.`object`.getString("error_description")
             throw WebApplicationException("Received error in Code Exchange response from Auth0: $error, $errorDesc")

@@ -54,12 +54,12 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
         LOGGER.debug("USER_TOKEN = $userinfo")
         LOGGER.debug("ACCESS_TOKEN = $accessToken")
 
-        val application = properties.findApplicationOrDefault(forwardAuthAppHeader ?: forwardedHostHeader)
-        val redirectUrl = application.redirectUri
-        val audience = application.audience
-        val scopes = application.scope
-        val clientId = application.clientId
-        val tokenCookieDomain = application.tokenCookieDomain
+        val app = properties.findApplicationOrDefault(forwardedHostHeader)
+        val redirectUrl = app.redirectUri
+        val audience = app.audience
+        val scopes = app.scope
+        val clientId = app.clientId
+        val tokenCookieDomain = app.tokenCookieDomain
 
         val originUrl = OriginUrl(forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
         val nonce = Nonce.create()
