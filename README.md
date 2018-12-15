@@ -37,8 +37,8 @@ Quoted from [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/veri
 >make sure to use the audience parameter in the authorization or token request
 >with the API identifier as the value of the parameter.
 
-To make sure you always get a valid JWT Access Token, you could add a default
-audience in Auth0 Account Settings. 
+To make sure you always get a valid JWT Access Token, you could create an default API
+add the audience in Auth0 Account Settings.
 
 ### ForwardAuth-backend example configuration
 ```yaml
