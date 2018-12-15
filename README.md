@@ -56,7 +56,7 @@ default:
     name: www.example.test
     client-id: <from auth0 application config>
     client-secret: <from auth0 application config>
-    audience: <from auth0 api config> or blank
+    audience: <from auth0 api config>
     scope: "profile openid email"
     redirect-uri: http://www.example.test/oauth2/signin
     token-cookie-domain: example.test
@@ -65,7 +65,7 @@ apps:
   - name: www.example.test
     client-id: <from auth0 application config>
     client-secret: <from auth0 application config>
-    audience: <from auth0 api config> or blank
+    audience: <from auth0 api config>
     scope: "profile openid email"
     redirect-uri: http://www.example.test/oauth2/signin
     token-cookie-domain: example.test
@@ -73,7 +73,7 @@ apps:
   - name: traefik.example.test
     client-id: <from auth0 application config>
     client-secret: <from auth0 application config>
-    audience: <from auth0 api config> or blank
+    audience: <from auth0 api config>
     scope: "profile openid email"
     redirect-uri: http://traefik.example.test/oauth2/signin
     token-cookie-domain: traefik.example.test
