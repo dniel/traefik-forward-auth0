@@ -44,6 +44,10 @@ pipeline {
                         sh "docker build -t ${dockerImage} ."
                         sh "docker tag ${dockerImage} ${dockerImage}:${appVersion}"
                         sh "docker push ${dockerImage}"
+
+                        sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
+                        sh "docker tag ${dockerImage} ${dockerImage}:${env.BRANCH_NAME}"
+
                     }
                 }
             }
