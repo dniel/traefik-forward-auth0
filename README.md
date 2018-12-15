@@ -26,7 +26,7 @@ Check out the `example` directory for example of an application.yaml and a traef
 
 ### Auth0 configuration
 Add Applications to your Auth0 domain. 
-The ForwardAuth-backend need to verify that the Acces Token is a valid and authentic 
+The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
 JWT from Auth0 and it check that the audience is the expected from the loaded config.
 
 Quoted from [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/verify-access-token)
