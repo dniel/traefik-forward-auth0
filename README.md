@@ -44,7 +44,7 @@ When a request is received by the ForwardAuth-backend and it need to authenicate
 to match a application name to the loaded list of apps in the config. If an application is matched the backend uses the
 client-id, client-secret, scope and audience for that application to request a access token exchange code from Auth0.
 
-If no application in the apps list is matched, the default application is used instead.
+If no application in the apps-list is matched, the default application is used instead.
 
 ```yaml
 domain: https://xxxxx.xx.auth0.com/
