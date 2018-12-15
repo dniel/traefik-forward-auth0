@@ -25,7 +25,23 @@ For example in a /config application directory.
 
 Check out the `example` directory for example of an application.yaml and a traefik.toml config for this application.
 
-### Example config
+### Auth0 configuration
+Add Applications to your Auth0 domain. 
+The ForwardAuth-backend need to verify that the Acces Token is a valid and authentic 
+JWT from Auth0 and it check that the audience field of the is the expected loaded
+from the ForwardAuth-backend configuration. 
+
+Quoted from [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/verify-access-token)
+>If the Access Token you got from Auth0 is not a JWT but an opaque string 
+>(like kPoPMRYrCEoYO6s5), this means that the access token was not issued 
+>for your custom API as the audience. When requesting a token for your API, 
+>make sure to use the audience parameter in the authorization or token request
+>with the API identifier as the value of the parameter.
+
+To make sure you always get a valid JWT Access Token, you could add a default
+audience in Auth0 Account Settings. 
+
+### ForwardAuth-backend example configuration
 ```yaml
 domain: https://xxxxx.xx.auth0.com/
 token-endpoint: https://xxx.xx.auth0.com/oauth/token
