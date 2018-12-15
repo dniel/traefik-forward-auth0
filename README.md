@@ -27,8 +27,7 @@ Check out the `example` directory for example of an application.yaml and a traef
 ### Auth0 configuration
 Add Applications to your Auth0 domain. 
 The ForwardAuth-backend need to verify that the Acces Token is a valid and authentic 
-JWT from Auth0 and it check that the audience field of the is the expected loaded
-from the ForwardAuth-backend configuration. 
+JWT from Auth0 and it check that the audience is the expected from the loaded config.
 
 Quoted from [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/verify-access-token)
 >If the Access Token you got from Auth0 is not a JWT but an opaque string 
@@ -41,6 +40,12 @@ To make sure you always get a valid JWT Access Token, you could create an defaul
 add the audience in Auth0 Account Settings.
 
 ### ForwardAuth-backend example configuration
+When a request is received by the ForwardAuth-backend and it need to authenicate the use, it uses the x-forwarded-host 
+to match a application name to the loaded list of apps in the config. If an application is matched the backend uses the
+client-id, client-secret, scope and audience for that application to request a access token exchange code from Auth0.
+
+If no application in the apps list is matched, the default application is used instead.
+
 ```yaml
 domain: https://xxxxx.xx.auth0.com/
 token-endpoint: https://xxx.xx.auth0.com/oauth/token
