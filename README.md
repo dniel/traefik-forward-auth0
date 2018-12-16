@@ -48,6 +48,7 @@ to match a application name to the loaded list of apps in the config. If an appl
 client-id, client-secret, scope and audience for that application to request a access token exchange code from Auth0.
 
 If no application in the apps-list is matched, the default application is used instead.
+If you leave out a property for an application iin the apps-list in the config, the value in default will be used instead.
 
 ```yaml
 domain: https://xxxxx.xx.auth0.com/
@@ -99,7 +100,8 @@ Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm di
 - Java8
 - Tomcat
 - Kotlin
-- JAX-RS
+- JAX-RS/Jersey
+- SpringBoot2
 - Kubernetes
 - Helm
 - Docker
