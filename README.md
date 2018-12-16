@@ -113,5 +113,3 @@ Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm di
 - create integration tests
 - signout endpoint 
 - user profile endpoint
-- error handling, the current code is not handling much of Auth0 errormessages and does not format errors to the users.
-- fix the helm chart so that it will create a valid config without need to generate yaml and manually edit the result to deploy it.
