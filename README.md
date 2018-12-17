@@ -22,7 +22,7 @@ I'm working on making stuff much more stable like a Beta release, something that
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
-Check out the `example` directory for example of an application.yaml and a traefik.toml config for this application.
+Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
 
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
