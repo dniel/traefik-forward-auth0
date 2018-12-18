@@ -22,7 +22,7 @@ I'm working on making stuff much more stable like a Beta release, something that
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
-Check out the `example` directory for example of an application.yaml and a traefik.toml config for this application.
+Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
 
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
@@ -113,5 +113,3 @@ Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm di
 - create integration tests
 - signout endpoint 
 - user profile endpoint
-- error handling, the current code is not handling much of Auth0 errormessages and does not format errors to the users.
-- fix the helm chart so that it will create a valid config without need to generate yaml and manually edit the result to deploy it.
