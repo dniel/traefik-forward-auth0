@@ -2,7 +2,7 @@ package dniel.forwardauth.infrastructure.endpoints
 
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.State
-import dniel.forwardauth.domain.Token
+import dniel.forwardauth.domain.service.VerifyTokenService
 import dniel.forwardauth.infrastructure.auth0.Auth0Service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -16,7 +16,7 @@ import javax.ws.rs.core.*
  */
 @Path("signin")
 @Component
-class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service) {
+class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyToken: VerifyTokenService) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val DOMAIN = properties.domain
 
@@ -49,7 +49,7 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val access_token = response.get("access_token") as String
         val id_token = response.get("id_token") as String
 
-        val decodedAccessToken = Token.verify(access_token, audience, DOMAIN)
+        val decodedAccessToken = verifyToken.verify(access_token, audience, DOMAIN)
         val accessTokenCookie = NewCookie("ACCESS_TOKEN", access_token, "/", tokenCookieDomain, null, -1, false)
         val expiresAt = NewCookie("EXPIRES_AT", "" + decodedAccessToken.value.expiresAt.time, "/", tokenCookieDomain, null, -1, false)
         val jwtCookie = NewCookie("JWT_TOKEN", id_token, "/", tokenCookieDomain, null, -1, false)

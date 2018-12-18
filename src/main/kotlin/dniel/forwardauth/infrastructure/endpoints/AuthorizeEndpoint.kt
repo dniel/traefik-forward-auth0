@@ -1,8 +1,11 @@
 package dniel.forwardauth.infrastructure.endpoints
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.domain.*
-import dniel.forwardauth.infrastructure.auth0.Auth0Service
+import dniel.forwardauth.domain.AuthorizeUrl
+import dniel.forwardauth.domain.OriginUrl
+import dniel.forwardauth.domain.State
+import dniel.forwardauth.domain.service.NonceService
+import dniel.forwardauth.domain.service.VerifyTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import javax.ws.rs.*
@@ -10,7 +13,10 @@ import javax.ws.rs.core.*
 
 @Path("authorize")
 @Component
-class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service) {
+class AuthorizeEndpoint(val properties: AuthProperties,
+                        val verifyTokenService: VerifyTokenService,
+                        val nonceService: NonceService
+) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     val AUTHORIZE_URL = properties.authorizeUrl
@@ -62,7 +68,7 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
         val tokenCookieDomain = app.tokenCookieDomain
 
         val originUrl = OriginUrl(forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
-        val nonce = Nonce.create()
+        val nonce = nonceService.create()
         val state = State.create(originUrl, nonce)
         val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, audience, scopes.split(" ").toTypedArray(), clientId, redirectUrl, state)
         val nonceCookie = NewCookie("AUTH_NONCE", nonce.toString(), "/", tokenCookieDomain, null, -1, false);
@@ -87,14 +93,14 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
         }
 
         try {
-            val decodedAccessToken = Token.verify(accessToken, audience, DOMAIN)
+            val decodedAccessToken = verifyTokenService.verify(accessToken, audience, DOMAIN)
             val response = Response
                     .ok()
                     .header("Authenticatation", "Bearer: ${accessToken}")
                     .header("X-Auth-User", decodedAccessToken.value.subject)
 
             if (userinfo != null) {
-                val decodedUserToken = Token.verify(userinfo, clientId, DOMAIN)
+                val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
                 response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
                 response.header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
                 response.header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
@@ -110,20 +116,5 @@ class AuthorizeEndpoint(val properties: AuthProperties, val auth0Client: Auth0Se
     private fun authenticateClientCredentials(clientIdHeader: String, clientSecretHeader: String, audienceHeader: String, forwardedProtoHeader: String, forwardedHostHeader: String, forwardedUriHeader: String): Response {
         LOGGER.debug("Authorized Client Credentials: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [clientId=${clientIdHeader}]")
         TODO("add verification that the client_id and client_secret that are trying to access the specific frontend in traefik actually has permission to access it.")
-
-        val response = auth0Client.clientCredentialsExchange(clientIdHeader, clientSecretHeader, audienceHeader)
-        val accessToken = response.get("access_token") as String
-        try {
-            val decodedAccessToken = Token.verify(accessToken, "$forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader", DOMAIN)
-            val response = Response
-                    .ok()
-                    .header("Authenticatation", "Bearer: ${accessToken}")
-                    .header("X-Auth-User", decodedAccessToken.value.subject)
-
-            LOGGER.info("Authorized Client Credentials, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader, user=${decodedAccessToken.value.subject}")
-            return response.build()
-        } catch (e: Exception) {
-            return Response.status(Response.Status.FORBIDDEN).build();
-        }
     }
 }
