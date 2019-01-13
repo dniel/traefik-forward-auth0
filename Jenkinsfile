@@ -48,8 +48,8 @@ pipeline {
                         sh "docker tag ${dockerImage} ${dockerImage}:${appVersion}"
                         sh "docker push ${dockerImage}:${appVersion}"
 
-                        sh "docker tag ${dockerImage} ${dockerImage}:${env.BRANCH_NAME}"
-                        sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
+//                        sh "docker tag ${dockerImage} ${dockerImage}:${env.BRANCH_NAME}"
+//                        sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
 
 //                        sh "docker push ${dockerImage}"
                     }
