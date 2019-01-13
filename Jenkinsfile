@@ -51,7 +51,7 @@ pipeline {
                         sh "docker tag ${dockerImage} ${dockerImage}:${env.BRANCH_NAME}"
                         sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
 
-                        sh "docker push ${dockerImage}"
+//                        sh "docker push ${dockerImage}"
                     }
                 }
             }
