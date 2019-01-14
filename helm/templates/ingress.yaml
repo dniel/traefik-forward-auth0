@@ -27,13 +27,10 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ . }}
-      http:
-        paths:
-          - path: {{ $ingressPath }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: http
-  {{- end }}
+  - http:
+      paths:
+        - backend:
+            serviceName: {{ $fullName }}
+            servicePort: http
+          path: /oauth2
 {{- end }}
