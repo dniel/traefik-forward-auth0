@@ -1,4 +1,4 @@
-FROM anapsix/alpine-java:8
+FROM azul/zulu-openjdk-alpine:8
 
 ADD /target/forwardauth.jar forwardauth.jar
 
