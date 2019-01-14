@@ -45,7 +45,11 @@ pipeline {
                         sh "docker login -u ${USERNAME} -p ${PASSWORD}"
                         sh "docker build -t ${dockerImage} ."
                         sh "docker tag ${dockerImage} ${dockerImage}:${appVersion}"
+                        sh "docker tag ${dockerImage} ${dockerImage}:${env.BRANCH_NAME}"
+
                         sh "docker push ${dockerImage}:${appVersion}"
+                        sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
+                        sh "docker push ${dockerImage}:latest"
                     }
                 }
             }
