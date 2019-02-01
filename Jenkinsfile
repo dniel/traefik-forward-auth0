@@ -50,8 +50,10 @@ pipeline {
                         sh "docker push ${dockerImage}:${appVersion}"
                         sh "docker push ${dockerImage}:${env.BRANCH_NAME}"
 
-                        if(env.BRANCH_NAME=="master"){
-                            sh "docker push ${dockerImage}:latest"
+                        script {
+                            if (env.BRANCH_NAME == "master") {
+                                sh "docker push ${dockerImage}:latest"
+                            }
                         }
                     }
                 }
