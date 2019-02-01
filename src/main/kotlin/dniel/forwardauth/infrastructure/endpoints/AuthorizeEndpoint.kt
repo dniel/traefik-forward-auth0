@@ -94,17 +94,15 @@ class AuthorizeEndpoint(val properties: AuthProperties,
 
         try {
             val decodedAccessToken = verifyTokenService.verify(accessToken, audience, DOMAIN)
-            val response = Response
-                    .ok()
-                    .header("Authenticatation", "Bearer: ${accessToken}")
-                    .header("X-Auth-User", decodedAccessToken.value.subject)
+            val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
 
             if (userinfo != null) {
                 val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
                 response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
-                response.header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
-                response.header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
-                response.header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
+                        .header("X-Auth-User", decodedUserToken.value.subject)
+                        .header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
+                        .header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
+                        .header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
             }
             LOGGER.info("Authorized Access Token, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader, user=${decodedAccessToken.value.subject}")
             return response.build()
