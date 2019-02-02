@@ -33,26 +33,20 @@ class AuthorizeEndpoint(val properties: AuthProperties,
     fun authorize(@Context headers: HttpHeaders,
                   @CookieParam("ACCESS_TOKEN") accessTokenCookie: Cookie?,
                   @CookieParam("JWT_TOKEN") userinfoCookie: Cookie?,
-                  @HeaderParam("x-client-id") clientIdHeader: String?,
-                  @HeaderParam("x-client-secret") clientSecretHeader: String?,
-                  @HeaderParam("x-audience") audienceHeader: String?,
                   @HeaderParam("x-forwarded-host") forwardedHostHeader: String,
                   @HeaderParam("x-forwarded-proto") forwardedProtoHeader: String,
                   @HeaderParam("x-forwarded-uri") forwardedUriHeader: String,
+                  @HeaderParam("x-forwarded-method") forwardedMethodHeader: String,
                   @HeaderParam("x-forward-auth-app") forwardAuthAppHeader: String?): Response {
 
         if (LOGGER.isDebugEnabled) {
             headers.requestHeaders.forEach { requestHeader -> LOGGER.debug("Header ${requestHeader.key} = ${requestHeader.value}") }
         }
 
-        if (clientIdHeader != null && clientSecretHeader != null && audienceHeader != null) {
-            return authenticateClientCredentials(clientIdHeader, clientSecretHeader, audienceHeader, forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
-        } else {
-            return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
-        }
+        return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedMethodHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
     }
 
-    private fun authenticateAccessToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardAuthAppHeader: String?, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
+    private fun authenticateAccessToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardAuthAppHeader: String?, forwardedMethodHeader: String, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
         LOGGER.debug("Authorize Access Token: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [accessToken=${accessTokenCookie != null}, jwt=${userinfoCookie != null}]");
         var accessToken = accessTokenCookie?.value
         val userinfo = userinfoCookie?.value
@@ -74,18 +68,20 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, audience, scopes.split(" ").toTypedArray(), clientId, redirectUrl, state)
         val nonceCookie = NewCookie("AUTH_NONCE", nonce.toString(), "/", tokenCookieDomain, null, -1, false);
 
-        LOGGER.debug("REDIRECT_URL = $redirectUrl")
-        LOGGER.debug("AUDIENCE  = $audience")
-        LOGGER.debug("ORIGIN_URL  = $originUrl")
-        LOGGER.debug("AUTH_URL  = $authorizeUrl")
-        LOGGER.debug("NONCE = $nonce")
-        LOGGER.debug("STATE = $state")
-        LOGGER.debug("SCOPES = $scopes")
-        LOGGER.debug("CLIENT_ID = $clientId")
-        LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
-        LOGGER.debug("RESTRICTED_METHODS = $restrictedMethods")
+        if (LOGGER.isDebugEnabled) {
+            LOGGER.debug("REDIRECT_URL = $redirectUrl")
+            LOGGER.debug("AUDIENCE  = $audience")
+            LOGGER.debug("ORIGIN_URL  = $originUrl")
+            LOGGER.debug("AUTH_URL  = $authorizeUrl")
+            LOGGER.debug("NONCE = $nonce")
+            LOGGER.debug("STATE = $state")
+            LOGGER.debug("SCOPES = $scopes")
+            LOGGER.debug("CLIENT_ID = $clientId")
+            LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
+            LOGGER.debug("RESTRICTED_METHODS = $restrictedMethods")
+        }
 
-        if (originUrl.startsWith(redirectUrl)) {
+        if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
             LOGGER.debug("Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return Response.ok().build()
         }
@@ -111,10 +107,5 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         } catch (e: Exception) {
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
-    }
-
-    private fun authenticateClientCredentials(clientIdHeader: String, clientSecretHeader: String, audienceHeader: String, forwardedProtoHeader: String, forwardedHostHeader: String, forwardedUriHeader: String): Response {
-        LOGGER.debug("Authorized Client Credentials: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [clientId=${clientIdHeader}]")
-        TODO("add verification that the client_id and client_secret that are trying to access the specific frontend in traefik actually has permission to access it.")
     }
 }
