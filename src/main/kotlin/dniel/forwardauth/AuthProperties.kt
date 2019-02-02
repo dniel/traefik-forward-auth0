@@ -33,6 +33,7 @@ class AuthProperties {
         var scope: String = ""
         var redirectUri: String = ""
         var tokenCookieDomain: String = ""
+        var restrictedMethods: Array<String> = arrayOf<String>("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
 
         override fun toString(): String {
             return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUrl='$redirectUri', tokenCookieDomain='$tokenCookieDomain')"
@@ -58,6 +59,7 @@ class AuthProperties {
             application.clientId = if (application.clientId.isNotEmpty()) application.clientId else default.clientId
             application.clientSecret = if (application.clientSecret.isNotEmpty()) application.clientSecret else default.clientSecret
             application.tokenCookieDomain = if (application.tokenCookieDomain.isNotEmpty()) application.tokenCookieDomain else default.tokenCookieDomain
+            application.restrictedMethods = if (application.restrictedMethods.isNotEmpty()) application.restrictedMethods else default.restrictedMethods
             return application
         } else return default;
     }

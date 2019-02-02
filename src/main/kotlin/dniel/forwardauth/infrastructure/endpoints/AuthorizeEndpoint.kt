@@ -66,6 +66,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val scopes = app.scope
         val clientId = app.clientId
         val tokenCookieDomain = app.tokenCookieDomain
+        val restrictedMethods = app.restrictedMethods
 
         val originUrl = OriginUrl(forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
         val nonce = nonceService.create()
@@ -82,6 +83,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         LOGGER.debug("SCOPES = $scopes")
         LOGGER.debug("CLIENT_ID = $clientId")
         LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
+        LOGGER.debug("RESTRICTED_METHODS = $restrictedMethods")
 
         if (originUrl.startsWith(redirectUrl)) {
             LOGGER.debug("Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
