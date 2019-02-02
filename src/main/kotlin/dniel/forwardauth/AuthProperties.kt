@@ -30,7 +30,7 @@ class AuthProperties {
         var clientId: String = ""
         var clientSecret: String = ""
         var audience: String = ""
-        var scope: String = ""
+        var scope: String = "profile openid email"
         var redirectUri: String = ""
         var tokenCookieDomain: String = ""
         var restrictedMethods: Array<String> = arrayOf<String>("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
