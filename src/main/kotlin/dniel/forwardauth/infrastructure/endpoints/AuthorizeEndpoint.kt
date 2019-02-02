@@ -78,7 +78,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             LOGGER.debug("SCOPES = $scopes")
             LOGGER.debug("CLIENT_ID = $clientId")
             LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
-            LOGGER.debug("RESTRICTED_METHODS = $restrictedMethods")
+            LOGGER.debug("RESTRICTED_METHODS = ${restrictedMethods.joinToString()}")
         }
 
         if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
