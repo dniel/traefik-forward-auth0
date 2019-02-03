@@ -39,16 +39,12 @@ class AuthorizeEndpoint(val properties: AuthProperties,
                   @HeaderParam("x-forwarded-method") forwardedMethodHeader: String,
                   @HeaderParam("x-forward-auth-app") forwardAuthAppHeader: String?): Response {
 
-        if (LOGGER.isDebugEnabled) {
-            for (requestHeader in headers.requestHeaders) {
-                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
-            }
-        }
-        return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedMethodHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
+        printHeaders(headers)
+        return authenticateToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedMethodHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
     }
 
-    private fun authenticateAccessToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardAuthAppHeader: String?, forwardedMethodHeader: String, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
-        LOGGER.debug("Authorize Access Token: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [accessToken=${accessTokenCookie != null}, jwt=${userinfoCookie != null}]");
+    private fun authenticateToken(accessTokenCookie: Cookie?, userinfoCookie: Cookie?, forwardAuthAppHeader: String?, forwardedMethodHeader: String, forwardedHostHeader: String, forwardedProtoHeader: String, forwardedUriHeader: String): Response {
+        LOGGER.debug("AuthenticateToken: $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader [accessToken=${accessTokenCookie != null}, jwt=${userinfoCookie != null}]");
         var accessToken = accessTokenCookie?.value
         val userinfo = userinfoCookie?.value
 
@@ -70,7 +66,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, audience, scopes.split(" ").toTypedArray(), clientId, redirectUrl, state)
         val nonceCookie = NewCookie("AUTH_NONCE", nonce.toString(), "/", tokenCookieDomain, null, -1, false);
 
-        if (LOGGER.isDebugEnabled) {
+        if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("REDIRECT_URL = $redirectUrl")
             LOGGER.trace("AUDIENCE  = $audience")
             LOGGER.trace("ORIGIN_URL  = $originUrl")
@@ -85,11 +81,11 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         }
 
         if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
-            LOGGER.info("Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
+            LOGGER.info("AuthenticateToken NonRestrictedUrl, Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return Response.ok().build()
         }
-        if (accessToken == null) {
-            LOGGER.info("Access denied to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
+        if (accessToken == null || userinfo == null) {
+            LOGGER.info("AuthenticateToken MissingToken, Access denied to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
 
@@ -97,20 +93,27 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             verifyTokenService.verify(accessToken, audience, DOMAIN)
         }
 
+        val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
         try {
-            val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
-            if (userinfo != null) {
-                val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
-                response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
-                        .header("X-Auth-User", decodedUserToken.value.subject)
-                        .header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
-                        .header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
-                        .header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
-            }
-            LOGGER.info("Authorized Access Token, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
-            return response.build()
+            val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
+            response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
+                    .header("X-Auth-User", decodedUserToken.value.subject)
+                    .header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
+                    .header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
+                    .header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
+            LOGGER.info("AuthenticateToken ValidToken, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
         } catch (e: Exception) {
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
+        return response.build()
     }
+
+    private fun printHeaders(headers: HttpHeaders) {
+        if (LOGGER.isTraceEnabled) {
+            for (requestHeader in headers.requestHeaders) {
+                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
+            }
+        }
+    }
+
 }

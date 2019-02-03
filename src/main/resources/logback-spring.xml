@@ -13,17 +13,17 @@
 
 
     <springProfile name="DEV">
-        <logger name="dniel" level="DEBUG" additivity="false">
+        <logger name="dniel" level="TRACE" additivity="false">
             <appender-ref ref="STDOUT"/>
         </logger>
     </springProfile>
     <springProfile name="TEST">
-        <logger name="dniel" level="INFO" additivity="false">
+        <logger name="dniel" level="DEBUG" additivity="false">
             <appender-ref ref="STDOUT"/>
         </logger>
     </springProfile>
     <springProfile name="PRODUCTION">
-        <logger name="dniel" level="WARN" additivity="false">
+        <logger name="dniel" level="INFO" additivity="false">
             <appender-ref ref="STDOUT"/>
         </logger>
     </springProfile>

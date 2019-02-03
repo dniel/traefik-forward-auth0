@@ -31,20 +31,19 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
                @QueryParam("state") state: String,
                @HeaderParam("x-forwarded-host") forwardedHost: String,
                @CookieParam("AUTH_NONCE") nonceCookie: Cookie): Response {
-        LOGGER.info("Signin with code=$code")
-        if (LOGGER.isDebugEnabled) {
-            for (requestHeader in headers.requestHeaders) {
-                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
-            }
-        }
+        LOGGER.debug("SignIn with code=$code")
+        printHeaders(headers)
 
         val app = properties.findApplicationOrDefault(forwardedHost)
         val audience = app.audience
         val tokenCookieDomain = app.tokenCookieDomain
 
+        // TODO move into NonceService and add proper errorhandling if nnonce check fails.
         val decodedState = State.decode(state)
-        if (decodedState.nonce.value != nonceCookie.value) {
-            LOGGER.error("Failed nonce check")
+        val receivedNonce = decodedState.nonce.value
+        val sentNonce = nonceCookie.value
+        if (receivedNonce != sentNonce) {
+            LOGGER.error("SignIn FailedNonce received=$receivedNonce sent=$sentNonce")
         }
 
         val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
@@ -58,12 +57,20 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false)
         val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false)
 
-        LOGGER.info("Redirect to originUrl originUrl=${decodedState.originUrl}")
+        LOGGER.info("SignIn Successful, redirect to originUrl originUrl=${decodedState.originUrl}")
         return Response
                 .temporaryRedirect(decodedState.originUrl.uri())
                 .cookie(jwtCookie)
                 .cookie(accessTokenCookie)
                 .cookie(nonceCookie)
                 .build()
+    }
+
+    private fun printHeaders(headers: HttpHeaders) {
+        if (LOGGER.isTraceEnabled) {
+            for (requestHeader in headers.requestHeaders) {
+                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
+            }
+        }
     }
 }
