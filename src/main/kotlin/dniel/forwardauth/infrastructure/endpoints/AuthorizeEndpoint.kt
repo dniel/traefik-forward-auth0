@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.endpoints
 
+import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.AuthorizeUrl
 import dniel.forwardauth.domain.OriginUrl
@@ -59,6 +60,8 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val tokenCookieDomain = app.tokenCookieDomain
         val restrictedMethods = app.restrictedMethods
         val verifyAccessToken = app.verifyAccessToken
+        val idTokenClaims = app.idTokenClaims
+        val accessTokenClaims = app.accessTokenClaims
 
         val originUrl = OriginUrl(forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
         val nonce = nonceService.create()
@@ -78,6 +81,8 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             LOGGER.trace("COOKIE DOMAIN = $tokenCookieDomain")
             LOGGER.trace("RESTRICTED_METHODS = ${restrictedMethods.joinToString()}")
             LOGGER.trace("VERIFY_ACCESS_TOKEN = $verifyAccessToken")
+            LOGGER.trace("ID_TOKEN_CLAIMS = ${idTokenClaims.joinToString()}")
+            LOGGER.trace("ACCESS_TOKEN_CLAIMS = ${accessTokenClaims.joinToString()}")
         }
 
         if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
@@ -89,23 +94,62 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
 
-        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
-            verifyTokenService.verify(accessToken, audience, DOMAIN)
-        }
-
+        // TODO clean up duplicated code below.
         val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
+        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
+            val token = verifyTokenService.verify(accessToken, audience, DOMAIN)
+            accessTokenClaims.forEach {
+                val claimValue = getClaimValue(token.value.getClaim(it))
+                if (claimValue != null) {
+                    val headerName = "X-ForwardAuth-${it.toUpperCase()}"
+                    if(LOGGER.isTraceEnabled()){
+                        LOGGER.trace("AuthenticateToken AddClaimToHeader header=$headerName claim=$it value=$claimValue")
+                    }
+                    response.header(headerName, claimValue)
+                }else{
+                    LOGGER.warn("AuthenticateToken ClaimIgnored claim=$it")
+                }
+            }
+        }
         try {
             val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
-            response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
-                    .header("X-Auth-User", decodedUserToken.value.subject)
-                    .header("X-Auth-Nick", decodedUserToken.value.getClaim("nickname").asString())
-                    .header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
-                    .header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
+            idTokenClaims.forEach {
+                val claimValue = getClaimValue(decodedUserToken.value.getClaim(it))
+                if (claimValue != null) {
+                    val headerName = "X-ForwardAuth-${it.toUpperCase()}"
+                    if(LOGGER.isTraceEnabled()){
+                        LOGGER.trace("AuthenticateToken AddClaimToHeader header=$headerName claim=$it value=$claimValue")
+                    }
+
+                    response.header(headerName, claimValue)
+                }else{
+                    LOGGER.warn("AuthenticateToken ClaimIgnored claim=$it")
+                }
+            }
             LOGGER.info("AuthenticateToken ValidToken, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
         } catch (e: Exception) {
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
         return response.build()
+    }
+
+    private fun getClaimValue(claim: Claim): String? {
+        val claimValue = when {
+            claim.asArray(String::class.java) != null -> {
+                claim.asArray(String::class.java).joinToString()
+            }
+            claim.asBoolean() != null -> {
+                claim.asBoolean().toString()
+            }
+            claim.asString() != null -> {
+                claim.asString().toString()
+            }
+            claim.asLong() != null -> {
+                claim.asLong().toString()
+            }
+            else -> null
+        }
+        return claimValue
     }
 
     private fun printHeaders(headers: HttpHeaders) {
