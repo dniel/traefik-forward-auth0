@@ -32,8 +32,10 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
                @HeaderParam("x-forwarded-host") forwardedHost: String,
                @CookieParam("AUTH_NONCE") nonceCookie: Cookie): Response {
         LOGGER.info("Signin with code=$code")
-        for (requestHeader in headers.requestHeaders) {
-            LOGGER.info("Header ${requestHeader.key} = ${requestHeader.value}")
+        if (LOGGER.isDebugEnabled) {
+            for (requestHeader in headers.requestHeaders) {
+                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
+            }
         }
 
         val app = properties.findApplicationOrDefault(forwardedHost)

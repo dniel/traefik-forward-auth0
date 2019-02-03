@@ -40,9 +40,10 @@ class AuthorizeEndpoint(val properties: AuthProperties,
                   @HeaderParam("x-forward-auth-app") forwardAuthAppHeader: String?): Response {
 
         if (LOGGER.isDebugEnabled) {
-            headers.requestHeaders.forEach { requestHeader -> LOGGER.debug("Header ${requestHeader.key} = ${requestHeader.value}") }
+            for (requestHeader in headers.requestHeaders) {
+                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
+            }
         }
-
         return authenticateAccessToken(accessTokenCookie, userinfoCookie, forwardAuthAppHeader, forwardedMethodHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader)
     }
 
@@ -70,25 +71,25 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val nonceCookie = NewCookie("AUTH_NONCE", nonce.toString(), "/", tokenCookieDomain, null, -1, false);
 
         if (LOGGER.isDebugEnabled) {
-            LOGGER.debug("REDIRECT_URL = $redirectUrl")
-            LOGGER.debug("AUDIENCE  = $audience")
-            LOGGER.debug("ORIGIN_URL  = $originUrl")
-            LOGGER.debug("AUTH_URL  = $authorizeUrl")
-            LOGGER.debug("NONCE = $nonce")
-            LOGGER.debug("STATE = $state")
-            LOGGER.debug("SCOPES = $scopes")
-            LOGGER.debug("CLIENT_ID = $clientId")
-            LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
-            LOGGER.debug("RESTRICTED_METHODS = ${restrictedMethods.joinToString()}")
-            LOGGER.debug("VERIFY_ACCESS_TOKEN = $verifyAccessToken")
+            LOGGER.trace("REDIRECT_URL = $redirectUrl")
+            LOGGER.trace("AUDIENCE  = $audience")
+            LOGGER.trace("ORIGIN_URL  = $originUrl")
+            LOGGER.trace("AUTH_URL  = $authorizeUrl")
+            LOGGER.trace("NONCE = $nonce")
+            LOGGER.trace("STATE = $state")
+            LOGGER.trace("SCOPES = $scopes")
+            LOGGER.trace("CLIENT_ID = $clientId")
+            LOGGER.trace("COOKIE DOMAIN = $tokenCookieDomain")
+            LOGGER.trace("RESTRICTED_METHODS = ${restrictedMethods.joinToString()}")
+            LOGGER.trace("VERIFY_ACCESS_TOKEN = $verifyAccessToken")
         }
 
         if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
-            LOGGER.debug("Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
+            LOGGER.info("Access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return Response.ok().build()
         }
         if (accessToken == null) {
-            LOGGER.debug("Access denied to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
+            LOGGER.info("Access denied to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
 
