@@ -16,7 +16,7 @@ import javax.ws.rs.core.*
  */
 @Path("signin")
 @Component
-class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyToken: VerifyTokenService) {
+class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyTokenService: VerifyTokenService) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val DOMAIN = properties.domain
 
@@ -31,37 +31,46 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
                @QueryParam("state") state: String,
                @HeaderParam("x-forwarded-host") forwardedHost: String,
                @CookieParam("AUTH_NONCE") nonceCookie: Cookie): Response {
-        LOGGER.info("Signin with code=$code")
-        for (requestHeader in headers.requestHeaders) {
-            LOGGER.info("Header ${requestHeader.key} = ${requestHeader.value}")
-        }
+        LOGGER.debug("SignIn with code=$code")
+        printHeaders(headers)
 
         val app = properties.findApplicationOrDefault(forwardedHost)
         val audience = app.audience
         val tokenCookieDomain = app.tokenCookieDomain
 
+        // TODO move into NonceService and add proper errorhandling if nnonce check fails.
         val decodedState = State.decode(state)
-        if (decodedState.nonce.value != nonceCookie.value) {
-            LOGGER.error("Failed nonce check")
+        val receivedNonce = decodedState.nonce.value
+        val sentNonce = nonceCookie.value
+        if (receivedNonce != sentNonce) {
+            LOGGER.error("SignIn FailedNonce received=$receivedNonce sent=$sentNonce")
         }
 
         val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
-        val access_token = response.get("access_token") as String
-        val id_token = response.get("id_token") as String
+        val accessToken = response.get("access_token") as String
+        val idToken = response.get("id_token") as String
 
-        val decodedAccessToken = verifyToken.verify(access_token, audience, DOMAIN)
-        val accessTokenCookie = NewCookie("ACCESS_TOKEN", access_token, "/", tokenCookieDomain, null, -1, false)
-        val expiresAt = NewCookie("EXPIRES_AT", "" + decodedAccessToken.value.expiresAt.time, "/", tokenCookieDomain, null, -1, false)
-        val jwtCookie = NewCookie("JWT_TOKEN", id_token, "/", tokenCookieDomain, null, -1, false)
+        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
+            verifyTokenService.verify(accessToken, audience, DOMAIN)
+        }
+        val accessTokenCookie = NewCookie("ACCESS_TOKEN", accessToken, "/", tokenCookieDomain, null, -1, false)
+        val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false)
         val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false)
 
-        LOGGER.info("Redirect to originUrl originUrl=${decodedState.originUrl}")
+        LOGGER.info("SignIn Successful, redirect to originUrl originUrl=${decodedState.originUrl}")
         return Response
                 .temporaryRedirect(decodedState.originUrl.uri())
                 .cookie(jwtCookie)
-                .cookie(expiresAt)
                 .cookie(accessTokenCookie)
                 .cookie(nonceCookie)
                 .build()
+    }
+
+    private fun printHeaders(headers: HttpHeaders) {
+        if (LOGGER.isTraceEnabled) {
+            for (requestHeader in headers.requestHeaders) {
+                LOGGER.trace("Header ${requestHeader.key} = ${requestHeader.value}")
+            }
+        }
     }
 }

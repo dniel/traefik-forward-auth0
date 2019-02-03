@@ -40,8 +40,9 @@ class JwtDecoder {
 
             return decodedJwt
         } catch (e: Exception) {
-            LOGGER.error("Failed to verify token", e);
-            throw WebApplicationException("Failed to verify token", Response.Status.BAD_REQUEST)
+            val message = e.message
+            LOGGER.error("Failed to verify token, ${message}", e);
+            throw WebApplicationException("Failed to verify token, ${message}", Response.Status.BAD_REQUEST)
         }
     }
 

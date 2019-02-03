@@ -18,9 +18,10 @@ class VerifyTokenService(val decoder: JwtDecoder) {
 
     fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): DecodedJWT {
         if (decodedJWT.audience.contains(expectedAudience)) {
-            LOGGER.debug("verifyAudience Token has valid audience: expected=$expectedAudience");
+            LOGGER.debug("VerifyAudience Token has valid audience: expected=$expectedAudience");
         } else {
-            LOGGER.error("verifyAudience Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}");
+            LOGGER.error("VverifyAudience Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}");
+            // TODO: this should be moved out from service, should not throw a appliction exception from inside an application service.
             throw WebApplicationException("Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}", Response.Status.BAD_REQUEST)
         }
 
