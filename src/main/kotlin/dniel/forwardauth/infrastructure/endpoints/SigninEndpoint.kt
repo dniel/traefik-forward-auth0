@@ -16,7 +16,7 @@ import javax.ws.rs.core.*
  */
 @Path("signin")
 @Component
-class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyToken: VerifyTokenService) {
+class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyTokenService: VerifyTokenService) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val DOMAIN = properties.domain
 
@@ -46,20 +46,20 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         }
 
         val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
-        val access_token = response.get("access_token") as String
-        val id_token = response.get("id_token") as String
+        val accessToken = response.get("access_token") as String
+        val idToken = response.get("id_token") as String
 
-        val decodedAccessToken = verifyToken.verify(access_token, audience, DOMAIN)
-        val accessTokenCookie = NewCookie("ACCESS_TOKEN", access_token, "/", tokenCookieDomain, null, -1, false)
-        val expiresAt = NewCookie("EXPIRES_AT", "" + decodedAccessToken.value.expiresAt.time, "/", tokenCookieDomain, null, -1, false)
-        val jwtCookie = NewCookie("JWT_TOKEN", id_token, "/", tokenCookieDomain, null, -1, false)
+        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
+            verifyTokenService.verify(accessToken, audience, DOMAIN)
+        }
+        val accessTokenCookie = NewCookie("ACCESS_TOKEN", accessToken, "/", tokenCookieDomain, null, -1, false)
+        val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false)
         val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false)
 
         LOGGER.info("Redirect to originUrl originUrl=${decodedState.originUrl}")
         return Response
                 .temporaryRedirect(decodedState.originUrl.uri())
                 .cookie(jwtCookie)
-                .cookie(expiresAt)
                 .cookie(accessTokenCookie)
                 .cookie(nonceCookie)
                 .build()

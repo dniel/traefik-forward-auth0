@@ -61,6 +61,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
         val clientId = app.clientId
         val tokenCookieDomain = app.tokenCookieDomain
         val restrictedMethods = app.restrictedMethods
+        val verifyAccessToken = app.verifyAccessToken
 
         val originUrl = OriginUrl(forwardedProtoHeader, forwardedHostHeader, forwardedUriHeader)
         val nonce = nonceService.create()
@@ -79,6 +80,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             LOGGER.debug("CLIENT_ID = $clientId")
             LOGGER.debug("COOKIE DOMAIN = $tokenCookieDomain")
             LOGGER.debug("RESTRICTED_METHODS = ${restrictedMethods.joinToString()}")
+            LOGGER.debug("VERIFY_ACCESS_TOKEN = $verifyAccessToken")
         }
 
         if (originUrl.startsWith(redirectUrl) || !restrictedMethods.contains(forwardedMethodHeader)) {
@@ -90,10 +92,12 @@ class AuthorizeEndpoint(val properties: AuthProperties,
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()
         }
 
-        try {
-            val decodedAccessToken = verifyTokenService.verify(accessToken, audience, DOMAIN)
-            val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
+        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
+            verifyTokenService.verify(accessToken, audience, DOMAIN)
+        }
 
+        try {
+            val response = Response.ok().header("Authenticatation", "Bearer: ${accessToken}")
             if (userinfo != null) {
                 val decodedUserToken = verifyTokenService.verify(userinfo, clientId, DOMAIN)
                 response.header("X-Auth-Name", decodedUserToken.value.getClaim("name").asString())
@@ -102,7 +106,7 @@ class AuthorizeEndpoint(val properties: AuthProperties,
                         .header("X-Auth-Email", decodedUserToken.value.getClaim("email").asString())
                         .header("X-Auth-Picture", decodedUserToken.value.getClaim("picture").asString())
             }
-            LOGGER.info("Authorized Access Token, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader, user=${decodedAccessToken.value.subject}")
+            LOGGER.info("Authorized Access Token, access granted to $forwardedProtoHeader://$forwardedHostHeader$forwardedUriHeader")
             return response.build()
         } catch (e: Exception) {
             return Response.temporaryRedirect(authorizeUrl.toURI()).cookie(nonceCookie).build()

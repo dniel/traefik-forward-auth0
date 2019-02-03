@@ -2,6 +2,7 @@ package dniel.forwardauth
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.validation.annotation.Validated
+import java.util.*
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
@@ -33,11 +34,22 @@ class AuthProperties {
         var scope: String = "profile openid email"
         var redirectUri: String = ""
         var tokenCookieDomain: String = ""
+        var verifyAccessToken: Boolean? = null
         var restrictedMethods: Array<String> = arrayOf<String>("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
 
+
         override fun toString(): String {
-            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUrl='$redirectUri', tokenCookieDomain='$tokenCookieDomain')"
+            return "Application(name='$name', " +
+                    "clientId='$clientId', " +
+                    "clientSecret='$clientSecret', " +
+                    "audience='$audience', " +
+                    "scope='$scope', " +
+                    "redirectUri='$redirectUri', " +
+                    "tokenCookieDomain='$tokenCookieDomain', " +
+                    "verifyAccessToken=$verifyAccessToken, " +
+                    "restrictedMethods=${Arrays.toString(restrictedMethods)})"
         }
+
     }
 
     override fun toString(): String {
@@ -60,6 +72,7 @@ class AuthProperties {
             application.clientSecret = if (application.clientSecret.isNotEmpty()) application.clientSecret else default.clientSecret
             application.tokenCookieDomain = if (application.tokenCookieDomain.isNotEmpty()) application.tokenCookieDomain else default.tokenCookieDomain
             application.restrictedMethods = if (application.restrictedMethods.isNotEmpty()) application.restrictedMethods else default.restrictedMethods
+            application.verifyAccessToken = application.verifyAccessToken ?: default.verifyAccessToken
             return application
         } else return default;
     }
