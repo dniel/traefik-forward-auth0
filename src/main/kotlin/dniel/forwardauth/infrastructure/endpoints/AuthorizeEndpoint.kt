@@ -58,7 +58,8 @@ class AuthorizeEndpoint(val authorizeCommandHandler: AuthorizeCommandHandler) {
             return response.build()
         }
 
-        return Response.status(Response.Status.BAD_REQUEST).build()
+        // had no authenticated user, and didnt need one either, just let the request through.
+        return Response.noContent().build()
     }
 
 
