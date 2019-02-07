@@ -19,6 +19,8 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     private val DOMAIN = properties.domain
 
     /**
+     * this is the parameter object for the handler to pass inn all
+     * needed parameters by the handler.
      */
     public data class AuthorizeCommand(val accessToken: String?,
                                        val idToken: String?,
@@ -30,6 +32,7 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
 
     /**
+     * The result from the Authorization, all return values.
      */
     public data class AuthorizeResult(var app: Application,
                                       var accessToken: Token? = null,
