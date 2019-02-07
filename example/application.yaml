@@ -25,7 +25,6 @@ default:
   scope: "profile openid email"
   redirect-uri: http://www.example.test/oauth2/signin
   token-cookie-domain: example.test
-  verify-access-token: true
   restricted-methods:
   - GET
   - HEAD
@@ -34,10 +33,7 @@ default:
   - PUT
   - PATCH
   - POST
-  access-token-claims:
-  - subject
-  - happy
-  id-token-claims:
+  claims:
   - name
   - email
 

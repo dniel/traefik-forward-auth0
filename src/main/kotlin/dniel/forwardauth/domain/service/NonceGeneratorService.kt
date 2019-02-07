@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class NonceService {
+class NonceGeneratorService {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     private val uuid = UUID.randomUUID()
 
-    fun create(): Nonce {
+    fun generate(): Nonce {
         return Nonce(uuid.toString().replace("-", ""))
     }
 

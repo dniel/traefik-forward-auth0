@@ -13,16 +13,23 @@ class VerifyTokenService(val decoder: JwtDecoder) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     fun verify(token: String, expectedAudience: String, domain: String): Token {
-        return Token(verifyAudience(decoder.verify(token, domain), expectedAudience))
+        val decodedJWT = decodeToken(token, domain)
+        return Token(verifyAudience(decodedJWT, expectedAudience))
+    }
+
+    private fun decodeToken(token: String, domain: String): DecodedJWT {
+        val decodedJWT = decoder.verify(token, domain)
+        LOGGER.debug("DecodeToken ok..");
+        return decodedJWT
     }
 
     fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): DecodedJWT {
-        if (decodedJWT.audience.contains(expectedAudience)) {
-            LOGGER.debug("VerifyAudience Token has valid audience: expected=$expectedAudience");
-        } else {
-            LOGGER.error("VverifyAudience Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}");
+        if (!decodedJWT.audience.contains(expectedAudience)) {
+            LOGGER.error("VerifyAudience Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}");
             // TODO: this should be moved out from service, should not throw a appliction exception from inside an application service.
             throw WebApplicationException("Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}", Response.Status.BAD_REQUEST)
+        }else{
+            LOGGER.debug("VerifyAudience ok..");
         }
 
         return decodedJWT

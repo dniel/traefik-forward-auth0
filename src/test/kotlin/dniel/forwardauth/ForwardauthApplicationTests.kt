@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner
 class ForwardauthApplicationTests {
 
 	/**
-	 * Need to create a working application.yaml before running integration tests
+	 * Need to generate a working application.yaml before running integration tests
 	 */
 	@Test @Ignore
 	fun contextLoads() {

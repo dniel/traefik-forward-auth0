@@ -34,16 +34,12 @@ class AuthProperties {
         var scope: String = "profile openid email"
         var redirectUri: String = ""
         var tokenCookieDomain: String = ""
-        var verifyAccessToken: Boolean? = null
         var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
-        var accessTokenClaims: Array<String> = emptyArray()
-        var idTokenClaims: Array<String> = emptyArray()
+        var claims: Array<String> = emptyArray()
 
         override fun toString(): String {
-            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', verifyAccessToken=$verifyAccessToken, restrictedMethods=${Arrays.toString(restrictedMethods)}, accessTokenClaims=${Arrays.toString(accessTokenClaims)}, idTokenClaims=${Arrays.toString(idTokenClaims)})"
+            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, claims=${Arrays.toString(claims)})"
         }
-
-
     }
 
     override fun toString(): String {
@@ -66,9 +62,7 @@ class AuthProperties {
             application.clientSecret = if (application.clientSecret.isNotEmpty()) application.clientSecret else default.clientSecret
             application.tokenCookieDomain = if (application.tokenCookieDomain.isNotEmpty()) application.tokenCookieDomain else default.tokenCookieDomain
             application.restrictedMethods = if (application.restrictedMethods.isNotEmpty()) application.restrictedMethods else default.restrictedMethods
-            application.accessTokenClaims = if (application.accessTokenClaims.isNotEmpty()) application.accessTokenClaims else default.accessTokenClaims
-            application.idTokenClaims = if (application.idTokenClaims.isNotEmpty()) application.idTokenClaims else default.idTokenClaims
-            application.verifyAccessToken = application.verifyAccessToken ?: default.verifyAccessToken
+            application.claims = if (application.claims.isNotEmpty()) application.claims else default.claims
             return application
         } else return default;
     }
