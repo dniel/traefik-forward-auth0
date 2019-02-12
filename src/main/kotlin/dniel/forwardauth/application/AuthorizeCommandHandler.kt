@@ -44,20 +44,21 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     fun perform(params: AuthorizeCommand): AuthorizeResult {
         LOGGER.debug("AuthorizeCommandHandler start")
-        val app = properties.findApplicationOrDefault(params.host)
         val commandResult = AuthorizeResult()
-        val originUrl = OriginUrl(params.protocol, params.host, params.uri)
+        commandResult.run{
+            val app = properties.findApplicationOrDefault(params.host)
+            val originUrl = OriginUrl(params.protocol, params.host, params.uri)
 
-        commandResult.cookieDomain = app.tokenCookieDomain
-        commandResult.isAuthenticated = verifyTokens(params, app, commandResult)
-        commandResult.isRestrictedUrl = isRestrictedUrl(originUrl, app)
-        if (commandResult.isRestrictedUrl && !commandResult.isAuthenticated) {
-            LOGGER.debug("Redirect to Auth0 authorize-url for Authorization")
-            val nonce = nonceService.generate()
-            val state = State.create(originUrl, nonce)
-            val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
-            commandResult.redirectUrl = authorizeUrl.toURI()
-            commandResult.nonce = nonce
+            cookieDomain = app.tokenCookieDomain
+            isAuthenticated = verifyTokens(params, app, commandResult)
+            isRestrictedUrl = isRestrictedUrl(originUrl, app)
+            if (isRestrictedUrl && !isAuthenticated) {
+                val generatedNonce = nonceService.generate()
+                val state = State.create(originUrl, generatedNonce)
+                val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
+                redirectUrl = authorizeUrl.toURI()
+                nonce = generatedNonce
+            }
         }
 
         return commandResult
