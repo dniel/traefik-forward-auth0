@@ -19,17 +19,14 @@ class VerifyTokenService(val decoder: JwtDecoder) {
 
     private fun decodeToken(token: String, domain: String): DecodedJWT {
         val decodedJWT = decoder.verify(token, domain)
-        LOGGER.debug("DecodeToken ok..");
         return decodedJWT
     }
 
     fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): DecodedJWT {
         if (!decodedJWT.audience.contains(expectedAudience)) {
+            // TODO should not just return the token if the audience is wrong.
             LOGGER.error("VerifyAudience Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}");
-            // TODO: this should be moved out from service, should not throw a appliction exception from inside an application service.
-            throw WebApplicationException("Failed to verify audience: expected=$expectedAudience, actual=${decodedJWT.audience}", Response.Status.BAD_REQUEST)
-        }else{
-            LOGGER.debug("VerifyAudience ok..");
+            return decodedJWT
         }
 
         return decodedJWT

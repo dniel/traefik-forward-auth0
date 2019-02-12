@@ -34,9 +34,9 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     /**
      * The result from the Authorization, all return values.
      */
-    public data class AuthorizeResult(var app: Application,
-                                      var accessToken: Token? = null,
-                                      var idToken: Token? = null,
+    public data class AuthorizeResult(var cookieDomain: String? = null,
+                                      var isAuthenticated: Boolean = false,
+                                      var isRestrictedUrl: Boolean = true,
                                       var redirectUrl: URI? = null,
                                       var nonce: Nonce? = null,
                                       var userinfo: Map<String, String> = emptyMap()
@@ -45,57 +45,53 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     fun perform(params: AuthorizeCommand): AuthorizeResult {
         LOGGER.debug("AuthorizeCommandHandler start")
         val app = properties.findApplicationOrDefault(params.host)
-        val commandResult = AuthorizeResult(app)
-
+        val commandResult = AuthorizeResult()
         val originUrl = OriginUrl(params.protocol, params.host, params.uri)
-        val nonce = nonceService.generate()
-        val state = State.create(originUrl, nonce)
-        val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
 
-        try {
-            verifyTokens(params, app, commandResult)
-            commandResult.userinfo = getUserinfoFromToken(app, commandResult.idToken!!)
-        } catch (e: Exception) {
-            LOGGER.info("Verification of tokens failed: ${e.message}");
-            commandResult.accessToken = null
-            commandResult.idToken = null
-        }
-        if (isRestrictedMethod(originUrl, app) && missingTokens(commandResult)) {
+        commandResult.cookieDomain = app.tokenCookieDomain
+        commandResult.isAuthenticated = verifyTokens(params, app, commandResult)
+        commandResult.isRestrictedUrl = isRestrictedUrl(originUrl, app)
+        if (commandResult.isRestrictedUrl && !commandResult.isAuthenticated) {
             LOGGER.debug("Redirect to Auth0 authorize-url for Authorization")
+            val nonce = nonceService.generate()
+            val state = State.create(originUrl, nonce)
+            val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
             commandResult.redirectUrl = authorizeUrl.toURI()
-            commandResult.nonce = nonceService.generate()
+            commandResult.nonce = nonce
         }
 
         return commandResult
     }
 
-    private fun verifyTokens(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult) {
-        verifyIdToken(params, app, commandResult)
-        verifyAccessToken(params, app, commandResult)
+    private fun verifyTokens(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
+        return verifyIdToken(params, app, commandResult) && verifyAccessToken(params, app, commandResult)
     }
 
-    private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult) {
+    private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasAccessToken(params)) {
             if (shouldVerifyAccessToken(app)) {
                 LOGGER.debug("Verify JWT Access Token.")
-                commandResult.accessToken = verifyToken(params.accessToken!!, app.audience, DOMAIN)
+                return verifyToken(params.accessToken!!, app.audience, DOMAIN) != null
             } else {
                 LOGGER.debug("Skip Verification of opaque Access Token.")
+                return true
             }
+        } else {
+            return false
         }
     }
 
-    private fun verifyIdToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult) {
+    private fun verifyIdToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasIdToken(params)) {
             LOGGER.debug("Verify JWT IdToken")
-            commandResult.idToken = verifyToken(params.idToken!!, app.clientId, DOMAIN)
+            commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN)!!)
+            return verifyToken(params.idToken!!, app.clientId, DOMAIN) != null
+        } else {
+            return false
         }
     }
 
-    private fun missingTokens(commandResult: AuthorizeResult) =
-            (commandResult.idToken == null || commandResult.accessToken == null)
-
-    private fun verifyToken(token: String, expectedAudience: String, domain: String): Token = verifyTokenService.verify(token, expectedAudience, domain)
+    private fun verifyToken(token: String, expectedAudience: String, domain: String): Token? = verifyTokenService.verify(token, expectedAudience, domain)
 
     private fun hasAccessToken(params: AuthorizeCommand): Boolean = params.accessToken != null
 
@@ -103,7 +99,7 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun shouldVerifyAccessToken(app: Application): Boolean = !app.audience.equals("${DOMAIN}userinfo")
 
-    private fun isRestrictedMethod(originUrl: OriginUrl, app: Application): Boolean {
+    private fun isRestrictedUrl(originUrl: OriginUrl, app: Application): Boolean {
         return !originUrl.startsWith(app.redirectUri) || app.restrictedMethods.contains(originUrl.protocol)
     }
 
@@ -116,24 +112,12 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     }
 
     private fun getClaimValue(claim: Claim): String? {
-        val claimValue = when {
-            claim.asArray(String::class.java) != null -> {
-                claim.asArray(String::class.java).joinToString()
-            }
-            claim.asBoolean() != null -> {
-                claim.asBoolean().toString()
-            }
-            claim.asString() != null -> {
-                claim.asString().toString()
-            }
-            claim.asLong() != null -> {
-                claim.asLong().toString()
-            }
+        return when {
+            claim.asArray(String::class.java) != null -> claim.asArray(String::class.java).joinToString()
+            claim.asBoolean() != null -> claim.asBoolean().toString()
+            claim.asString() != null -> claim.asString().toString()
+            claim.asLong() != null -> claim.asLong().toString()
             else -> null
         }
-        return claimValue
     }
 }
-
-
-

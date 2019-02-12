@@ -39,27 +39,27 @@ class AuthorizeEndpoint(val authorizeCommandHandler: AuthorizeCommandHandler) {
         val command: AuthorizeCommand = AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
         val authorizeResult = authorizeCommandHandler.perform(command)
 
-        // if we have an redirect url, it means that we need to authorize
-        authorizeResult.redirectUrl?.let {
-            LOGGER.debug("Redirect to ${authorizeResult.redirectUrl}")
-            val nonceCookie = NewCookie("AUTH_NONCE", authorizeResult.nonce.toString(), "/", authorizeResult.app.tokenCookieDomain, null, -1, false, true);
-            return Response.temporaryRedirect(authorizeResult.redirectUrl).cookie(nonceCookie).build()
-        }
 
-        // if we have an accesstoken, it means that we have a valid user
-        authorizeResult.accessToken?.let {
-            val response = Response.ok()
-            response.header("Authorization", "Bearer: ${authorizeResult.accessToken}")
-            authorizeResult.userinfo.forEach { k, v ->
-                val headerName = "X-AUTH-${k.toUpperCase()}"
-                response.header(headerName, v)
-                LOGGER.trace("Add header ${headerName} with value ${v}")
+        return when {
+            authorizeResult.isAuthenticated -> {
+                val response = Response.ok()
+                response.header("Authorization", "Bearer: ${accessToken}")
+                authorizeResult.userinfo.forEach { k, v ->
+                    val headerName = "X-FORWARDAUTH-${k.toUpperCase()}"
+                    LOGGER.trace("Add header ${headerName} with value ${v}")
+                    response.header(headerName, v)
+                }
+                response.build()
             }
-            return response.build()
-        }
 
-        // had no authenticated user, and didnt need one either, just let the request through.
-        return Response.noContent().build()
+            authorizeResult.isRestrictedUrl -> {
+                LOGGER.debug("Redirect to ${authorizeResult.redirectUrl}")
+                val nonceCookie = NewCookie("AUTH_NONCE", authorizeResult.nonce.toString(), "/", authorizeResult.cookieDomain, null, -1, false, true);
+                Response.temporaryRedirect(authorizeResult.redirectUrl).cookie(nonceCookie).build()
+            }
+
+            else -> Response.noContent().build()
+        }
     }
 
 
