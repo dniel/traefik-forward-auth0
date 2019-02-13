@@ -63,9 +63,7 @@ apps:
 
 # This application will get an opaque token instead of a valid JWT
 # because of the audience is set to the userinfo endpoint.
-# To be able to use this, we need to set the verify-access-token property to false.
 - name: other.example.test
   client-id: <from auth0 application config>
   client-secret: <from auth0 application config>
   audience: https://xxxxx.xx.auth0.com/userinfo
-  verify-access-token: false
