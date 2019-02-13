@@ -43,25 +43,25 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     )
 
     fun perform(params: AuthorizeCommand): AuthorizeResult {
-        LOGGER.debug("AuthorizeCommandHandler start")
-        val commandResult = AuthorizeResult()
-        commandResult.run{
+        LOGGER.debug("AuthorizeCommand start")
+        return with(AuthorizeResult()) {
             val app = properties.findApplicationOrDefault(params.host)
             val originUrl = OriginUrl(params.protocol, params.host, params.uri)
 
             cookieDomain = app.tokenCookieDomain
-            isAuthenticated = verifyTokens(params, app, commandResult)
+            isAuthenticated = verifyTokens(params, app, this)
             isRestrictedUrl = isRestrictedUrl(originUrl, app)
             if (isRestrictedUrl && !isAuthenticated) {
-                val generatedNonce = nonceService.generate()
-                val state = State.create(originUrl, generatedNonce)
+                val nonce = nonceService.generate()
+                val state = State.create(originUrl, nonce)
                 val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
                 redirectUrl = authorizeUrl.toURI()
-                nonce = generatedNonce
+                this.nonce = nonce
             }
+            this
+        }.also {
+            LOGGER.debug("AuthorizeCommand finished")
         }
-
-        return commandResult
     }
 
     private fun verifyTokens(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
