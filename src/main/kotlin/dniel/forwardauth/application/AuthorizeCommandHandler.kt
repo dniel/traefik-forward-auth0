@@ -65,7 +65,12 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     }
 
     private fun verifyTokens(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
-        return verifyIdToken(params, app, commandResult) && verifyAccessToken(params, app, commandResult)
+        try {
+            return verifyIdToken(params, app, commandResult) && verifyAccessToken(params, app, commandResult)
+        } catch (e: Exception) {
+            LOGGER.warn("VerifyTokensFailed ${e.message}", e)
+            return false
+        }
     }
 
     private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {

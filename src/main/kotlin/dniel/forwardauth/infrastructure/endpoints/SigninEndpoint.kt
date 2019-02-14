@@ -43,7 +43,7 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val receivedNonce = decodedState.nonce.value
         val sentNonce = nonceCookie.value
         if (receivedNonce != sentNonce) {
-            LOGGER.error("SignIn FailedNonce received=$receivedNonce sent=$sentNonce")
+            LOGGER.error("SignInFailedNonce received=$receivedNonce sent=$sentNonce")
         }
 
         val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
@@ -57,7 +57,7 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false, true)
         val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false, true)
 
-        LOGGER.info("SignIn Successful, redirect to originUrl originUrl=${decodedState.originUrl}")
+        LOGGER.info("SignInSuccessful, redirect to originUrl originUrl=${decodedState.originUrl}")
         return Response
                 .temporaryRedirect(decodedState.originUrl.uri())
                 .cookie(jwtCookie)
