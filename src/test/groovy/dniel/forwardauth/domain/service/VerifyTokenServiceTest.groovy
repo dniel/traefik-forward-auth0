@@ -35,7 +35,7 @@ class VerifyTokenServiceTest extends Specification {
     def "should fail if invalid audience in token"() {
         setup: "a JWT token with invalid audience"
         def domain = "exampledomain"
-        def expectedAudience = "123456"
+        def expectedAudience = "invalid audience"
         def tokenString = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1NTA1MDMzOTMsImV4cCI6MTU4MjAzOTM5MywiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiZGFuaWVsQGV4YW1wbGUuY29tIiwiZW1haWwiOiJqcm9ja2V0QGV4YW1wbGUuY29tIn0.a_1TAIGDQBgt7nqLlSa9xsBD-gfl0-uPf2TQ5J1JyA8"
         def exampleToken = JWT.decode(tokenString)
 
