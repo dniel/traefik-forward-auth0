@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain.service
+package dniel.forwardauth.application
 
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.ObjectMother
