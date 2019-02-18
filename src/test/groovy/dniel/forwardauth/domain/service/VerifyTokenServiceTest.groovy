@@ -48,9 +48,9 @@ class VerifyTokenServiceTest extends Specification {
         VerifyTokenService sut = new VerifyTokenService(decoder)
 
         when: "we verify the token"
-        def verifiedToken = sut.verify(tokenString, expectedAudience, domain)
+        sut.verify(tokenString, expectedAudience, domain)
 
         then:
-        def e = thrown(IllegalStateException)
+        thrown(IllegalStateException)
     }
 }
