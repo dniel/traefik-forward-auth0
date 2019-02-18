@@ -24,6 +24,5 @@ class NonceGeneratorServiceTest extends Specification {
 
         expect:
         that(nonce1, is(not(nonce2)))
-
     }
 }

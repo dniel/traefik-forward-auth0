@@ -15,12 +15,16 @@ import java.security.interfaces.RSAPublicKey
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 
+interface JwtDecoder {
+    fun verify(token: String, domain: String): DecodedJWT
+}
+
 @Component
-class JwtDecoder {
+class JwtDecoderImpl : JwtDecoder {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     var provider: JwkProvider? = null
 
-    fun verify(token: String, domain: String): DecodedJWT {
+    override fun verify(token: String, domain: String): DecodedJWT {
         this.provider = GuavaCachedJwkProvider(UrlJwkProvider(domain))
         return verifyJWT(token, domain)
     }
@@ -36,9 +40,8 @@ class JwtDecoder {
             }
             val algorithm = Algorithm.RSA256(keyProvider)
             val verifier = createJwtVerifier(algorithm, domain)
-            val decodedJwt = verifier.verify(token)
-
-            return decodedJwt
+            val verifiedJwt = verifier.verify(token)
+            return verifiedJwt
         } catch (e: Exception) {
             val message = e.message
             LOGGER.error("Failed to verify token, ${message}", e);

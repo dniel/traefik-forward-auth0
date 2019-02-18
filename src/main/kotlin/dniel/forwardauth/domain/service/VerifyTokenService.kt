@@ -19,16 +19,16 @@ class VerifyTokenService(val decoder: JwtDecoder) {
         }
     }
 
-    private fun decodeToken(token: String, domain: String): DecodedJWT {
-        val decodedJWT = decoder.verify(token, domain)
-        return decodedJWT
-    }
-
     fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): DecodedJWT {
         if (!decodedJWT.audience.contains(expectedAudience)) {
             throw IllegalStateException("VerifyAudienceFailed expected=$expectedAudience, actual=${decodedJWT.audience}")
         }
 
+        return decodedJWT
+    }
+
+    private fun decodeToken(token: String, domain: String): DecodedJWT {
+        val decodedJWT = decoder.verify(token, domain)
         return decodedJWT
     }
 }
