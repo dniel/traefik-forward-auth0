@@ -32,7 +32,7 @@ class VerifyTokenServiceTest extends Specification {
         that(verifiedToken, is(notNullValue()))
     }
 
-    def "should fail invalid audience in token"() {
+    def "should fail if invalid audience in token"() {
         setup: "a JWT token with invalid audience"
         def domain = "exampledomain"
         def expectedAudience = "123456"
