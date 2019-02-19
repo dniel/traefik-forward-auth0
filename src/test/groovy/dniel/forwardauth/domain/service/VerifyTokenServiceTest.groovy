@@ -15,8 +15,8 @@ class VerifyTokenServiceTest extends Specification {
         given: "a valid JWT token with example values"
         def domain = ObjectMother.domain
         def exampleAudience = ObjectMother.exampleAudience
-        def exampleToken = ObjectMother.exampleToken
-        def tokenString = ObjectMother.tokenString
+        def exampleToken = ObjectMother.jwtToken
+        def tokenString = ObjectMother.jwtTokenString
 
         and: "a stubbed jwt decoder"
         def decoder = Stub(JwtDecoder) {
@@ -37,8 +37,8 @@ class VerifyTokenServiceTest extends Specification {
         setup: "a JWT token with invalid audience"
         def domain = ObjectMother.domain
         def exampleAudience = "INVALID"
-        def exampleToken = ObjectMother.exampleToken
-        def tokenString = ObjectMother.tokenString
+        def exampleToken = ObjectMother.jwtToken
+        def tokenString = ObjectMother.jwtTokenString
 
         and: "a stubbed jwt decoder"
         def decoder = Stub(JwtDecoder) {

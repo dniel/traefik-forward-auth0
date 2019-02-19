@@ -5,7 +5,7 @@ import java.net.URI
 class OriginUrl(val protocol: String, val host: String, val uri: String) {
 
     override fun toString(): String {
-        return "$protocol://$host$uri"
+        return "$protocol://$host$uri".toLowerCase()
     }
 
     fun startsWith(url: String): Boolean = this.toString().startsWith(url)

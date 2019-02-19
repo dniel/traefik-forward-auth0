@@ -31,6 +31,10 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     )
 
 
+    enum class AuthorizeResultStatus {
+        NEED_AUTHENTICATION, OK, ERROR
+    }
+
     /**
      * The result from the Authorization, all return values.
      */
@@ -47,17 +51,16 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
         return with(AuthorizeResult()) {
             val app = properties.findApplicationOrDefault(params.host)
             val originUrl = OriginUrl(params.protocol, params.host, params.uri)
+            LOGGER.debug("Authorize request=${originUrl} to app=${app.name}")
 
+            val nonce = nonceService.generate()
+            val state = State.create(originUrl, nonce)
+
+            redirectUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
             cookieDomain = app.tokenCookieDomain
             isAuthenticated = verifyTokens(params, app, this)
-            isRestrictedUrl = isRestrictedUrl(originUrl, app)
-            if (isRestrictedUrl && !isAuthenticated) {
-                val nonce = nonceService.generate()
-                val state = State.create(originUrl, nonce)
-                val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state)
-                redirectUrl = authorizeUrl.toURI()
-                this.nonce = nonce
-            }
+            isRestrictedUrl = isRestrictedUrl(params.method, originUrl, app)
+
             this
         }.also {
             LOGGER.debug("AuthorizeCommand finished")
@@ -105,11 +108,10 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun shouldVerifyAccessToken(app: Application): Boolean = !app.audience.equals("${DOMAIN}userinfo")
 
-    private fun isRestrictedUrl(originUrl: OriginUrl, app: Application): Boolean {
-        return !originUrl.startsWith(app.redirectUri) || app.restrictedMethods.contains(originUrl.protocol)
+    private fun isRestrictedUrl(method: String, originUrl: OriginUrl, app: Application): Boolean {
+        return !originUrl.startsWith(app.redirectUri) && app.restrictedMethods.contains(method)
     }
-
-
+    
     private fun getUserinfoFromToken(app: Application, token: Token): Map<String, String> {
         return token.value.claims
                 .filterKeys { app.claims.contains(it) }
