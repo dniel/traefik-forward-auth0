@@ -109,6 +109,7 @@ Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm di
 - Helm
 - Docker
 - Traefik
+- Spockframework/Groovy (unit tests)
 
 # TODO
 - create unit tests
