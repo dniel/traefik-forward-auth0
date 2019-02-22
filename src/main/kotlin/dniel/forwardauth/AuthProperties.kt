@@ -53,7 +53,7 @@ class AuthProperties {
     fun findApplicationOrDefault(name: String?): Application {
         if (name == null) return default;
 
-        val application = apps.find() { it.name == name }
+        val application = apps.find() { it.name.equals(name, ignoreCase = true) }
         if (application !== null) {
             application.redirectUri = if (application.redirectUri.isNotEmpty()) application.redirectUri else default.redirectUri
             application.audience = if (application.audience.isNotEmpty()) application.audience else default.audience

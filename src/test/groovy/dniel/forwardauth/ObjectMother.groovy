@@ -28,6 +28,9 @@ class ObjectMother {
         properties.apps[0].name = "restricted.com"
         properties.apps[0].restrictedMethods = ["POST", "PUT", "DELETE", "PATCH"]
 
+        properties.apps << new AuthProperties.Application()
+        properties.apps[1].name = "opaque.com"
+        properties.apps[1].audience = "https://example.eu.auth0.com/userinfo"
     }
 
 }

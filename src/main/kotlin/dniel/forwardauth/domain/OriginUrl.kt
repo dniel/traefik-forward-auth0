@@ -8,7 +8,7 @@ class OriginUrl(val protocol: String, val host: String, val uri: String) {
         return "$protocol://$host$uri".toLowerCase()
     }
 
-    fun startsWith(url: String): Boolean = this.toString().startsWith(url)
+    fun startsWith(url: String): Boolean = this.toString().startsWith(url, ignoreCase = true)
 
     fun uri(): URI = URI.create(this.toString())
 }

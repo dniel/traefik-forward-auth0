@@ -106,12 +106,12 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun hasIdToken(params: AuthorizeCommand): Boolean = params.idToken != null
 
-    private fun shouldVerifyAccessToken(app: Application): Boolean = !app.audience.equals("${DOMAIN}userinfo")
+    private fun shouldVerifyAccessToken(app: Application): Boolean = !app.audience.equals("${DOMAIN}userinfo", ignoreCase = true)
 
     private fun isRestrictedUrl(method: String, originUrl: OriginUrl, app: Application): Boolean {
-        return !originUrl.startsWith(app.redirectUri) && app.restrictedMethods.contains(method)
+        return !originUrl.startsWith(app.redirectUri) && app.restrictedMethods.any() { t -> t.equals(method, true) }
     }
-    
+
     private fun getUserinfoFromToken(app: Application, token: Token): Map<String, String> {
         return token.value.claims
                 .filterKeys { app.claims.contains(it) }
