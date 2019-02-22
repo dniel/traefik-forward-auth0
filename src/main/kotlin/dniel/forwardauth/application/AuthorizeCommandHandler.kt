@@ -102,9 +102,9 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun verifyToken(token: String, expectedAudience: String, domain: String): Token? = verifyTokenService.verify(token, expectedAudience, domain)
 
-    private fun hasAccessToken(params: AuthorizeCommand): Boolean = params.accessToken != null
+    private fun hasAccessToken(params: AuthorizeCommand): Boolean = !params.accessToken.isNullOrEmpty()
 
-    private fun hasIdToken(params: AuthorizeCommand): Boolean = params.idToken != null
+    private fun hasIdToken(params: AuthorizeCommand): Boolean = !params.idToken.isNullOrEmpty()
 
     private fun shouldVerifyAccessToken(app: Application): Boolean = !app.audience.equals("${DOMAIN}userinfo", ignoreCase = true)
 
