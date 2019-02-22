@@ -9,7 +9,7 @@ import spock.lang.Unroll
 
 import static dniel.forwardauth.ObjectMother.getJwtToken
 import static dniel.forwardauth.ObjectMother.getValidJwtTokenString
-import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
 class AuthorizeCommandHandlerTest extends Specification {
@@ -134,4 +134,73 @@ class AuthorizeCommandHandlerTest extends Specification {
         null                | null                | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
         ""                  | ""                  | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
     }
+
+    @Unroll
+    def "should parse claim #key from idtoken"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+                jwt,
+                jwt,
+                protocol,
+                host,
+                uri,
+                method)
+
+
+        and: "a stub VerifyTokenService that return a valid JWT Token"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(
+                _,
+                _,
+                _) >> new Token(jwtToken)
+
+        and: "a command handler that is the system under test"
+        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+
+        when: "we authorize the request"
+        def result = sut.perform(command)
+
+        then: "we should get a valid response"
+        that(result.userinfo, hasEntry(key, value))
+
+        where:
+        jwt                 | protocol | host               | uri     | method | key     | value
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "sub"   | "daniel@example.com"
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "email" | "jrocket@example.com"
+    }
+
+    def "should ignore unknown claim from idtoken"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+                jwt,
+                jwt,
+                protocol,
+                host,
+                uri,
+                method)
+
+
+        and: "a stub VerifyTokenService that return a valid JWT Token"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(
+                _,
+                _,
+                _) >> new Token(jwtToken)
+
+        and: "a command handler that is the system under test"
+        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+
+        when: "we authorize the request"
+        def result = sut.perform(command)
+
+        then: "we should get a valid response"
+        that(result.userinfo, not(hasKey(key)))
+
+        where:
+        jwt                 | protocol | host               | uri     | method | key
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "a claim that is not in the jwt token"
+    }
+
 }
