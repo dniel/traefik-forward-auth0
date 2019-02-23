@@ -79,7 +79,6 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasAccessToken(params)) {
             if (shouldVerifyAccessToken(app)) {
-                LOGGER.debug("Verify JWT Access Token.")
                 return verifyToken(params.accessToken!!, app.audience, DOMAIN) != null
             } else {
                 LOGGER.debug("Skip Verification of opaque Access Token.")
@@ -92,7 +91,6 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun verifyIdToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasIdToken(params)) {
-            LOGGER.debug("Verify JWT IdToken")
             commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN)!!)
             return verifyToken(params.idToken!!, app.clientId, DOMAIN) != null
         } else {
