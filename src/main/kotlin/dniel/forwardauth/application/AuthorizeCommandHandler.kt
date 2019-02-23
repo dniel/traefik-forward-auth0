@@ -53,8 +53,8 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
             val originUrl = OriginUrl(params.protocol, params.host, params.uri)
             LOGGER.debug("Authorize request=${originUrl} to app=${app.name}")
 
-            val nonce = nonceService.generate()
-            val state = State.create(originUrl, nonce)
+            nonce = nonceService.generate()
+            val state = State.create(originUrl, nonce!!)
 
             redirectUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
             cookieDomain = app.tokenCookieDomain

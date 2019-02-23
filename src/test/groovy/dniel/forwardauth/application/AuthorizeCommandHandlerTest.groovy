@@ -203,4 +203,63 @@ class AuthorizeCommandHandlerTest extends Specification {
         validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "a claim that is not in the jwt token"
     }
 
+    @Unroll
+    def "should have authorization url for redirect url as configured in properties"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+                validJwtTokenString,
+                validJwtTokenString,
+                "https",
+                "www.example.test",
+                "/test",
+                "GET")
+
+
+        and: "a stub VerifyTokenService that return a valid JWT Token"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(
+                _,
+                _,
+                _) >> new Token(jwtToken)
+
+        and: "a command handler that is the system under test"
+        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+
+        when: "we authorize the request"
+        def result = sut.perform(command)
+
+        then: "we should get a valid response"
+        that(result.redirectUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
+    }
+
+    @Unroll
+    def "should have nonce set in result"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+                validJwtTokenString,
+                validJwtTokenString,
+                "https",
+                "www.example.test",
+                "/test",
+                "get")
+
+
+        and: "a stub VerifyTokenService that return a valid JWT Token"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(
+                _,
+                _,
+                _) >> new Token(jwtToken)
+
+        and: "a command handler that is the system under test"
+        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+
+        when: "we authorize the request"
+        def result = sut.perform(command)
+
+        then: "we should get a valid response"
+        that(result.nonce, not(isEmptyOrNullString()))
+    }
 }

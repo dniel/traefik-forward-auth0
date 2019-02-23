@@ -13,8 +13,8 @@ class ObjectMother {
 
     static {
         properties.domain = domain
-        properties.authorizeUrl = "https://${domain}authorize"
-        properties.tokenEndpoint = "https://${domain}oauth/token"
+        properties.authorizeUrl = "${domain}authorize"
+        properties.tokenEndpoint = "${domain}oauth/token"
 
         properties.default.audience = exampleAudience
         properties.default.name = "this is the default application"
@@ -30,7 +30,7 @@ class ObjectMother {
 
         properties.apps << new AuthProperties.Application()
         properties.apps[1].name = "opaque.com"
-        properties.apps[1].audience = "https://example.eu.auth0.com/userinfo"
+        properties.apps[1].audience = "${domain}/userinfo"
     }
 
 }
