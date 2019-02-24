@@ -26,6 +26,12 @@ For example in a /config application directory.
 
 Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
 
+## Endpoints
+The ForwardAuth-backend exposes by default the following application endpoints on the default port 8080. 
+Set server.port property in tbe application.properties to override the application port.
+- /oauth2/authorize
+- /oauth2/signin
+
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
 JWT from Auth0 and it check that the audience is the expected from the loaded config.
