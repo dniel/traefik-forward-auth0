@@ -1,6 +1,6 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/dniel/traefik-forward-auth0/badge.svg)](https://snyk.io/test/github/dniel/traefik-forward-auth0)
 
-# Traefik Forward Auth0
+# ForwardAuth for Traefik
 This is a SpringBoot backend application written in Kotlin and Java8 for authenticating user with Auth0 in Traefik.
 Use the forward authentication configuration in Traefik and point it to this backend to protect frontends with Auth0 login.
 
