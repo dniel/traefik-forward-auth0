@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
-
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>[%X{userName}] - %date{ISO8601} [%thread] %-5level - %logger{120} - %msg%n</pattern>
