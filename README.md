@@ -1,6 +1,6 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/dniel/traefik-forward-auth0/badge.svg)](https://snyk.io/test/github/dniel/traefik-forward-auth0)
 
-# Traefik Forward Auth0
+# ForwardAuth for Traefik
 This is a SpringBoot backend application written in Kotlin and Java8 for authenticating user with Auth0 in Traefik.
 Use the forward authentication configuration in Traefik and point it to this backend to protect frontends with Auth0 login.
 
@@ -25,6 +25,12 @@ Put the application.yaml config somewhere where SpringBoot can find it.
 For example in a /config application directory.
 
 Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
+
+## Endpoints
+The ForwardAuth-backend exposes by default the following application endpoints on the default port 8080. 
+Set server.port property in tbe application.properties to override the application port.
+- /oauth2/authorize
+- /oauth2/signin
 
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
