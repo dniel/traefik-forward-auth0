@@ -9,7 +9,8 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                slackSend "Started ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                slackSend color: 'GREEN',
+                        message: "Started ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                 checkout scm
 
                 script {
