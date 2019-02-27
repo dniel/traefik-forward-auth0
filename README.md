@@ -28,9 +28,16 @@ Check out the `example` directory for example of an [application.yaml](/example/
 
 ## Endpoints
 The ForwardAuth-backend exposes by default the following application endpoints on the default port 8080. 
-Set server.port property in tbe application.properties to override the application port.
-- /oauth2/authorize
-- /oauth2/signin
+### /authorize
+Return 200 OK if user is authorized to access the requested URL, this is the endpoint used by Traefik to 
+decide to let the request through to the target website or deny access. If denied access it will redirect to
+the authorization url at Auth0 to perform authorization. Will verify that the access token and id-token set in
+browser session is valid.
+
+### /signin
+The callback URL that Auth0 redirects after the user has authorized the requst and signed in.
+Will set the Session Cookies in the browser with Access Token and ID-Token to hold the current user session 
+between http request.
 
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
