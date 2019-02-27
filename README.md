@@ -14,8 +14,8 @@ This software is in Alpha state right now beacuse its quite early in development
 I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
 
 # Application Overview
-![UML component diagram](http://liveuml.com/diagram/view/5c76e8e53fa83d1ca990c7a8 "Component diagram")
-![UML sequence diagram](http://liveuml.com/diagram/view/5c76e91b3fa83d1ca990c7a9 "Sequence diagram")
+![UML component diagram](/docs/component.png "Component diagram")
+![UML sequence diagram](/docs/sequence.png "Sequence diagram")
 
 # Development
 ## Compile
