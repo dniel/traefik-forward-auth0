@@ -13,15 +13,15 @@ a valid user.
 This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
 I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
 
+# Run with Docker
+`docker run -v /path/to/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
+
 # Development
 ## Compile
 `mvn clean install`
 
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
-
-## Run with Docker
-`docker run -v /path/to/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
 
 ## Configuration
 Put the application.yaml config somewhere where SpringBoot can find it. 
