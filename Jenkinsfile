@@ -42,8 +42,9 @@ pipeline {
         stage('Scan') {
             steps {
                 container('sonar-scanner') {
-                    sh "export SONAR_TOKEN=d34e76f98e7aa4a23c576053ce3ba352d34703da"
-                    sh "sonar-scanner -X -Dsonar.branch=${env.BRANCH_NAME} -Dsonar.login=\$SONAR_TOKEN -Dsonar.projectKey=dniel_traefik-forward-auth0 -Dsonar.organization=dniel-github -Dsonar.host.url=\"https://sonarcloud.io\" -Dsonar.projectVersion=${appVersion}"
+                    withSonarQubeEnv('SonarCloud') {
+                        sh "sonar-scanner -X -Dsonar.projectKey=dniel_traefik-forward-auth0 -Dsonar.organization=dniel-github -Dsonar.projectVersion=${appVersion}"
+                    }
                 }
             }
         }
