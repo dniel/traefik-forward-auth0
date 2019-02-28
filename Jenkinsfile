@@ -39,6 +39,15 @@ pipeline {
             }
         }
 
+        stage('Scan') {
+            steps {
+                container('sonar-scanner') {
+                    sh "export SONAR_TOKEN=d34e76f98e7aa4a23c576053ce3ba352d34703da"
+                    sh "sonar-scanner -X -Dsonar.projectVersion=${appVersion}"
+                }
+            }
+        }
+
         stage('Docker') {
             steps {
                 container('docker') {
