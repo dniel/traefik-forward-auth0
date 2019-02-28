@@ -18,7 +18,7 @@ import javax.ws.rs.core.*
 @Component
 class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Service, val verifyTokenService: VerifyTokenService) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
-    val DOMAIN = properties.domain
+    private val DOMAIN = properties.domain
 
     /**
      * Callback Endpoint
@@ -38,26 +38,26 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val audience = app.audience
         val tokenCookieDomain = app.tokenCookieDomain
 
-        // TODO move into NonceService and add proper errorhandling if nnonce check fails.
+        // TODO move into NonceGeneratorService and add proper errorhandling if nnonce check fails.
         val decodedState = State.decode(state)
         val receivedNonce = decodedState.nonce.value
         val sentNonce = nonceCookie.value
         if (receivedNonce != sentNonce) {
-            LOGGER.error("SignIn FailedNonce received=$receivedNonce sent=$sentNonce")
+            LOGGER.error("SignInFailedNonce received=$receivedNonce sent=$sentNonce")
         }
 
         val response = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
         val accessToken = response.get("access_token") as String
         val idToken = response.get("id_token") as String
 
-        if (app.verifyAccessToken == null || (app.verifyAccessToken != null && app.verifyAccessToken != false)) {
+        if (shouldVerifyAccessToken(app)) {
             verifyTokenService.verify(accessToken, audience, DOMAIN)
         }
-        val accessTokenCookie = NewCookie("ACCESS_TOKEN", accessToken, "/", tokenCookieDomain, null, -1, false)
-        val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false)
-        val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false)
+        val accessTokenCookie = NewCookie("ACCESS_TOKEN", accessToken, "/", tokenCookieDomain, null, -1, false, true)
+        val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false, true)
+        val nonceCookie = NewCookie("AUTH_NONCE", "deleted", "/", tokenCookieDomain, null, 0, false, true)
 
-        LOGGER.info("SignIn Successful, redirect to originUrl originUrl=${decodedState.originUrl}")
+        LOGGER.info("SignInSuccessful, redirect to originUrl originUrl=${decodedState.originUrl}")
         return Response
                 .temporaryRedirect(decodedState.originUrl.uri())
                 .cookie(jwtCookie)
@@ -65,6 +65,8 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
                 .cookie(nonceCookie)
                 .build()
     }
+
+    private fun shouldVerifyAccessToken(app: AuthProperties.Application): Boolean = !app.audience.equals("${DOMAIN}userinfo")
 
     private fun printHeaders(headers: HttpHeaders) {
         if (LOGGER.isTraceEnabled) {

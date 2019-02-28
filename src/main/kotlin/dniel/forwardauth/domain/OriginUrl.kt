@@ -2,13 +2,13 @@ package dniel.forwardauth.domain
 
 import java.net.URI
 
-class OriginUrl(val forwardedProto: String, val forwardedHost: String, val forwardedUri: String) {
+class OriginUrl(val protocol: String, val host: String, val uri: String) {
 
     override fun toString(): String {
-        return "$forwardedProto://$forwardedHost$forwardedUri"
+        return "$protocol://$host$uri".toLowerCase()
     }
 
-    fun startsWith(url: String): Boolean = this.toString().startsWith(url)
+    fun startsWith(url: String): Boolean = this.toString().startsWith(url, ignoreCase = true)
 
     fun uri(): URI = URI.create(this.toString())
 }

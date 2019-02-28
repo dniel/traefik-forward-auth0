@@ -13,6 +13,10 @@ a valid user.
 This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
 I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
 
+# Application Overview
+![UML component diagram](/docs/component.png "Component diagram")
+![UML sequence diagram](/docs/sequence.png "Sequence diagram")
+
 # Development
 ## Compile
 `mvn clean install`
@@ -20,17 +24,31 @@ I'm working on making stuff much more stable like a Beta release, something that
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
 
+## Run with Docker
+`docker run -v /path/to/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
+
+## Run with Kubernetes
+Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm directory for the Helm chart to create Kubernetes deployment configuration.
+
 ## Configuration
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
-Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
+Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a 
+[traefik.toml](/example/traefik.toml) config for this application.
 
 ## Endpoints
 The ForwardAuth-backend exposes by default the following application endpoints on the default port 8080. 
-Set server.port property in tbe application.properties to override the application port.
-- /oauth2/authorize
-- /oauth2/signin
+### /authorize
+Return 200 OK if user is authorized to access the requested URL, this is the endpoint used by Traefik to 
+decide to let the request through to the target website or deny access. If denied access it will redirect to
+the authorization url at Auth0 to perform authorization. Will verify that the access token and id-token set in
+browser session is valid.
+
+### /signin
+The callback URL that Auth0 redirects after the user has authorized the requst and signed in.
+Will set the Session Cookies in the browser with Access Token and ID-Token to hold the current user session 
+between http request.
 
 ### Auth0 configuration
 The ForwardAuth-backend need to verify that the Access Token is a valid and authentic 
@@ -102,9 +120,6 @@ When a new release has been pushed to dockerhub Spinnaker will find it and start
 The pipeline will update the internal development environment and my external site https://www.dniel.se 
 also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
 
-## Deployment to Kubernetes
-Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm directory for the Helm chart to create Kubernetes deployment configuration.
-
 # Tech
 - Java8
 - Tomcat
@@ -115,6 +130,7 @@ Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm di
 - Helm
 - Docker
 - Traefik
+- Spockframework/Groovy (unit tests)
 
 # TODO
 - create unit tests

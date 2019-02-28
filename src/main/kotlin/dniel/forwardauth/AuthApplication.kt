@@ -1,9 +1,9 @@
 package dniel.forwardauth
 
-import dniel.forwardauth.infrastructure.endpoints.AuthorizeEndpoint
-import dniel.forwardauth.infrastructure.endpoints.SigninEndpoint
 import dniel.forwardauth.infrastructure.endpoints.AppExceptionMapper
+import dniel.forwardauth.infrastructure.endpoints.AuthorizeEndpoint
 import dniel.forwardauth.infrastructure.endpoints.ServerFaultExceptionMapper
+import dniel.forwardauth.infrastructure.endpoints.SigninEndpoint
 import org.glassfish.jersey.server.ResourceConfig
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -28,5 +28,5 @@ class AuthApplication(val auth: AuthProperties) : ResourceConfig() {
 }
 
 fun main(args: Array<String>) {
-    runApplication<AuthApplication>(*args)
+    val applicationContext = runApplication<AuthApplication>(*args)
 }

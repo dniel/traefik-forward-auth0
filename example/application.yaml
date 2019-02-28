@@ -18,44 +18,52 @@ authorize-url: https://xxxx.xx.auth0.com/authorize
 # properties in the matched application in the apps list is not present
 # the property value in the default app will be used instead.
 default:
-    name: example.test
-    client-id: <from auth0 application config>
-    client-secret: <from auth0 application config>
-    audience: <from auth0 api config> or blank
-    scope: "profile openid email"
-    redirect-uri: http://www.example.test/oauth2/signin
-    token-cookie-domain: example.test
-    verify-access-token: true
+  name: example.test
+  client-id: <from auth0 application config>
+  client-secret: <from auth0 application config>
+  audience: <from auth0 api config> or blank
+  scope: "profile openid email"
+  redirect-uri: http://www.example.test/oauth2/signin
+  token-cookie-domain: example.test
+  restricted-methods:
+  - GET
+  - HEAD
+  - OPTION
+  - DELETE
+  - PUT
+  - PATCH
+  - POST
+  claims:
+  - name
+  - email
 
 apps:
-  - name: www.example.test
-    client-id: <from auth0 application config>
-    client-secret: <from auth0 application config>
-    audience: <from auth0 api config> or blank
-    scope: "profile openid email"
-    redirect-uri: http://www.example.test/oauth2/signin
-    token-cookie-domain: example.test
+- name: www.example.test
+  client-id: <from auth0 application config>
+  client-secret: <from auth0 application config>
+  audience: <from auth0 api config> or blank
+  scope: "profile openid email"
+  redirect-uri: http://www.example.test/oauth2/signin
+  token-cookie-domain: example.test
 
-    # By default all method (GET, HEAD, OPTION, DELETE, PUT, PATCH and POST)
-    # is restricted and must have an access token and a id token set in the
-    # browser cookies.
-    # This application has only state altering methods restricted.
-    restricted-methods:
-        - DELETE
-        - PUT
-        - PATCH
-        - POST
+  # By default all method (GET, HEAD, OPTION, DELETE, PUT, PATCH and POST)
+  # is restricted and must have an access token and a id token set in the
+  # browser cookies.
+  # This application has only state altering methods restricted.
+  restricted-methods:
+  - DELETE
+  - PUT
+  - PATCH
+  - POST
 
-  # this application will inherit most of the values from the default app.
-  # just the audience field will be used, all other values from the default.
-  - name: traefik.example.test
-    audience: <from auth0 api config>
+# this application will inherit most of the values from the default app.
+# just the audience field will be used, all other values from the default.
+- name: traefik.example.test
+  audience: <from auth0 api config>
 
-  # This application will get an opaque token instead of a valid JWT
-  # because of the audience is set to the userinfo endpoint.
-  # To be able to use this, we need to set the verify-access-token property to false.
-  - name: other.example.test
-    client-id: <from auth0 application config>
-    client-secret: <from auth0 application config>
-    audience: https://xxxxx.xx.auth0.com/userinfo
-    verify-access-token: false
+# This application will get an opaque token instead of a valid JWT
+# because of the audience is set to the userinfo endpoint.
+- name: other.example.test
+  client-id: <from auth0 application config>
+  client-secret: <from auth0 application config>
+  audience: https://xxxxx.xx.auth0.com/userinfo
