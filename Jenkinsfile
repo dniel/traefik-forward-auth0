@@ -33,7 +33,7 @@ pipeline {
             steps {
                 container('maven') {
                     withCredentials([string(credentialsId: 'SNYK_API_TOKEN', variable: 'SNYK_API_TOKEN')]) {
-                        sh "mvn jacoco:prepare-agent jacoco:report clean deploy -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
+                        sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent clean deploy -Dmaven.test.failure.ignore=false -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
                     }
                 }
             }
