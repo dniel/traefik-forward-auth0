@@ -1,4 +1,15 @@
 {
-  "extends": ["config:base"],
-  "maven": { "enabled": true }
+  "extends": [
+    "config:base"
+  ],
+  "maven": {
+    "enabled": true
+  },
+  "automerge": true,
+  "major": {
+    "automerge": false
+  },
+  "minor": {
+    "automerge": false
+  }
 }
