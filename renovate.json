@@ -11,5 +11,6 @@
   },
   "minor": {
     "automerge": false
-  }
+  },
+  "branchPrefix": "deps-"
 }
