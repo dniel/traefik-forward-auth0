@@ -27,11 +27,15 @@ I'm working on making stuff much more stable like a Beta release, something that
 ## Run with Docker
 `docker run -v /path/to/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
 
+## Run with Kubernetes
+Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm directory for the Helm chart to create Kubernetes deployment configuration.
+
 ## Configuration
 Put the application.yaml config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
-Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a [traefik.toml](/example/traefik.toml) config for this application.
+Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a 
+[traefik.toml](/example/traefik.toml) config for this application.
 
 ## Endpoints
 The ForwardAuth-backend exposes by default the following application endpoints on the default port 8080. 
@@ -115,9 +119,6 @@ The images will be tagged with sourcecode commit id, timestamp and branch name.
 When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
 The pipeline will update the internal development environment and my external site https://www.dniel.se 
 also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
-
-## Deployment to Kubernetes
-Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm directory for the Helm chart to create Kubernetes deployment configuration.
 
 # Tech
 - Java8
