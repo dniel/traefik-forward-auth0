@@ -33,7 +33,7 @@ pipeline {
             steps {
                 container('maven') {
                     withCredentials([string(credentialsId: 'SNYK_API_TOKEN', variable: 'SNYK_API_TOKEN')]) {
-                        sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent jacoco:report clean deploy -Dmaven.test.failure.ignore=false -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
+                        sh "mvn clean install jacoco:prepare-agent jacoco:report deploy -Dmaven.test.failure.ignore=false -Dsha1=${appVersion} -Dchangelist=${env.BRANCH_NAME}"
                     }
                 }
             }
@@ -44,7 +44,7 @@ pipeline {
                 container('sonar-scanner') {
                     withSonarQubeEnv('SonarCloud') {
                         sh "ls -la target"
-                        sh "sonar-scanner -X -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco.xml -Dsonar.jacoco.reportPaths=target/jacoco.exec -Dsonar.java.coveragePlugin=jacoco -Dsonar.projectKey=dniel_traefik-forward-auth0 -Dsonar.organization=dniel-github -Dsonar.projectVersion=${appVersion}"
+                        sh "sonar-scanner -X -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -Dsonar.projectKey=dniel_traefik-forward-auth0 -Dsonar.organization=dniel-github -Dsonar.projectVersion=${appVersion}"
                     }
                 }
             }
