@@ -43,8 +43,7 @@ pipeline {
             steps {
                 container('sonar-scanner') {
                     withSonarQubeEnv('SonarCloud') {
-                        sh "ls -la target"
-                        sh "sonar-scanner -X -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -Dsonar.projectKey=dniel_traefik-forward-auth0 -Dsonar.organization=dniel-github -Dsonar.projectVersion=${appVersion}"
+                        sh "sonar-scanner -Dsonar.projectVersion=${appVersion}"
                     }
                 }
             }
