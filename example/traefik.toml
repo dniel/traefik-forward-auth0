@@ -5,43 +5,27 @@
    [entryPoints.http]
     address = ":80"
 	
-   [entryPoints.dashboard]
-    address=":81"
-	
-   [entryPoints.http.auth.forward]
-	address = "http://127.0.0.1:8080/authorize"
-	authResponseHeaders = ["X-Auth-Name", "X-Auth-User", "X-Auth-Scope", "X-Auth-Roles", "X-Auth-Email", "X-Auth-Nick", "X-Auth-Picture"]
+   [entryPoints.traefik]
+    address=":8081"
+
+# This will configure forward auth on all http endpoints.
+#   [entryPoints.http.auth.forward]
+#	address = "http://127.0.0.1:8080/authorize"
+#	authResponseHeaders = ["X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
 
 [api]
-entrypoint="dashboard"
-dashboard=true	
-	
+entrypoint="traefik"
+
 [file]
 [backends]
-[backends.nginx.servers.server0]
-url = "http://127.0.0.1:8000"
+    [backends.oauth.servers.server0]
+    url = "http://127.0.0.1:8080"
 
-[backends.oauth.servers.server0]
-url = "http://127.0.0.1:8080"
-	
-[backends.posts.servers.server0]
-url = "http://127.0.0.1:4567"
-	
-[backends.dashboard.servers.server0]
-url = "http://127.0.0.1:81"
-	
-		
+    [backends.whoami.servers.server0]
+    url = "http://127.0.0.1:80"
+
 [frontends]
-  # Dashboard frontend
-  [frontends.dashboard]
-    entryPoints = ["http"]
-    backend = "dashboard"
-	passHostHeader = true
-
-    [frontends.dashboard.routes.route0]
-	rule = "Host:traefik.example.test"
-	
   # OAuth frontend
   [frontends.oauth]
     entryPoints = ["http"]
@@ -51,28 +35,35 @@ url = "http://127.0.0.1:81"
 
     [frontends.oauth.routes.route0]
 	rule = "PathPrefixStrip:/oauth2"
-		
-  # API Posts.
-  [frontends.posts]
-    entryPoints = ["http"]
-    backend = "posts"
-	passHostHeader = true
 
-    [frontends.posts.routes.route0]
-	rule = "PathPrefixStrip:/api/posts"		
-
-  # BLOG Nginx
-  [frontends.nginx]
+  # whoami
+  [frontends.whoami]
     entryPoints = ["http"]
-    backend = "nginx"
+    backend = "whoami"
 	priority = 1
 	passHostHeader = true
 
-#   [frontends.nginx.auth.forward]
-#	address = "http://127.0.0.1:8080/authorize"
-#	authResponseHeaders = ["X-Auth-Name", "X-Auth-User"]
+   [frontends.whoami.auth.forward]
+	address = "http://127.0.0.1:8080/authorize"
+    authResponseHeaders = ["X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
-    [frontends.nginx.routes.route0]
-	rule = "Host:www.example.test"
-			
-				
+   [frontends.whoami.routes.route0]
+    rule = "Host:whoami.example.test"
+
+# If you start the application with docker-compose up, and want to use
+# Traefik auto discovery of containers running, then you could just add something like this instead.
+#
+# [entryPoints]
+#   [entryPoints.http]
+#   address = ":80"
+#
+#   [entryPoints.traefik]
+#   address = ":8081"
+#
+# [api]
+# entrypoint = "traefik"
+#
+# [docker]
+# endpoint = "unix:///var/run/docker.sock"
+# watch = true
+# exposedbydefault = false
