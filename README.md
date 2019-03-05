@@ -26,7 +26,10 @@ I'm working on making stuff much more stable like a Beta release, something that
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
 
 ## Run with Docker
-`docker run -v /path/to/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
+`docker run -v /config/application.yaml:/config/application.yaml -p 8080:8080 dniel/forwardauth`
+
+## Run with Docker-Compose
+`docker-compose up`
 
 ## Run with Kubernetes
 Check out the https://github.com/dniel/traefik-forward-auth0/tree/master/helm directory for the Helm chart to create Kubernetes deployment configuration.
