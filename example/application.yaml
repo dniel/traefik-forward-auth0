@@ -34,8 +34,9 @@ default:
   - PATCH
   - POST
   claims:
-  - name
-  - email
+    - sub
+    - name
+    - email
 
 apps:
 - name: www.example.test
