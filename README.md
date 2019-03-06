@@ -124,6 +124,17 @@ When a new release has been pushed to dockerhub Spinnaker will find it and start
 The pipeline will update the internal development environment and my external site https://www.dniel.se 
 also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
 
+## Tags
+### Master
+The master tag is the most stable. Before I merge to the master branch I run some manual tests on the feature branch to
+and all unit tests should also be green. 
+
+### Other tags
+Each branch get its own tag with the same name when pushing to DockerHub.
+Each commit get a tag with the commit timestamp and commit-shorthash.
+Latest tag is only updated when pushing the master branch.
+
+
 # Tech
 - Java8
 - Tomcat
