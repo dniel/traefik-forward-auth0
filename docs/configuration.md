@@ -1,6 +1,6 @@
 # Configuration
 
-## ForwardAuth-backend example configuration
+## ForwardAuth example configuration
 The backend uses the Authorization Code OAuth 2.0 grant-flow to do a redirect exchange of code and retrieve an
 access token and user token. Check the [Auth0 Documentation](https://auth0.com/docs/api-auth/grant/authorization-code)
 on how this flow works.
