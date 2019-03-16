@@ -2,6 +2,14 @@
 ## Compile
 `mvn clean install`
 
+*Note: The pom.xml references a parent pom that has not been published to the internet.
+If the build fails on missing parent pom, remove the parent section in ForwardAuth pom.xml
+as its only used in my internal system to provide credentials to my private Nexus artifact 
+archive. The build should work fine without it.*
+
+*Note: The pom.xml comment above is only relevant if building form the commandline with 
+maven. If you build from IntelliJ for example, this settings most likely is just ignored.* 
+
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
 
