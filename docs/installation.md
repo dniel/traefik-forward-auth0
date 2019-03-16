@@ -6,7 +6,7 @@ Traefik. Have a look at the [Traefik configuration for forward authentication](h
 and also the [Kubernetes configuration for authentication with annotations](https://docs.traefik.io/configuration/backends/kubernetes/#annotations) in Traefik.
 
 ## ForwardAuth
-ForwardAuth need an application.yaml config file with application configuration to run.
+ForwardAuth need an [application.yaml config file](/example/application.yaml) with application configuration to run.
 See the [values.yaml](/helm/values.yaml) file in the Helm chart on how to generate the application config as a configmap in kubernetes.
 Also read the [configuration section in the docs](/docs/configuration.md) for how to configure the application.
 
