@@ -148,7 +148,6 @@ Latest tag is only updated when pushing the master branch.
 - Spockframework/Groovy (unit tests)
 
 # TODO
-- create unit tests
 - create integration tests
 - signout endpoint 
 - user profile endpoint
