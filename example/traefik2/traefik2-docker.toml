@@ -1,0 +1,9 @@
+# If you start the application with docker-compose up, and want to use
+# Traefik auto discovery of containers running, then you could just add something like this instead.
+#
+# [docker]
+# endpoint = "unix:///var/run/docker.sock"
+# watch = true
+# exposedbydefault = false
+
+

@@ -11,7 +11,7 @@
 # This will configure forward auth on all http endpoints.
 #   [entryPoints.http.auth.forward]
 #	address = "http://127.0.0.1:8080/authorize"
-#	authResponseHeaders = ["X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
+#	authResponseHeaders = ["Authorization", "X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
 
 [api]
@@ -52,16 +52,6 @@ entrypoint="traefik"
 
 # If you start the application with docker-compose up, and want to use
 # Traefik auto discovery of containers running, then you could just add something like this instead.
-#
-# [entryPoints]
-#   [entryPoints.http]
-#   address = ":80"
-#
-#   [entryPoints.traefik]
-#   address = ":8081"
-#
-# [api]
-# entrypoint = "traefik"
 #
 # [docker]
 # endpoint = "unix:///var/run/docker.sock"
