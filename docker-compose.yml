@@ -3,7 +3,7 @@
 # Have a look at the files in the example directory as a starting point how to create the two files.
 
 traefik:
-  image: traefik:v1.7.9-alpine
+  image: traefik:v1.7.10-alpine
   ports:
     - 80:80
     - 8081:8081
