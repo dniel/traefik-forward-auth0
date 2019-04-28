@@ -21,7 +21,18 @@ script:
   - ./mvnw clean install -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
 
 deploy:
-  provider: script
-  script:
-    - docker build -t dniel/forwardauth .
-    - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
+  - provider: script
+    script:
+      - docker build -t dniel/forwardauth .
+      - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
+      - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
+    on:
+      branch: develop
+  - provider: script
+    script:
+      - docker build -t dniel/forwardauth .
+      - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
+      - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
+      - docker tag dniel/forwardauth dniel/forwardauth:latest
+    on:
+      branch: master
