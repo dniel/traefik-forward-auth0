@@ -18,3 +18,4 @@ install:
   - mvn -N io.takari:maven:wrapper
   - ./mvnw install -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   - docker build -t dniel/forwardauth .
+  - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
