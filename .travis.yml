@@ -5,6 +5,12 @@ cache:
   directories:
     - $HOME/.m2
 
+addons:
+  sonarcloud:
+    organization: "dniel-github"
+    token:
+      secure: JUn/Qdwnl5BVq1g2QbKxryLQXpBA8+SEqZHaazC+5+YUFFrr/FIcoMMY6rHCMe3lMOw1bFnX5bhraDuB8+uyy+ja1mZlnpCm92UJbF0Kyqxl92cPn1HkfsNi9TvmbeQlT0R2xKYf4ejOuxjpDvxepmRtE8z9sP3QeqaxiADn0lqeBUrVLzTI1NpjKjCaRdj4q3gSrojAhFUoHOyPlBpHyAvcjLC7K6V9GJdH0q63/K3Fqt8HO7M2YgFFdCmeXi9332iFY+0EpHdzBMa6a5IezG6XM30j3jQVyk3AzwtnrX+0Mw64fSAUsAdjPFsPB53HN15A5mDyaNaRIFgEnrq6AslfEM9EAbs/0ivUp6zCTKZHw9osdx39ySc2VQoy2up/uGlQRTimhegNkOComTT5xvpC/iP16dNwdtH4Z3rpP2OcLahdhcRXSRguh3XAXF7zEW33UJau1grh1J80tGLvxdPmiDGewRJAvwqOexlJJ+jrikx+h4CvWP8W6oKwzLEhfP97FJAdp8ZEWVIP1fRoeoySfSVoTJgl60ym8/uOV5xy/15N/kHkqReAoADoC4o7ehHfeARXQMiqxxkOlUeFDVt+Rrgf5LCO2nLiPquLYs4O1kj0gkpi5nfnuxUyZw6JFtWv1r3I2fLxesV5kKUdF06lCLrC0DQAfTJKL0P/VJE=
+
 services:
   - docker
 
@@ -18,7 +24,7 @@ install:
   - mvn -N io.takari:maven:wrapper
 
 script:
-  - ./mvnw clean install -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
 
 deploy:
   - provider: script
