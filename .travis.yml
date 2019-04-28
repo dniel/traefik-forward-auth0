@@ -11,8 +11,8 @@ services:
 before_install:
   - chmod +x mvnw
   - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
-  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
-
+  - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 install:
   - mvn -N io.takari:maven:wrapper
   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
