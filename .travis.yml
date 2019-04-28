@@ -20,7 +20,7 @@ before_install:
 - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
 - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 
-script: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
+script: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH -Dsonar.login=$SONAR_TOKEN
 
 deploy:
 - provider: script
