@@ -7,6 +7,10 @@ cache:
   directories:
     - $HOME/.m2
 
+services:
+  - docker
+
 install:
   - mvn -N io.takari:maven:wrapper
   - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - docker build -t dniel/forwardauth .
