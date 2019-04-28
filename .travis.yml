@@ -13,16 +13,15 @@ addons:
 
 services:
 - docker
+
 before_install:
 - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
 - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
 - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
-install:
-- chmod +x mvnw
-- mvn -N io.takari:maven:wrapper
+
 script:
-- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG
-  -Dchangelist=$BRANCH
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
+
 deploy:
 - provider: script
   script:
