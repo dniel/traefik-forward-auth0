@@ -19,6 +19,7 @@
     </scm>
 
     <properties>
+        <sonar.projectKey>dniel_traefik-forward-auth0</sonar.projectKey>
         <changelist>SNAPSHOT</changelist>
         <revision>1.0</revision>
         <sha1>0</sha1>
