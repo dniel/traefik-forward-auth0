@@ -1,40 +1,29 @@
 jdk:
-- oraclejdk8
+  - oraclejdk8
 language: java
 install: true
 cache:
   directories:
-  - "$HOME/.m2/repository"
-  - "$HOME/.sonar/cache"
+    - "$HOME/.m2/repository"
+    - "$HOME/.sonar/cache"
 addons:
   sonarcloud:
     organization: dniel-github
     token: $SONAR_TOKEN
 
 services:
-- docker
+  - docker
 
-before_install:
-- export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
-- export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
-- echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
+before_script:
+  - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
+  - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 
-script: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
-
-deploy:
-- provider: script
-  script:
+script:
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
   - docker build -t dniel/forwardauth .
   - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
   - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
-  on:
-    all_branches: true
-- provider: script
-  script:
-  - docker build -t dniel/forwardauth .
-  - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
-  - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
-  - docker tag dniel/forwardauth dniel/forwardauth:latest
-  on:
-    branch: master
-
+  - echo "$DOCKER_PASSWD" | docker login -u "$DOCKER_USER" --password-stdin
+  - docker push dniel/forwardauth:$TRAVIS_TAG
+  - docker push dniel/forwardauth:$BRANCH
