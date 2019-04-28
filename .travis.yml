@@ -1,47 +1,42 @@
 jdk:
-  - oraclejdk8
-
+- oraclejdk8
 language: java
-
 cache:
   directories:
-    - '$HOME/.m2/repository'
-    - '$HOME/.sonar/cache'
-
+  - "$HOME/.m2/repository"
+  - "$HOME/.sonar/cache"
 addons:
   sonarcloud:
-    organization: "dniel-github"
+    organization: dniel-github
     token:
-      secure: "JUn/Qdwnl5BVq1g2QbKxryLQXpBA8+SEqZHaazC+5+YUFFrr/FIcoMMY6rHCMe3lMOw1bFnX5bhraDuB8+uyy+ja1mZlnpCm92UJbF0Kyqxl92cPn1HkfsNi9TvmbeQlT0R2xKYf4ejOuxjpDvxepmRtE8z9sP3QeqaxiADn0lqeBUrVLzTI1NpjKjCaRdj4q3gSrojAhFUoHOyPlBpHyAvcjLC7K6V9GJdH0q63/K3Fqt8HO7M2YgFFdCmeXi9332iFY+0EpHdzBMa6a5IezG6XM30j3jQVyk3AzwtnrX+0Mw64fSAUsAdjPFsPB53HN15A5mDyaNaRIFgEnrq6AslfEM9EAbs/0ivUp6zCTKZHw9osdx39ySc2VQoy2up/uGlQRTimhegNkOComTT5xvpC/iP16dNwdtH4Z3rpP2OcLahdhcRXSRguh3XAXF7zEW33UJau1grh1J80tGLvxdPmiDGewRJAvwqOexlJJ+jrikx+h4CvWP8W6oKwzLEhfP97FJAdp8ZEWVIP1fRoeoySfSVoTJgl60ym8/uOV5xy/15N/kHkqReAoADoC4o7ehHfeARXQMiqxxkOlUeFDVt+Rrgf5LCO2nLiPquLYs4O1kj0gkpi5nfnuxUyZw6JFtWv1r3I2fLxesV5kKUdF06lCLrC0DQAfTJKL0P/VJE="
+      secure: HU5a7nqsOZq+h/lMMclO6PBX9xKvOJqL+T2yPwfeB3W6utVzlWVyqJNoeouWVI/FAJ26ak9BuOu2nMxZgFSU8qoTrJayxaUkJPFhpHRCEblZU+pSGOHwIeM1K0dy7je1QsBiA5MF1cjd9i39IybL92q7axvGAUyiRyFSYnRjXyH1aTIEIWq8TVs77UjM3JU5jq4yryL/vEqR8bxGGqEP9Mf6zQqFjF0wKTnxyDtGwycQ0NdnmuDb/r7NnvwYIbaQ22Dfve8KS82c3STVm2uUwyT8R6Gi/mp2Ub2s9jPs0MC1BmKhHyABx4KQ4vetx2ZsFqGbo6lWR6Pv7rfNexdX9ThkOJkNEaa6oqkxsumvhi183zzGkZR7fB7O1HTx/rJzJQBGvme0F3HPJkHdrwJqKWDACWhg8WWFDGMJt9RGBSvPIjzqSTsMbidKYg9GqFLkPu2dP4x9w2oZGRX4fu0Tl8q9GXhCnVqc08UzvPBOwVkzILtdFCevHiZLRe2QAmIPSZdOBdJV+uw6PQwmtN1YlhTuSCQ5Y+Z57wbNs0Gx8TgjWKr/mOTZZT0UBKO+jdRuxXJ5jWqcHm4AZU/GfEpaui3E6vmGVJjK5+vHQqwctxAXdGf15KZD6sJtUKOXImH50a4ZO1CZiZ7M0fF0vQhnSK4WnV8lOziXqkLm4JNqNe0=
 
 services:
-  - docker
-
+- docker
 before_install:
-  - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
-  - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
-  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
-
+- export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
+- export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+- echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 install:
-  - chmod +x mvnw
-  - mvn -N io.takari:maven:wrapper
-
+- chmod +x mvnw
+- mvn -N io.takari:maven:wrapper
 script:
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
-
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG
+  -Dchangelist=$BRANCH
 deploy:
-  - provider: script
-    script:
-      - docker build -t dniel/forwardauth .
-      - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
-      - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
-    on:
-      all_branches: true
-  - provider: script
-    script:
-      - docker build -t dniel/forwardauth .
-      - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
-      - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
-      - docker tag dniel/forwardauth dniel/forwardauth:latest
-    on:
-      branch: master
+- provider: script
+  script:
+  - docker build -t dniel/forwardauth .
+  - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
+  - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
+  on:
+    all_branches: true
+- provider: script
+  script:
+  - docker build -t dniel/forwardauth .
+  - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
+  - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
+  - docker tag dniel/forwardauth dniel/forwardauth:latest
+  on:
+    branch: master
+
