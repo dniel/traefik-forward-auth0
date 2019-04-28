@@ -18,12 +18,6 @@
         <tag>HEAD</tag>
     </scm>
 
-    <parent>
-        <artifactId>api-parent</artifactId>
-        <groupId>blogr</groupId>
-        <version>1</version>
-    </parent>
-
     <properties>
         <changelist>SNAPSHOT</changelist>
         <revision>1.0</revision>
