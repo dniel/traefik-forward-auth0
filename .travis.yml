@@ -27,7 +27,7 @@ deploy:
       - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
       - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
     on:
-      branch: /^master$/
+      all_branches: true
   - provider: script
     script:
       - docker build -t dniel/forwardauth .
