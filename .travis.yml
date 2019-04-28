@@ -13,7 +13,8 @@ before_install:
   - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
   - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
   - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
+  -
 install:
   - mvn -N io.takari:maven:wrapper
-  - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - ./mvnw install -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH -DskipTests=true -Dmaven.javadoc.skip=true -B -V
   - docker build -t dniel/forwardauth .
