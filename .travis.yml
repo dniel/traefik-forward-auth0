@@ -9,8 +9,7 @@ cache:
 addons:
   sonarcloud:
     organization: dniel-github
-    token:
-      secure: "ZRZEr15oqBQrVsXcj4cM4neGhIcaldYl6Uh+FL6YS3WpUVeYSDdWIuAuGOfyzufCvSXdonbS0UW4u6yEZ6mX/mb6NahvcyJ3uHBFqt2TLKp4rnm50aB1DBuFk2632YHqAx64wKDT/Be/2ctAROuTyWEMuTgrt8Y6ePWonFoFTJY9ho8QeudrXLo/yQHjp5smytdCSOSin3LVV08RNRcpnjS/e/P2kRkBIzR0G46BMsYtNn6Ky0PKHAjZsrxYks+8Z5FZYTDV2hR6/nRE6CL4vFwiT7XGLt1cmWX2HlRO3TNPXokOz3YOie5kL3m6ANzCDkKqkJ4QttBf3WTTqzMED1bvfkPEiCnXGj6E2a6mjMDiLEkbV9LVpQab4BCHS2mV8uiGBx/iSW9pepuroNa/lqmlzBEEmktuvGg0PZnlihU24i62atuVf34BUa0bonPOOiBXdtLLm7u9bFZHWKu/AigqgKSLDCQxMPhHMn00kcTOWheLvvsh8WTO38NK9UpfNqwImHDkbXcZu2UmAEBikQvooyVaV0vcnKqI7z4YFEqcfXjrUblYvu6e5qz1YVpQoc3dnSeIdTychEMVqrd9F2TPMtrsnAGh2wnNzgcAm4Q+EhYFHRoHIavhwmenug2UfhXakS+sb9uzSs334XWwc/KxSXNlb8DGcX8foZQRe3Y="
+    token: $SONAR_TOKEN
 
 services:
 - docker
@@ -20,7 +19,7 @@ before_install:
 - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
 - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 
-script: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH -Dsonar.login=$SONAR_TOKEN
+script: mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
 
 deploy:
 - provider: script
