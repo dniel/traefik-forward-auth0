@@ -1,5 +1,6 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/dniel/traefik-forward-auth0/badge.svg)](https://snyk.io/test/github/dniel/traefik-forward-auth0)
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=dniel_traefik-forward-auth0&metric=alert_status)](https://sonarcloud.io/dashboard?id=dniel_traefik-forward-auth0)
+[![Build Status](https://travis-ci.com/dniel/traefik-forward-auth0.svg?branch=master)](https://travis-ci.com/dniel/traefik-forward-auth0)
 
 # ForwardAuth for Traefik
 This is a SpringBoot backend application written in Kotlin and Java8 for authenticating user with Auth0 in Traefik.
