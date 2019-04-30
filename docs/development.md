@@ -1,14 +1,18 @@
 # Development
-## Compile
+## Compile locally
 `mvn clean install`
 
-*Note: The pom.xml references a parent pom that has not been published to the internet.
-If the build fails on missing parent pom, remove the parent section in ForwardAuth pom.xml
-as its only used in my internal system to provide credentials to my private Nexus artifact 
-archive. The build should work fine without it.*
+## Automated compilation with Travis-CI build system
+The project has been comfigure to compile of Git push with [Travis-CI](https://travis-ci.com/dniel/traefik-forward-auth0)
+automatically. When a build has sucessfully been compiled and packaged the resulting
+Docker Image will be pushed to the [ForwardAuth DockerHub repository](https://hub.docker.com/r/dniel/forwardauth/) where it can be downloaded.
 
-*Note: The pom.xml comment above is only relevant if building form the commandline with 
-maven. If you build from IntelliJ for example, this settings most likely is just ignored.* 
+As a part of the automated build pipeline the code will be scanned with the static code analysis tool SonarCloud 
+and [reports of the source code quality](https://sonarcloud.io/dashboard?id=dniel_traefik-forward-auth0) will be available.
+
+Another tool that scan the code is Snyk.io which will 
+[check dependencies in pom.xml](https://app.snyk.io/org/dniel/project/d49e200c-e638-4e45-b909-9bedc608c90d) for know vulnerabilities.
+
 
 ## Run
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
@@ -27,12 +31,7 @@ Check out the `example` directory for example of an [application.yaml](/example/
 [traefik.toml](/example/traefik.toml) config for this application.
 
 ## Release
-My Jenkins server has been configured to automatically poll for source code changes in a multi-branch pipeline. 
-New branches will be automatically found and built by Jenkins and when successfully compiled and packaged 
-docker images will be pushed to the [ForwardAuth Dockerhub repository](https://hub.docker.com/r/dniel/forwardauth).
-The images will be tagged with sourcecode commit id, timestamp and branch name.
-
-When a new release has been pushed to dockerhub Spinnaker will find it and start the deployment pipeline.
+When a new release has been pushed to DockerHub, Spinnaker will find it and start the deployment pipeline.
 The pipeline will update the internal development environment and my external site https://www.dniel.se 
 also. The kubernetes configuration for the external site can be found at https://github.com/dniel/manifests/blob/master/forwardauth.yaml
 
