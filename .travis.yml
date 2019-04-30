@@ -39,4 +39,4 @@ deploy:
     script: ./.travis/deploy_feature.sh
     on:
       all_branches: true
-      condition: $BRANCH =~ ^(?!master$)
+      condition: $BRANCH != "master"
