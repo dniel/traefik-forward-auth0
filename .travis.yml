@@ -21,9 +21,22 @@ before_script:
 
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
+
+after_success:
   - docker build -t dniel/forwardauth .
-  - docker tag dniel/forwardauth dniel/forwardauth:$TRAVIS_TAG
-  - docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
-  - echo "$DOCKER_PASSWD" | docker login -u "$DOCKER_USER" --password-stdin
-  - docker push dniel/forwardauth:$TRAVIS_TAG
-  - docker push dniel/forwardauth:$BRANCH
+
+deploy:
+  # deploy release if branch is master
+  - provider: script
+    skip_cleanup: true
+    script: ./.travis/deploy_release.sh
+    on:
+      branch: master
+
+  # deploy feature if branch is something other than master
+  - provider: script
+    skip_cleanup: true
+    script: ./.travis/deploy_feature.sh
+    on:
+      all_branches: true
+      condition: $BRANCH =~ ^(?!master$)
