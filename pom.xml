@@ -142,7 +142,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <apiToken>${SNYK_API_TOKEN}</apiToken>
+                    <apiToken>${SNYK_TOKEN}</apiToken>
                     <failOnSeverity>medium</failOnSeverity>
                     <org></org>
                 </configuration>
