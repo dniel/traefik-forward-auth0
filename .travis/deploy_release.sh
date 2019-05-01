@@ -8,7 +8,10 @@ docker tag dniel/forwardauth dniel/forwardauth:$BRANCH
 docker tag dniel/forwardauth dniel/forwardauth:latest
 
 echo "Push tags $TRAVIS_TAG, $BRANCH and latest to DockerHub."
-# docker push dniel/forwardauth:$TRAVIS_TAG
-# docker push dniel/forwardauth:$BRANCH
-# docker push dniel/forwardauth:latest
+docker push dniel/forwardauth:$TRAVIS_TAG
+docker push dniel/forwardauth:$BRANCH
+docker push dniel/forwardauth:latest
+
+echo "Tag release on Git to know that this commit has been released."
+git tag "v$TRAVIS_TAG"
 echo "DONE"
