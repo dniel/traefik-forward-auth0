@@ -35,6 +35,11 @@ deploy:
 
 notifications:
   slack:
-    secure: izNrP9LY8rLdBiQtAZJUPMSnVGUNDiw3FQ2LKydk2ct0jDGVEw6ztoiA9bmF+IoLxTtKLo1nk/2LUCT9D5regNNQ7/MR3K5r2oOstXJKwNhQlOko/g+DYcc+cRwkcD+e1drEJxjw4FO71JaAAUAMjv2x7nAwlqnDQz1s6eh8ZhYvl554+kAF1ha0u++KabXn8cUSDlJs1qOhQAjrjuudAbXw2xgGIKr/Wx0EgtrohgqsRTWjuTHThYZE3+10aDaQ2/NbrSrdVMo5o3PJJW8bv4n2crCiqFD5r6c7Zhx5TSJXbcDjk3pttsz0n6mUrhQ0snVc167IwYW4AdxyEbF+NTKqh3RyeLbkLi+CaujE3/VbMW93QYoa+ckMhZZXDlghBuiW4hRI1c9CDqjcb9uWOffQuHdceDn4rLs4UUeGZ09bxL2vj5qC9mKsU30TZFEXKSyGbFzYC7VgM1eCklvUvxpUvxwPm5mbrqMuJdvueUrpp5CrY5mmEvOYJZxMVLhizATBIRUDQqHtJ9CVHGNntsHnBxG8K+aToQiGHwyclekLTOGJzeaMt9seplTCtdoeCidGnX8NsZnbboOIi4Rw4GWupA1WgLJJkB9s6IZbYs3i2RT1UCcJGMX5C+6SPvn+gDcJYxLM1iCYl52UH6nqSzULYYdsoADYxelOxuGpWr4=
-    on_success: always
-    on_failure: always
+    rooms:
+      secure: izNrP9LY8rLdBiQtAZJUPMSnVGUNDiw3FQ2LKydk2ct0jDGVEw6ztoiA9bmF+IoLxTtKLo1nk/2LUCT9D5regNNQ7/MR3K5r2oOstXJKwNhQlOko/g+DYcc+cRwkcD+e1drEJxjw4FO71JaAAUAMjv2x7nAwlqnDQz1s6eh8ZhYvl554+kAF1ha0u++KabXn8cUSDlJs1qOhQAjrjuudAbXw2xgGIKr/Wx0EgtrohgqsRTWjuTHThYZE3+10aDaQ2/NbrSrdVMo5o3PJJW8bv4n2crCiqFD5r6c7Zhx5TSJXbcDjk3pttsz0n6mUrhQ0snVc167IwYW4AdxyEbF+NTKqh3RyeLbkLi+CaujE3/VbMW93QYoa+ckMhZZXDlghBuiW4hRI1c9CDqjcb9uWOffQuHdceDn4rLs4UUeGZ09bxL2vj5qC9mKsU30TZFEXKSyGbFzYC7VgM1eCklvUvxpUvxwPm5mbrqMuJdvueUrpp5CrY5mmEvOYJZxMVLhizATBIRUDQqHtJ9CVHGNntsHnBxG8K+aToQiGHwyclekLTOGJzeaMt9seplTCtdoeCidGnX8NsZnbboOIi4Rw4GWupA1WgLJJkB9s6IZbYs3i2RT1UCcJGMX5C+6SPvn+gDcJYxLM1iCYl52UH6nqSzULYYdsoADYxelOxuGpWr4=
+    on_success: always  # change: send a notification when the build status changes.
+    on_failure: always  # always: always send a notification.
+    template:
+      - "Repo `%{repository_slug}` *%{result}* build (<%{build_url}|#%{build_number}>) for commit (<%{compare_url}|%{commit}>) on branch `%{branch}`."
+      - "Execution time: *%{duration}*"
+      - "Message: %{message}"
