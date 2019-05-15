@@ -15,6 +15,7 @@ services:
 before_script:
   - export TRAVIS_TAG=$(git rev-parse --short ${TRAVIS_COMMIT})
   - export BRANCH=${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}
+  - export COMMIT_TIME=$(git log -1 --pretty=format:%ct|date +"%m%d%Y-%H%M")
   - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT" "$BRANCH"
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$TRAVIS_TAG -Dchangelist=$BRANCH
