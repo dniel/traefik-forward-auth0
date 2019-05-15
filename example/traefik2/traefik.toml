@@ -1,6 +1,11 @@
 [global]
 debug = true
 
+[API]
+  Dashboard = true
+  [API.Statistics]
+   RecentErrors = 42
+
 [entrypoints]
   [entrypoints.http]
      address = ":80"
@@ -8,16 +13,12 @@ debug = true
 ################################################################
 # Middlewares
 ################################################################
-[http.middlewares]
-  [http.middlewares.forwardauth.ForwardAuth]
-    address = "http://host.docker.internal:8080/authorize"
-    authResponseHeaders =  ["Authorization", "X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
 [providers]
   # Enable File Provider.
-  #[providers.file]
-  #  filename = "/etc/traefik/traefik2-file.toml"
-  #  watch = true
+  [providers.file]
+   filename = "/etc/traefik/traefik2-file.toml"
+   watch = true
 
   # Enable Docker Provider.
   [providers.docker]

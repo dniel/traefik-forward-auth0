@@ -4,35 +4,39 @@
 
 [http]
 
+################################################################
+# Middlewares
+################################################################
+[http.middlewares]
+  [http.middlewares.forwardauth.ForwardAuth]
+    address = "http://auth:8080/authorize"
+    authResponseHeaders = ["Authorization", "X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
   ################################################################
   # Routers
   ################################################################
-  [http.routers]
-    [http.routers.router0]
-      entrypoints = ["http"]
-      service = "whoami"
-      rule = "Host(`whoami.example.test`)"
-
-    [http.routers.router1]
-      entryPoints = ["http"]
-      priority = 9999999
-      service = "oauth"
-      rule = "Host(`auth.example.test`)"
-
-
-  ################################################################
-  # Services
-  ################################################################
-  [http.services]
-    [http.services.whoami]
-      [http.services.whoami.LoadBalancer]
-        [[http.services.whoami.LoadBalancer.Servers]]
-          url = "http://host.docker.internal:8000"
-          weight = 1
-
-    [http.services.oauth]
-      [http.services.oauth.LoadBalancer]
-        [[http.services.oauth.LoadBalancer.Servers]]
-          url = "http://host.docker.internal:8080"
-          weight = 1
+  #[http.routers]
+  #  [http.routers.router0]
+  #    service = "whoami"
+  #    rule = "Host(`whoami.example.test`)"
+  #
+  #  [http.routers.router1]
+  #    service = "auth"
+  #    rule = "Host(`auth.example.test`)"
+  #
+  #
+  #################################################################
+  ## Services
+  #################################################################
+  #[http.services]
+  #  [http.services.whoami]
+  #    [http.services.whoami.LoadBalancer]
+  #      [[http.services.whoami.LoadBalancer.Servers]]
+  #        url = "http://whoami"
+  #        weight = 1
+  #
+  #  [http.services.auth]
+  #    [http.services.auth.LoadBalancer]
+  #      [[http.services.auth.LoadBalancer.Servers]]
+  #        url = "http://auth:8080"
+  #        weight = 1
