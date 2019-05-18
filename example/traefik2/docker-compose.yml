@@ -16,10 +16,11 @@ services:
   whoami:
     image: containous/whoami
     labels:
-      - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
+      - "traefik.http.middlewares.my-auth.ForwardAuth.address=http://auth:8080/authorize"
+      - "traefik.http.middlewares.my-auth.ForwardAuth.AuthResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
       - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test" # not working
-      - "traefik.http.middlewares.another-auth.ForwardAuth.address=http://auth:8080/authorize" # not working
-      - "traefik.http.routers.middlewares=file.my-auth" # not working
+      - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
+      - "traefik.http.routers.whoami.middlewares=my-auth,testHeader"
 
   auth:
     image: dniel/forwardauth
