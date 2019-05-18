@@ -18,7 +18,7 @@ services:
     labels:
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
       - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test" # not working
-      - "traefik.http.routers.middlewares=another-auth.ForwardAuth.address=http://auth:8080/authorize" # not working
+      - "traefik.http.middlewares.another-auth.ForwardAuth.address=http://auth:8080/authorize" # not working
       - "traefik.http.routers.middlewares=file.my-auth" # not working
 
   auth:
