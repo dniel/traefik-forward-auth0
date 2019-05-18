@@ -16,9 +16,9 @@ debug = true
 
 [providers]
   # Enable File Provider.
-  [providers.file]
-   filename = "/etc/traefik/traefik2-file.toml"
-   watch = true
+  #[providers.file]
+  #  filename = "/etc/traefik/traefik2-file.toml"
+  #  watch = true
 
   # Enable Docker Provider.
   [providers.docker]
