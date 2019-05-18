@@ -1,27 +1,30 @@
 # This is an example docker-compose file.
 # It will not run without configuring a working application.yamlwith your credentials from Auth0.
 # Have a look at the files in the example directory as a starting point how to create the two files.
+version: '2.4'
+services:
+  traefik:
+    image: traefik:v2.0-alpine
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/etc/traefik
 
-traefik:
-  image: traefik:v2.0-alpine
-  ports:
-    - 80:80
-    - 8080:8080
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./:/etc/traefik
+  whoami:
+    image: containous/whoami
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
+      - "traefik.http.routers.middlewares=file.my-auth"
 
-whoami:
-  image: containous/whoami
-  labels:
-    - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
-    - "traefik.http.routers.middlewares=file.my-auth"
-
-auth:
-  image: dniel/forwardauth
-  ports:
-    - 8080
-  labels:
-    - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
-  volumes:
-    - ../../config/application.yaml:/config/application.yaml
+  auth:
+    image: dniel/forwardauth
+    mem_limit: 512m
+    mem_reservation: 256m
+    ports:
+      - 8080:8080
+    labels:
+      - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
+    volumes:
+      - ../../config/application.yaml:/config/application.yaml
