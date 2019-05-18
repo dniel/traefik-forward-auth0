@@ -12,13 +12,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/etc/traefik
 
-  # tried to configure ForwardAuth with labels, but all middlewares that I try to add is just ignored.
   whoami:
     image: containous/whoami
     labels:
       - "traefik.http.middlewares.my-auth.ForwardAuth.address=http://auth:8080/authorize"
       - "traefik.http.middlewares.my-auth.ForwardAuth.AuthResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
-      - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test" # not working
+      - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test"
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
       - "traefik.http.routers.whoami.middlewares=my-auth,testHeader"
 
