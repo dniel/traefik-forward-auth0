@@ -29,7 +29,7 @@ auth:
     - "traefik.enable=true"
     - "traefik.port=8080"
   volumes:
-    - ./config/application.yaml:/config/application.yaml
+    - ../../config/application.yaml:/config/application.yaml
 
 www:
   image: dniel/blogr-www

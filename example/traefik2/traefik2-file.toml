@@ -3,18 +3,12 @@
 ################################################################
 
 [http]
+
 ################################################################
 # Middlewares
 ################################################################
 [http.middlewares]
-  [http.middlewares.forwardauth.ForwardAuth]
-    address = "http://host.docker.internal:8080/authorize"
-    authResponseHeaders =  ["Authorization", "X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
-################################################################
-# Middlewares
-################################################################
-[http.middlewares]
-  [http.middlewares.forwardauth.ForwardAuth]
+  [http.middlewares.my-auth.ForwardAuth]
     address = "http://auth:8080/authorize"
     authResponseHeaders = ["Authorization", "X-FORWARDAUTH-NAME", "X-FORWARDAUTH-SUB", "X-FORWARDAUTH-EMAIL"]
 
