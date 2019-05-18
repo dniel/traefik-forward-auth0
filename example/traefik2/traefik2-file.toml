@@ -18,6 +18,7 @@
   #[http.routers]
   #  [http.routers.router0]
   #    service = "whoami"
+  #    middlewares = ["my-auth"]
   #    rule = "Host(`whoami.example.test`)"
   #
   #  [http.routers.router1]
@@ -25,9 +26,9 @@
   #    rule = "Host(`auth.example.test`)"
   #
   #
-  #################################################################
-  ## Services
-  #################################################################
+  ##################################################################
+  ### Services
+  ##################################################################
   #[http.services]
   #  [http.services.whoami]
   #    [http.services.whoami.LoadBalancer]

@@ -23,7 +23,7 @@ services:
     mem_limit: 512m
     mem_reservation: 256m
     ports:
-      - 8080:8080
+      - 8080
     labels:
       - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
     volumes:
