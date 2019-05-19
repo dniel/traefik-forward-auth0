@@ -1,16 +1,24 @@
 # This is an example docker-compose file.
 # It will not run without configuring a working application.yamlwith your credentials from Auth0.
 # Have a look at the files in the example directory as a starting point how to create the two files.
+#
+# Using Docker-Compose and Dynamic configuration with Docker provider in Traefik, auto discovery of
+# running containers will register containers according to the configuration with labels.
+# See https://docs.traefik.io/v2.0/reference/dynamic-configuration/docker/ for possible config.
 version: '2.4'
 services:
   traefik:
     image: traefik:v2.0-alpine
     ports:
       - 80:80
-      - 8080:8080
+      - 8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/etc/traefik
+    labels:
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)"
+      - "traefik.HTTP.Services.dashboard.LoadBalancer.server.Port=8080"
+      - "traefik.http.routers.dashboard.middlewares=my-auth"
 
   whoami:
     image: containous/whoami
@@ -20,6 +28,12 @@ services:
       - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test"
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
       - "traefik.http.routers.whoami.middlewares=my-auth,testHeader"
+
+  www:
+    image: dniel/blogr-www
+    labels:
+      - "traefik.http.routers.www.middlewares=my-auth"
+      - "traefik.http.routers.www.rule=Host(`www.example.test`)"
 
   auth:
     image: dniel/forwardauth
