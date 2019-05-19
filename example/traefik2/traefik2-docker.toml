@@ -1,0 +1,6 @@
+################################################################
+# Docker Provider
+################################################################
+watch = true
+endpoint = "unix:///var/run/docker.sock"
+exposedByDefault = true

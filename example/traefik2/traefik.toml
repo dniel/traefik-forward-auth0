@@ -1,0 +1,20 @@
+[global]
+debug = false
+
+[API]
+  Dashboard = true
+  [API.Statistics]
+   RecentErrors = 42
+
+[entrypoints]
+  [entrypoints.http]
+     address = ":80"
+
+[providers]
+  # Enable File Provider.
+  [providers.file]
+    filename = "/etc/traefik/traefik2-file.toml"
+
+  # Enable Docker Provider.
+  [providers.docker]
+    filename ="/etc/traefik/traefik2-docker.toml"
