@@ -21,7 +21,7 @@ whoami:
     - "traefik.frontend.auth.forward.authResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
 
 auth:
-  image: dniel/forwardauth
+  image: dniel/forwardauth:add.travis.ci.build.file
   ports:
     - 8080:8080
   labels:

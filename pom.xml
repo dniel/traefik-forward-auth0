@@ -18,13 +18,8 @@
         <tag>HEAD</tag>
     </scm>
 
-    <parent>
-        <artifactId>api-parent</artifactId>
-        <groupId>blogr</groupId>
-        <version>1</version>
-    </parent>
-
     <properties>
+        <sonar.projectKey>dniel_traefik-forward-auth0</sonar.projectKey>
         <changelist>SNAPSHOT</changelist>
         <revision>1.0</revision>
         <sha1>0</sha1>
@@ -126,32 +121,6 @@
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
-            <plugin>
-                <groupId>io.snyk</groupId>
-                <artifactId>snyk-maven-plugin</artifactId>
-                <version>1.2.0</version>
-                <executions>
-                    <execution>
-                        <id>snyk-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>snyk-monitor</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>monitor</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <apiToken>${SNYK_API_TOKEN}</apiToken>
-                    <failOnSeverity>medium</failOnSeverity>
-                    <org></org>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
