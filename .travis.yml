@@ -1,3 +1,4 @@
+if: tag IS blank
 jdk:
   - oraclejdk8
 language: java
