@@ -13,5 +13,6 @@ docker push dniel/forwardauth:$BRANCH
 docker push dniel/forwardauth:latest
 
 echo "Tag release on Git to know that this commit has been released."
-git tag "v$TRAVIS_TAG"
+git tag "v$APP_VERSION"
+git push origin "v$APP_VERSION"
 echo "DONE"
