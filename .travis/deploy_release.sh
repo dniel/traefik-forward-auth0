@@ -13,6 +13,8 @@ docker push dniel/forwardauth:$BRANCH
 docker push dniel/forwardauth:latest
 
 echo "Tag release on Git to know that this commit has been released."
+git config --global user.email "travis@travis-ci.org"
+git config --global user.name "Travis CI"
 git tag "v$APP_VERSION"
-git push origin "v$APP_VERSION"
+git push https://$GH_TOKEN@github.com/dniel/traefik-forward-auth0 "v$APP_VERSION"
 echo "DONE"
