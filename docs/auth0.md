@@ -1,8 +1,8 @@
 # Auth0
 The Auth0 service is conforming to the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749)
-and a certified [Open ID Connect Provider](http://openid.net/certification/) and implements the 
-[Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html) and has
-more features.
+and is a certified [Open ID Connect Provider](http://openid.net/certification/). It implements the 
+[Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html) and has added
+its own features on top.
 
 From Section 1.1 in the [OAuth specification](https://tools.ietf.org/html/rfc6749#section-1.1)
 >   OAuth defines four roles:
@@ -44,7 +44,7 @@ The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API 
 >When an application wants to access an API's protected resources it must provide an Access Token. 
 >The same Access Token can be used to access the API's resources without having to authenticate again, until it expires.
 
-Register your web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
+Register the web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
 permissions to them.
 
 ### Application
@@ -60,32 +60,25 @@ Register Traefik ForwardAuth as an application to be able to assign APIs to it.
 
 ## Tokens
 ### Id Token
-From the [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens) about 
-the difference between Access Tokens and Id tokens say the following about ID Tokens
+From the [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens) describing 
+the difference between Access Tokens and Id tokens
 
 >Note that the audience value (located in the aud claim) of the token is set to the application's identifier.
 >This means that only this specific application should consume the token.   
-
-...
 
 >You can think of the ID Token as a performance optimization that allows applications to obtain user profile information
 >without making additional requests after the completion of the authentication process. ID Tokens should never be used
 >to obtain direct access to resources or to make authorization decisions.
 
 Eg.
-1) The ID token is only to be consumed by Traefik ForwardAuth application, should not be read by other.
-   One way to see this is the audience claim in the id token is the client-id of the application that requested
-   the token.
-2) Do not analyze or decide access based on content in the ID Token. 
-   Id token is authentication of the user profile, not for authorization.
+1) The ID token is only to be consumed by the ForwardAuth application that requested it, it shouldn't be read by other applications.
+2) Don't limit access based on content in the ID Token. The Id token is for authenticating the user, not for authorization.
 
 ### Access Token
-More from the same Auth0 documentation at about [Access Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
+More from the same Auth0 documentation about [Access Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
 
 >The Access Token is meant to authorize the user to the API (resource server). As such, the token is Completely opaque 
 >to applications -- applications should not care about the contents of the token.
-
-...
 
 >The token does not contain any information about the user except for the user ID (located in the sub claim). 
 >The token only contains authorization information about the actions that application is allowed to perform at the API 
@@ -95,10 +88,16 @@ eg.
 1) Use the content of the Access Token to make authorization decisions.
 2) Use scopes to define permissions.
 3) Traefik ForwardAuth application should'nt do anything with the Access Token.
+4) The receiving API can do whatever it wants with the Access Token.
 
 ## Authentication
 From [the Auth0 documentation on authentication](https://auth0.com/docs/application-auth/current) 
-
+> Authentication refers to the process of confirming identity. While often used interchangeably with authorization, 
+> authentication represents a fundamentally different function.
+>
+> In authentication, a user or application proves they are who they say they are by providing valid credentials 
+> for verification. Authentication is often proved through a username and password, sometimes combined with other 
+> elements called factors, which fall into three categories: what you know, what you have, or what you are.
 
 ## Authorization
 From [the wikipedia article](https://en.wikipedia.org/wiki/Authorization) describing Authorization.
@@ -108,32 +107,26 @@ From [the wikipedia article](https://en.wikipedia.org/wiki/Authorization) descri
 The [Auth0 documentation](https://auth0.com/docs/authorization/concepts/authz-and-authn) describes the difference between 
 Authentication and Authorization.
 
-Auth0 has two systems for doing authorization to APIs. The current system is the Authorization Extension and it is 
-gradually replaced by a new more integrated solution in Auth0, Auth0 RBAC for APIs. The Authorization Extension
-has currently (06.06.2019) more features but will be replaced eventually by Auth0 RBAC. Check out the 
-[feature comparison](https://auth0.com/docs/authorization/concepts/core-vs-extension) for more details.
+Auth0 has two systems for doing authorization to APIs. The current system is the Authorization Extension and will be 
+gradually replaced by a more integrated solution in Auth0, Auth0 Role Based Access Control (RBAC). 
+The Authorization Extension has currently (06.06.2019) more features but will be replaced eventually by Auth0 RBAC. 
+Check out the [feature comparison](https://auth0.com/docs/authorization/concepts/core-vs-extension) for more details.
 
-Both systems use a similar User, Roles and permissions model where you can assign permissions to roles, or 
-directly to a user.
+Both systems use a similar User, Roles and permissions model where you can assign permissions to roles or directly to a user.
 
 Auth0 RBAC and Authorization Extension use APIs when assigning permissions. You can't assign a permission to an 
 application. That means that to use authorization in you need to create an application for the ForwardAuth 
-application and for all the applications you want ForwardAuth to protect for you need to create an API.
+application and for all the applications you want ForwardAuth to protect you need to create an API.
 
 Both systems can use [rules to decide access](https://auth0.com/docs/authorization/concepts/authz-rules).
-
-### Authorization Extension
-The [Authorization Extension](https://auth0.com/docs/architecture-scenarios/spa-api/part-2#configure-the-authorization-extension) is
-installed from the Extensions page. It has its own UI to manage user, roles and permissions bindings. 
 
 ### Auth0 Role Based Access Control, RBAC
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension.    
 
 To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch.
-The RBAC system will then when the user log in match all the scopes you send in to the permissions of the user. 
-The user can have permissions directly assigned to him/her or by assigning a role to the user.
-The returned list of scopes in the Access Token will only contain valid scopes/permissions.
+The RBAC system will run when the user log in and match all the scopes you send in to the permissions of the user.
+Any permissions requested by the user that they dont have, will be removed by the RBAC system when returning the response.
 
 ### Rules
 #### Example rule for access control with the Auth0 RBAC
@@ -142,7 +135,7 @@ ccess if the user has an assigned admin role. or else throw a UnauthorizedError 
 
 For some reason I cant find any field in the rule context when running the rules that contains the resulting 
 verified and filtered permissions list. The only info I have found about the RBAC in the context of a running rule is the
-object autorization on the context that contains the assigned roles to the user. See the example rule below.
+authorization object on the context which contain the assigned roles of the user. See the example rule below.
 
 ```javascript
 function (user, context, callback) {
