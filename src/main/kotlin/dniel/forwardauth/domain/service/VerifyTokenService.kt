@@ -10,20 +10,23 @@ import org.springframework.stereotype.Component
 class VerifyTokenService(val decoder: JwtDecoder) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-    fun verify(token: String, expectedAudience: String, domain: String): Token {
+    fun verify(token: String, expectedAudience: String, expectedDomain: String, expectedScopes: Array<String>): Token {
         try {
-            val decodedJWT = decodeToken(token, domain)
-            return Token(verifyAudience(decodedJWT, expectedAudience))
+            val decodedJWT = decodeToken(token, expectedDomain)
+            return Token(verifyScopes(verifyAudience(decodedJWT, expectedAudience), expectedScopes))
         } catch (e: Exception) {
             throw IllegalStateException("VeryTokenFailed ${e.message}", e)
         }
+    }
+
+    private fun verifyScopes(decodedJWT: DecodedJWT, expectedScopes: Array<String>): DecodedJWT {
+        return decodedJWT
     }
 
     fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): DecodedJWT {
         if (!decodedJWT.audience.contains(expectedAudience)) {
             throw IllegalStateException("VerifyAudienceFailed expected=$expectedAudience, actual=${decodedJWT.audience}")
         }
-
         return decodedJWT
     }
 

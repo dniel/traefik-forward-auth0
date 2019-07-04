@@ -51,7 +51,7 @@ class SigninEndpoint(val properties: AuthProperties, val auth0Client: Auth0Servi
         val idToken = response.get("id_token") as String
 
         if (shouldVerifyAccessToken(app)) {
-            verifyTokenService.verify(accessToken, audience, DOMAIN)
+            verifyTokenService.verify(accessToken, audience, DOMAIN, app.requiredScopes)
         }
         val accessTokenCookie = NewCookie("ACCESS_TOKEN", accessToken, "/", tokenCookieDomain, null, -1, false, true)
         val jwtCookie = NewCookie("JWT_TOKEN", idToken, "/", tokenCookieDomain, null, -1, false, true)

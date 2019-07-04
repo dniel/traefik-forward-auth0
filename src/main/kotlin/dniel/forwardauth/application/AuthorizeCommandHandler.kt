@@ -54,9 +54,7 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
             LOGGER.debug("Authorize request=${originUrl} to app=${app.name}")
 
             nonce = nonceService.generate()
-            val state = State.create(originUrl, nonce!!)
-
-            redirectUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
+            redirectUrl = AuthorizeUrl(AUTHORIZE_URL, app, State.create(originUrl, nonce!!)).toURI()
             cookieDomain = app.tokenCookieDomain
             isAuthenticated = verifyTokens(params, app, this)
             isRestrictedUrl = isRestrictedUrl(params.method, originUrl, app)
@@ -79,9 +77,9 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasAccessToken(params)) {
             if (shouldVerifyAccessToken(app)) {
-                return verifyToken(params.accessToken!!, app.audience, DOMAIN) != null
+                return verifyToken(params.accessToken!!, app.audience, DOMAIN, app.requiredScopes) != null
             } else {
-                LOGGER.debug("Skip Verification of opaque Access Token.")
+                LOGGER.debug("Skip Verification of Opaque Access Token.")
                 return true
             }
         } else {
@@ -90,15 +88,15 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
     }
 
     private fun verifyIdToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
-        if (hasIdToken(params)) {
-            commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN)!!)
-            return verifyToken(params.idToken!!, app.clientId, DOMAIN) != null
+        return if (hasIdToken(params)) {
+            commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN, arrayOf<String>())!!)
+            verifyToken(params.idToken, app.clientId, DOMAIN, arrayOf<String>()) != null
         } else {
-            return false
+            false
         }
     }
 
-    private fun verifyToken(token: String, expectedAudience: String, domain: String): Token? = verifyTokenService.verify(token, expectedAudience, domain)
+    private fun verifyToken(token: String, expectedAudience: String, domain: String, expectedScopes: Array<String>): Token? = verifyTokenService.verify(token, expectedAudience, domain, expectedScopes)
 
     private fun hasAccessToken(params: AuthorizeCommand): Boolean = !params.accessToken.isNullOrEmpty()
 
