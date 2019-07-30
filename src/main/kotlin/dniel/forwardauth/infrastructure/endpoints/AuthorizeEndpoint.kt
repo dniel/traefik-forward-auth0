@@ -41,7 +41,7 @@ class AuthorizeEndpoint(val authorizeCommandHandler: AuthorizeCommandHandler) {
         return when {
             authorizeResult.isAuthenticated -> {
                 val response = Response.ok()
-                response.header("Authorization", "Bearer: ${accessToken}")
+                response.header("Authorization", "Bearer ${accessToken}")
                 authorizeResult.userinfo.forEach { k, v ->
                     val headerName = "X-FORWARDAUTH-${k.toUpperCase()}"
                     LOGGER.trace("Add header ${headerName} with value ${v}")
