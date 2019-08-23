@@ -12,27 +12,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/etc/traefik
 
-  whoami:
-    image: containous/whoami
-    labels:
-      - "traefik.frontend.rule=Host:whoami.example.test"
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "traefik.frontend.auth.forward.address=http://auth.example.test/authorize"
-      - "traefik.frontend.auth.forward.authResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
-
-  auth:
-    image: dniel/forwardauth
-    ports:
-      - 8080:8080
-    mem_limit: 512m
-    mem_reservation: 256m
-    labels:
-      - "traefik.frontend.rule=Host:auth.example.test"
-      - "traefik.enable=true"
-      - "traefik.port=8080"
-    volumes:
-      - ../../config/application.yaml:/config/application.yaml
+#  auth:
+#    image: dniel/forwardauth
+#    ports:
+#      - 8080:8080
+#    mem_limit: 512m
+#    mem_reservation: 256m
+#    labels:
+#      - "traefik.frontend.rule=Host:auth.example.test"
+#      - "traefik.enable=true"
+#      - "traefik.port=8080"
+#    volumes:
+#      - ../../config/application.yaml:/config/application.yaml
 
   www:
     image: dniel/blogr-www
@@ -40,5 +31,15 @@ services:
       - "traefik.frontend.rule=Host:www.example.test"
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "traefik.frontend.auth.forward.address=http://auth.example.test/authorize"
-      - "traefik.frontend.auth.forward.authResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
+      - "traefik.frontend.auth.forward.address=http://host.docker.internal:8080/authorize"
+      - "traefik.frontend.auth.forward.authResponseHeaders=Authorization,X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
+
+
+  whoami:
+    image: containous/whoami
+    labels:
+      - "traefik.frontend.rule=Host:whoami.example.test"
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.frontend.auth.forward.address=http://host.docker.internal:8080/authorize"
+      - "traefik.frontend.auth.forward.authResponseHeaders=Authorization,X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"

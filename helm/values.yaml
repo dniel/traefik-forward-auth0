@@ -31,7 +31,7 @@ ingress:
 #       client-secret: <from auth0 application config>
 #       audience: <from auth0 api config> or blank
 #       scope: "profile openid email"
-#       redirect-uri: http://www.example.test/oauth2/signin
+#       redirect-toUri: http://www.example.test/oauth2/signin
 #       token-cookie-domain: example.test
 #   apps:
 #     - name: www.example.test
@@ -39,14 +39,14 @@ ingress:
 #       client-secret: <from auth0 application config>
 #       audience: <from auth0 api config> or blank
 #       scope: "profile openid email"
-#       redirect-uri: http://www.example.test/oauth2/signin
+#       redirect-toUri: http://www.example.test/oauth2/signin
 #       token-cookie-domain: example.test
 #     - name: traefik.example.test
 #       client-id: <from auth0 application config>
 #       client-secret: <from auth0 application config>
 #       audience: <from auth0 api config> or blank
 #       scope: "profile openid email"
-#       redirect-uri: http://traefik.example.test/oauth2/signin
+#       redirect-toUri: http://traefik.example.test/oauth2/signin
 #       token-cookie-domain: traefik.example.test
 
 resources:

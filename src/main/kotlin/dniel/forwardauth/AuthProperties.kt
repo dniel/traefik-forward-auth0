@@ -35,12 +35,13 @@ class AuthProperties {
         var redirectUri: String = ""
         var tokenCookieDomain: String = ""
         var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
+        var requiredPermissions: Array<String> = emptyArray()
         var claims: Array<String> = emptyArray()
-        var requiredScopes: Array<String> = emptyArray()
 
         override fun toString(): String {
-            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, claims=${Arrays.toString(claims)})"
+            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, requiredPermissions=${Arrays.toString(requiredPermissions)}, claims=${Arrays.toString(claims)})"
         }
+
     }
 
     override fun toString(): String {
@@ -64,7 +65,7 @@ class AuthProperties {
             application.tokenCookieDomain = if (application.tokenCookieDomain.isNotEmpty()) application.tokenCookieDomain else default.tokenCookieDomain
             application.restrictedMethods = if (application.restrictedMethods.isNotEmpty()) application.restrictedMethods else default.restrictedMethods
             application.claims = if (application.claims.isNotEmpty()) application.claims else default.claims
-            application.requiredScopes = if (application.requiredScopes.isNotEmpty()) application.requiredScopes else default.requiredScopes
+            application.requiredPermissions = if (application.requiredPermissions.isNotEmpty()) application.requiredPermissions else default.requiredPermissions
             return application
         } else return default;
     }

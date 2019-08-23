@@ -16,6 +16,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/etc/traefik
     labels:
+      - "traefik.http.middlewares.my-auth.ForwardAuth.address=http://host.docker.internal:8080/authorize"
+      - "traefik.http.middlewares.my-auth.ForwardAuth.AuthResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)"
       - "traefik.HTTP.Services.dashboard.LoadBalancer.server.Port=8080"
       - "traefik.http.routers.dashboard.middlewares=my-auth"
@@ -23,11 +25,8 @@ services:
   whoami:
     image: containous/whoami
     labels:
-      - "traefik.http.middlewares.my-auth.ForwardAuth.address=http://auth:8080/authorize"
-      - "traefik.http.middlewares.my-auth.ForwardAuth.AuthResponseHeaders=X-FORWARDAUTH-NAME, X-FORWARDAUTH-SUB, X-FORWARDAUTH-EMAIL"
-      - "traefik.http.middlewares.testHeader.Headers.CustomRequestHeaders.X-Script-Name=test"
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
-      - "traefik.http.routers.whoami.middlewares=my-auth,testHeader"
+      - "traefik.http.routers.whoami.middlewares=my-auth"
 
   www:
     image: dniel/blogr-www
@@ -35,13 +34,37 @@ services:
       - "traefik.http.routers.www.middlewares=my-auth"
       - "traefik.http.routers.www.rule=Host(`www.example.test`)"
 
-  auth:
-    image: dniel/forwardauth
-    mem_limit: 512m
-    mem_reservation: 256m
-    ports:
-      - 8080
+  graphql:
+    image: dniel/api-graphql
     labels:
-      - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
-    volumes:
-      - ../../config/application.yaml:/config/application.yaml
+      - "traefik.http.routers.graphql.rule=Host(`graphql.example.test`)"
+      - "traefik.http.routers.graphql.middlewares=my-auth"
+
+#################################################################
+# ForwardAuth service.
+# This is used when running the whole stack in docker-compose.
+#
+# Not very suitable for development of ForwardAuth because of 
+# the long code round trip with alot of steps to update the 
+# docker container with a new version. 
+#  - compile 
+#  - assemble new docker image
+#  - restart docker-compose 
+#  - test
+#  - fix problems found
+#  - repeat from step 1 until satisfied.
+# 
+# In development mode, use the File provider to point
+# auth.example.test to your development environment 
+# on your local machine where you can update the code faster.
+#################################################################
+#  auth:
+#    image: dniel/forwardauth
+#    mem_limit: 512m
+#    mem_reservation: 256m
+#    ports:
+#      - 8080
+#    labels:
+#      - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
+#    volumes:
+#      - ../../config/application.yaml:/config/application.yaml
