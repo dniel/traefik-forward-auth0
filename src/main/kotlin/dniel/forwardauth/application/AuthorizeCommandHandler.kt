@@ -70,14 +70,14 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun verifyTokens(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         try {
-            return verifyIdToken(params, app, commandResult) && verifyAccessToken(params, app, commandResult)
+            return verifyIdToken(params, app, commandResult) && verifyAccessToken(params, app)
         } catch (e: Exception) {
             LOGGER.warn("VerifyTokensFailed ${e.message}", e)
             return false
         }
     }
 
-    private fun verifyAccessToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
+    private fun verifyAccessToken(params: AuthorizeCommand, app: Application): Boolean {
         if (hasAccessToken(params)) {
             if (shouldVerifyAccessToken(app)) {
                 return verifyPermissions(verifyToken(params.accessToken!!, app.audience, DOMAIN), app)
@@ -92,8 +92,8 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun verifyIdToken(params: AuthorizeCommand, app: Application, commandResult: AuthorizeResult): Boolean {
         if (hasIdToken(params)) {
-            commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN)!!)
-            verifyToken(params.idToken!!, app.clientId, DOMAIN)
+            commandResult.userinfo = getUserinfoFromToken(app, verifyToken(params.idToken!!, app.clientId, DOMAIN))
+            verifyToken(params.idToken, app.clientId, DOMAIN)
             return true
         } else {
             return false
@@ -102,7 +102,9 @@ class AuthorizeCommandHandler(val properties: AuthProperties,
 
     private fun verifyPermissions(token: Token, app: Application): Boolean {
         val hasPermission = token.hasPermission(app.requiredPermissions)
-        LOGGER.debug("verifyPermissions: ${hasPermission}")
+        LOGGER.debug("Required scopes: ${app.requiredPermissions.joinToString()}")
+        LOGGER.debug("Has Permission: ${hasPermission}")
+        if (!hasPermission) throw RuntimeException("Does not have permissions required.")
         return hasPermission
     }
 

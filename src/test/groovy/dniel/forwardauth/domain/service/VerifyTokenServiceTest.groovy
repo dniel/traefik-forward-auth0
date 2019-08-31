@@ -2,7 +2,7 @@ package dniel.forwardauth.domain.service
 
 
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.infrastructure.jwt.JwtDecoder
+import dniel.forwardauth.domain.service.JwtDecoder
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.is

@@ -1,4 +1,4 @@
-package dniel.forwardauth.infrastructure.jwt
+package dniel.forwardauth.infrastructure.auth0
 
 import com.auth0.jwk.GuavaCachedJwkProvider
 import com.auth0.jwk.JwkProvider
@@ -8,20 +8,16 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.RSAKeyProvider
+import dniel.forwardauth.domain.service.JwtDecoder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
-import javax.ws.rs.WebApplicationException
-import javax.ws.rs.core.Response
 
-interface JwtDecoder {
-    fun verify(token: String, domain: String): DecodedJWT
-}
 
 @Component
-class JwtDecoderImpl : JwtDecoder {
-    private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+class Auth0JwtDecoder : JwtDecoder {
+    val LOGGER = LoggerFactory.getLogger(this.javaClass)
     var provider: JwkProvider? = null
 
     override fun verify(token: String, domain: String): DecodedJWT {
@@ -45,7 +41,7 @@ class JwtDecoderImpl : JwtDecoder {
         } catch (e: Exception) {
             val message = e.message
             LOGGER.error("Failed to verify token, ${message}", e);
-            throw WebApplicationException("Failed to verify token, ${message}", Response.Status.BAD_REQUEST)
+            throw IllegalStateException("Failed to verify token, ${message}")
         }
     }
 

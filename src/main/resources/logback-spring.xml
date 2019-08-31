@@ -10,6 +10,9 @@
     <logger name="org.springframework" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="org.thymeleaf" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
 
 
     <springProfile name="DEV">
