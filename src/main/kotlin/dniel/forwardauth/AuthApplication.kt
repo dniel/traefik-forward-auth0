@@ -8,7 +8,7 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 @EnableConfigurationProperties(AuthProperties::class)
-class AuthApplication(val auth: AuthProperties) {
+open class AuthApplication(val auth: AuthProperties) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     init {

@@ -1,21 +1,20 @@
 package dniel.forwardauth.infrastructure.spring
 
-import dniel.forwardauth.application.AuthorizeCommandHandler
+import dniel.forwardauth.application.AuthorizeHandler
+import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
+import dniel.forwardauth.infrastructure.spring.exceptions.UnknownStateException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.util.MultiValueMap
-import org.springframework.web.bind.annotation.CookieValue
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.stream.Collectors
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
 
 @RestController
-class AuthorizeController(val authorizeCommandHandler: AuthorizeCommandHandler) {
+class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -24,7 +23,7 @@ class AuthorizeController(val authorizeCommandHandler: AuthorizeCommandHandler) 
      * It will return 200 for requests that has a valid JWT_TOKEN and will
      * redirect other to authenticate at Auth0.
      */
-    @RequestMapping
+    @RequestMapping("/authorize", method = [RequestMethod.GET])
     fun authorize(@RequestHeader headers: MultiValueMap<String, String>,
                   @CookieValue("ACCESS_TOKEN", required = false) accessTokenCookie: String?,
                   @CookieValue("JWT_TOKEN", required = false) userinfoCookie: String?,
@@ -39,32 +38,66 @@ class AuthorizeController(val authorizeCommandHandler: AuthorizeCommandHandler) 
     }
 
     private fun authenticateToken(accessToken: String?, idToken: String?, method: String, host: String, protocol: String, uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
-        val command: AuthorizeCommandHandler.AuthorizeCommand = AuthorizeCommandHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
-        val authorizeResult = authorizeCommandHandler.perform(command)
-        return when {
-            authorizeResult.isAuthenticated -> {
-                val entity = ResponseEntity.ok()
-                entity.header("Authorization", "Bearer ${accessToken}")
-                authorizeResult.userinfo.forEach { k, v ->
-                    val headerName = "X-FORWARDAUTH-${k.toUpperCase()}"
-                    LOGGER.trace("Add header ${headerName} with value ${v}")
-                    entity.header(headerName, v)
-                }
-                entity.build()
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
+        val authorizeResult = authorizeHandler.handle(command)
+        authorizeResult.forEachIndexed { index, authEvent -> LOGGER.trace("AuthEvent #${index}: ${authEvent}") }
+
+        // 1. check special sign in case
+        // always let the sigin request through.
+        if (authorizeResult.find {
+                    it is AuthorizeHandler.AuthEvent.ValidSignInEvent
+                } != null) {
+            LOGGER.debug("Let the sign in request through.")
+            return ResponseEntity.noContent().build()
+        }
+
+        // 2. check authentication is needed.
+        val redirectEvent = authorizeResult.find {
+            it is AuthorizeHandler.AuthEvent.NeedRedirectEvent
+        } as AuthorizeHandler.AuthEvent.NeedRedirectEvent?
+        if (redirectEvent != null) {
+            // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
+            val nonceCookie = Cookie("AUTH_NONCE", redirectEvent.nonce.value)
+            nonceCookie.domain = redirectEvent.cookieDomain
+            nonceCookie.maxAge = 60
+            nonceCookie.isHttpOnly = true
+            nonceCookie.path = "/"
+            response.addCookie(nonceCookie)
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(redirectEvent.authorizeUrl).build()
+        }
+
+        // 3. check authorization.
+        // check if we got a permission denied event in result.
+        if (authorizeResult.find {
+                    it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
+                } != null) {
+            throw PermissionDeniedException()
+        }
+
+        // if we managed to get all here through all three cases above, the user has access.
+        val validIdTokenEvent = authorizeResult.find {
+            it is AuthorizeHandler.AuthEvent.ValidIdTokenEvent
+        } as AuthorizeHandler.AuthEvent.ValidIdTokenEvent?
+        val validAccessTokenEvent = authorizeResult.find {
+            it is AuthorizeHandler.AuthEvent.ValidAccessTokenEvent
+        } as AuthorizeHandler.AuthEvent.ValidAccessTokenEvent?
+
+        // it should really not be possible to end up here after all validation above.
+        if (validIdTokenEvent == null || validAccessTokenEvent == null) {
+            throw UnknownStateException()
+        } else {
+            val builder = ResponseEntity.noContent()
+
+            // add the authorization bearer header with token so that
+            // the backend api receives it and knows that the user has been authenticated.
+            builder.header("Authorization", "Bearer ${accessToken}")
+            validIdTokenEvent.userinfo.forEach { k, v ->
+                val headerName = "X-Forwardauth-${k.capitalize()}"
+                LOGGER.trace("Add header ${headerName} with value ${v}")
+                builder.header(headerName, v)
             }
 
-            authorizeResult.isRestrictedUrl -> {
-                LOGGER.debug("Redirect to ${authorizeResult.redirectUrl}")
-                val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.toString())
-                nonceCookie.path = "/"
-                nonceCookie.domain = authorizeResult.cookieDomain
-                nonceCookie.isHttpOnly = true
-                nonceCookie.maxAge = 7 * 24 * 60 * 60
-                response.addCookie(nonceCookie)
-
-                ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.redirectUrl!!).build()
-            }
-            else -> ResponseEntity.noContent().build()
+            return builder.build()
         }
     }
 

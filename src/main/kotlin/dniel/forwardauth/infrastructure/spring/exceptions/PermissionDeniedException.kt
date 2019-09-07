@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain.exceptions
+package dniel.forwardauth.infrastructure.spring.exceptions
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus

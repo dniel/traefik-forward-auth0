@@ -2,9 +2,11 @@ package dniel.forwardauth.domain.service
 
 
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.domain.service.JwtDecoder
+import dniel.forwardauth.domain.JwtToken
+import dniel.forwardauth.domain.Token
 import spock.lang.Specification
 
+import static org.hamcrest.Matchers.instanceOf
 import static org.hamcrest.Matchers.is
 import static org.hamcrest.Matchers.notNullValue
 import static spock.util.matcher.HamcrestSupport.that
@@ -30,7 +32,7 @@ class VerifyTokenServiceTest extends Specification {
         def verifiedToken = sut.verify(tokenString, exampleAudience, domain)
 
         then:
-        that(verifiedToken, is(notNullValue()))
+        that(verifiedToken, is(instanceOf(JwtToken)))
     }
 
     def "should fail if invalid audience in token"() {
@@ -49,7 +51,7 @@ class VerifyTokenServiceTest extends Specification {
         VerifyTokenService sut = new VerifyTokenService(decoder)
 
         when: "we verify the token"
-        sut.verify(tokenString, exampleAudience, domain)
+        def token = sut.verify(tokenString, exampleAudience, domain)
 
         then:
         thrown(IllegalStateException)

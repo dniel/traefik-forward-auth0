@@ -1,7 +1,8 @@
 package dniel.forwardauth.application
 
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.domain.Token
+import dniel.forwardauth.domain.InvalidToken
+import dniel.forwardauth.domain.JwtToken
 import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
 import spock.lang.Specification
@@ -12,12 +13,12 @@ import static dniel.forwardauth.ObjectMother.getValidJwtTokenString
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
-class AuthorizeCommandHandlerTest extends Specification {
+class AuthorizeHandlerTest extends Specification {
 
     @Unroll
-    def "should verify access to #host#uri based on input parameters"() {
+    def "should grant access to #host#uri based on input parameters"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 jwt,
                 jwt,
                 protocol,
@@ -26,43 +27,74 @@ class AuthorizeCommandHandlerTest extends Specification {
                 method)
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify(validJwtTokenString, _, _) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result.authenticated, is(authenticated))
-        that(result.isRestrictedUrl, is(restricted))
+        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.ValidIdTokenEvent)))
+        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.ValidAccessTokenEvent)))
 
         where:
-        jwt                 | protocol | host               | uri              | method  | authenticated | restricted
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test"          | "GET"  || true          | true
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/oauth2/signin" | "GET"  || true          | false
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/OaUth2/SiGNIn" | "GET"  || true          | false
-        validJwtTokenString | "HTTPS"  | "opaque.com"       | "/test"          | "GET"  || true          | true
-        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "GET"  || true          | false
-        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "POST" || true          | true
-        null                | "HTTPS"  | "www.example.test" | "/test"          | "GET"  || false         | true
-        null                | "HTTPS"  | "www.example.test" | "/test"          | "GeT"  || false         | true
-        null                | "HTTPS"  | "www.example.test" | "/test"          | "GeT"  || false         | true
-        null                | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test"          | "GeT"  || false         | true
+        jwt                 | protocol | host               | uri              | method
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test"          | "GET"
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/oauth2/signin" | "GET"
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/OaUth2/SiGNIn" | "GET"
+        validJwtTokenString | "HTTPS"  | "opaque.com"       | "/test"          | "GET"
+        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "GET"
+        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "POST"
     }
 
+    @Unroll
+    def "should deny access to #host#uri based on input parameters"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeHandler.AuthorizeCommand(
+                jwt,
+                jwt,
+                protocol,
+                host,
+                uri,
+                method)
+
+
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(null, _, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify("", _, _) >> new InvalidToken("missing token return invalid token.")
+
+        and: "a command handler that is the system under test"
+        AuthorizeHandler sut = new AuthorizeHandler(
+                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+
+        when: "we authorize the request"
+        def result = sut.handle(command)
+
+        then: "we should get a valid response"
+        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
+
+        where:
+        jwt  | protocol | host               | uri     | method
+        null | "HTTPS"  | "www.example.test" | "/test" | "GET"
+        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"
+        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"
+        null | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GET"
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"
+        ""   | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"
+    }
 
     @Unroll
     def "should handle errors when JWT token is not valid"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 jwt,
                 jwt,
                 protocol,
@@ -71,23 +103,19 @@ class AuthorizeCommandHandlerTest extends Specification {
                 method)
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> { throw new IllegalStateException("Simulate a verification error") }
+        verifyTokenService.verify( _, _, _) >> new InvalidToken("simulating an invalid token resposne from the token service.")
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result.authenticated, is(authenticated))
-        that(result.isRestrictedUrl, is(restricted))
+        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
 
         where:
         jwt                  | protocol | host               | uri     | method | authenticated | restricted
@@ -97,7 +125,7 @@ class AuthorizeCommandHandlerTest extends Specification {
     @Unroll
     def "should handle when only one of id-token or access-token is present"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 accesstoken,
                 idtoken,
                 protocol,
@@ -106,23 +134,21 @@ class AuthorizeCommandHandlerTest extends Specification {
                 method)
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify(validJwtTokenString, _, _) >> new JwtToken(jwtToken)
+        verifyTokenService.verify(null, _, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify("", _, _) >> new InvalidToken("missing token return invalid token.")
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result.authenticated, is(authenticated))
-        that(result.isRestrictedUrl, is(restricted))
+        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
 
         where:
         idtoken             | accesstoken         | protocol | host               | uri     | method | authenticated | restricted
@@ -138,7 +164,7 @@ class AuthorizeCommandHandlerTest extends Specification {
     @Unroll
     def "should parse claim #key from idtoken"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 jwt,
                 jwt,
                 protocol,
@@ -147,22 +173,20 @@ class AuthorizeCommandHandlerTest extends Specification {
                 method)
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify(_,_,_) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
+        def idTokenEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.ValidIdTokenEvent }
 
         then: "we should get a valid response"
-        that(result.userinfo, hasEntry(key, value))
+        that(idTokenEvent.userinfo, hasEntry(key, value))
 
         where:
         jwt                 | protocol | host               | uri     | method | key     | value
@@ -172,7 +196,7 @@ class AuthorizeCommandHandlerTest extends Specification {
 
     def "should ignore unknown claim from idtoken"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 jwt,
                 jwt,
                 protocol,
@@ -181,32 +205,29 @@ class AuthorizeCommandHandlerTest extends Specification {
                 method)
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify( _, _, _) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
+        def idTokenEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.ValidIdTokenEvent }
 
         then: "we should get a valid response"
-        that(result.userinfo, not(hasKey(key)))
+        that(idTokenEvent.userinfo, not(hasKey(key)))
 
         where:
         jwt                 | protocol | host               | uri     | method | key
         validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "a claim that is not in the jwt token"
     }
 
-    @Unroll
     def "should have authorization url for redirect url as configured in properties"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 validJwtTokenString,
                 validJwtTokenString,
                 "https",
@@ -215,28 +236,25 @@ class AuthorizeCommandHandlerTest extends Specification {
                 "GET")
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify(_, _, _) >> new InvalidToken(("Just to get a redirect event to check"))
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
+        def needRedirectEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.NeedRedirectEvent }
 
         then: "we should get a valid response"
-        that(result.redirectUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
+        that(needRedirectEvent.authorizeUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
     }
 
-    @Unroll
     def "should have nonce set in result"() {
         given: "an authorize command with input parameters"
-        def command = new AuthorizeCommandHandler.AuthorizeCommand(
+        def command = new AuthorizeHandler.AuthorizeCommand(
                 validJwtTokenString,
                 validJwtTokenString,
                 "https",
@@ -245,21 +263,19 @@ class AuthorizeCommandHandlerTest extends Specification {
                 "get")
 
 
-        and: "a stub VerifyTokenService that return a valid JWT Token"
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(
-                _,
-                _,
-                _) >> new Token(jwtToken)
+        verifyTokenService.verify(_, _, _) >> new InvalidToken(("Just to get a redirect event to check"))
 
         and: "a command handler that is the system under test"
-        AuthorizeCommandHandler sut = new AuthorizeCommandHandler(
+        AuthorizeHandler sut = new AuthorizeHandler(
                 ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
 
         when: "we authorize the request"
-        def result = sut.perform(command)
+        def result = sut.handle(command)
+        def needRedirectEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.NeedRedirectEvent }
 
         then: "we should get a valid response"
-        that(result.nonce, not(isEmptyOrNullString()))
+        that(needRedirectEvent.nonce, not(isEmptyOrNullString()))
     }
 }

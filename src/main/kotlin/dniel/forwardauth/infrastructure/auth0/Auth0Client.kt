@@ -9,7 +9,6 @@ import dniel.forwardauth.AuthProperties
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.lang.IllegalStateException
 
 
 @Component
@@ -30,7 +29,7 @@ class Auth0Client(val properties: AuthProperties) {
                 redirectUrl = redirectUri)
 
         if (LOGGER.isDebugEnabled) {
-            LOGGER.debug("tokenRequest: "+JSON.writeValueAsString(tokenRequest))
+            LOGGER.debug("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
         }
 
         val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
