@@ -1,5 +1,6 @@
 package dniel.forwardauth.domain.service
 
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import dniel.forwardauth.domain.InvalidToken
 import dniel.forwardauth.domain.JwtToken
@@ -7,7 +8,6 @@ import dniel.forwardauth.domain.OpaqueToken
 import dniel.forwardauth.domain.Token
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.lang.IllegalStateException
 
 /**
  * Interface for decoder of Jwt Tokens that is provided to the VerifyTokenService
@@ -32,12 +32,19 @@ class VerifyTokenService(val decoder: JwtDecoder) {
             isOpaqueToken(token) -> OpaqueToken(token)
 
             else -> {
-                val decodedJWT = decodeToken(token, expectedDomain)
-                if (verifyAudience(decodedJWT, expectedAudience)) {
-                    LOGGER.debug("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
-                    throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
-                } else {
-                    JwtToken(decodedJWT)
+                try {
+                    val decodedJWT = decodeToken(token, expectedDomain)
+                    if (verifyAudience(decodedJWT, expectedAudience)) {
+                        LOGGER.debug("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
+                        throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}. " +
+                                "Probably error in application configuration or Auth0 service configuration.")
+                    } else {
+                        JwtToken(decodedJWT)
+                    }
+                } catch (e: JWTVerificationException) {
+                    val reason = "Failed to decode the token: ${e.message}"
+                    LOGGER.debug(reason)
+                    InvalidToken(reason)
                 }
             }
         }

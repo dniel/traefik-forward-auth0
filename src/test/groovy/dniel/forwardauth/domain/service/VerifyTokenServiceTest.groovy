@@ -1,14 +1,14 @@
 package dniel.forwardauth.domain.service
 
-
+import com.auth0.jwt.exceptions.JWTVerificationException
 import dniel.forwardauth.ObjectMother
+import dniel.forwardauth.domain.InvalidToken
 import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.domain.Token
 import spock.lang.Specification
 
+import static org.hamcrest.Matchers.containsString
 import static org.hamcrest.Matchers.instanceOf
 import static org.hamcrest.Matchers.is
-import static org.hamcrest.Matchers.notNullValue
 import static spock.util.matcher.HamcrestSupport.that
 
 class VerifyTokenServiceTest extends Specification {
@@ -55,5 +55,30 @@ class VerifyTokenServiceTest extends Specification {
 
         then:
         thrown(IllegalStateException)
+    }
+
+    def "should return invalid token with reason if token fails to decode"() {
+        setup: "a JWT token with invalid audience"
+        def domain = ObjectMother.domain
+        def exampleAudience = "INVALID"
+        def exampleToken = ObjectMother.jwtToken
+        def tokenString = ObjectMother.validJwtTokenString
+
+        and: "a stubbed jwt decoder that throws an exception on verify"
+        def decoder = Stub(JwtDecoder) {
+            verify(_, _) >> {
+                throw new JWTVerificationException("something went wrong.")
+            }
+        }
+
+        and: "a verification token service which is the system under test"
+        VerifyTokenService sut = new VerifyTokenService(decoder)
+
+        when: "we verify the token"
+        def token = sut.verify(tokenString, exampleAudience, domain)
+
+        then:
+        that(token, is(instanceOf(InvalidToken)))
+        that(token.reason, containsString("something went wrong."))
     }
 }

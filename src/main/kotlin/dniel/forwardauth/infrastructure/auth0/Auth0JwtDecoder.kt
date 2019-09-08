@@ -38,7 +38,7 @@ class Auth0JwtDecoder : JwtDecoder {
             val verifier = createJwtVerifier(algorithm, domain)
             val verifiedJwt = verifier.verify(token)
             return verifiedJwt
-        } catch (e: Exception) {
+        } catch (e: com.auth0.jwt.exceptions.JWTVerificationException ) {
             val message = e.message
             LOGGER.error("Failed to verify token, ${message}", e);
             throw IllegalStateException("Failed to verify token, ${message}")
