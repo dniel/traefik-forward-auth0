@@ -1,0 +1,15 @@
+api:
+  dashboard: true
+
+entryPoints:
+  http:
+    address: :80
+
+providers:
+  file:
+    filename: /etc/traefik/traefik-file.yml
+
+  docker:
+    watch: true
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: true

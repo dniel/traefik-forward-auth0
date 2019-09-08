@@ -1,0 +1,27 @@
+################################################################
+# File Provider
+# 
+# The definition of the router and service for auth.example.test
+# and the url set to http://host.docker.internal:8080 to be used
+# when running ForwardAuth externally from Docker Compose to be
+# able to run ForwardAuth during development in an development
+# environment and the rest of the Docker Compose containers for
+# testing of features.
+# 
+# The ForwardAuth service must then be commented out in the
+# docker-compose.yaml file and started manually on your computer
+# for example in IntelliJ IDEA or another IDE where the code
+# is written.
+################################################################
+
+http:
+  routers:
+    routerAuth:
+      rule: "Host(`auth.example.test`)"
+      service: auth
+  
+  services:
+    auth:
+      loadBalancer:
+        servers:
+        - url: http://host.docker.internal:8080
