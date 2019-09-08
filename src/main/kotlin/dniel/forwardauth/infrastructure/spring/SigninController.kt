@@ -49,7 +49,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
         printHeaders(headers)
 
         // if error parameter was received something is going on.
-        if (error === "unauthorized") {
+        if (error == "unauthorized") {
             LOGGER.info("Unauthorized error from Auth0 on sign in: ${errorDescription}")
             throw PermissionDeniedException(errorDescription)
         } else if (error.isNotEmpty()) {
