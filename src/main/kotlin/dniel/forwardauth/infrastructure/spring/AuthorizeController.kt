@@ -2,7 +2,7 @@ package dniel.forwardauth.infrastructure.spring
 
 import dniel.forwardauth.application.AuthorizeHandler
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
-import dniel.forwardauth.infrastructure.spring.exceptions.UnknownStateException
+import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -84,7 +84,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
 
         // it should really not be possible to end up here after all validation above.
         if (validIdTokenEvent == null || validAccessTokenEvent == null) {
-            throw UnknownStateException()
+            throw ApplicationErrorException()
         } else {
             val builder = ResponseEntity.noContent()
 

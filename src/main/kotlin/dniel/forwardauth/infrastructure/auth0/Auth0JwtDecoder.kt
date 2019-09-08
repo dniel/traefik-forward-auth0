@@ -26,23 +26,17 @@ class Auth0JwtDecoder : JwtDecoder {
     }
 
     private fun verifyJWT(token: String, domain: String): DecodedJWT {
-        try {
-            val decodedJWT = JWT.decode(token)
-            val jwk = provider!!.get(decodedJWT.keyId)
-            val keyProvider = object : RSAKeyProvider {
-                override fun getPublicKeyById(kid: String): RSAPublicKey = jwk.publicKey as RSAPublicKey
-                override fun getPrivateKey(): RSAPrivateKey? = null
-                override fun getPrivateKeyId(): String? = null
-            }
-            val algorithm = Algorithm.RSA256(keyProvider)
-            val verifier = createJwtVerifier(algorithm, domain)
-            val verifiedJwt = verifier.verify(token)
-            return verifiedJwt
-        } catch (e: com.auth0.jwt.exceptions.JWTVerificationException ) {
-            val message = e.message
-            LOGGER.error("Failed to verify token, ${message}", e);
-            throw IllegalStateException("Failed to verify token, ${message}")
+        val decodedJWT = JWT.decode(token)
+        val jwk = provider!!.get(decodedJWT.keyId)
+        val keyProvider = object : RSAKeyProvider {
+            override fun getPublicKeyById(kid: String): RSAPublicKey = jwk.publicKey as RSAPublicKey
+            override fun getPrivateKey(): RSAPrivateKey? = null
+            override fun getPrivateKeyId(): String? = null
         }
+        val algorithm = Algorithm.RSA256(keyProvider)
+        val verifier = createJwtVerifier(algorithm, domain)
+        val verifiedJwt = verifier.verify(token)
+        return verifiedJwt
     }
 
     private fun createJwtVerifier(algorithm: Algorithm?, domain: String): JWTVerifier = JWT.require(algorithm)
