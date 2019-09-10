@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
  * that we dont give access to someone that shouldnt be allowed.
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-open class ApplicationErrorException : Exception {
-    constructor() : super("Unknown state, dont know what to do, better block access.")
-    constructor(message: String) : super(message)
+class Auth0Exception : ApplicationErrorException {
+    constructor(error: String, description: String) : super("${error}, ${description}")
 
 }

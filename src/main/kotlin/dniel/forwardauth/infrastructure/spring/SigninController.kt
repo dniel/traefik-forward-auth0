@@ -5,6 +5,7 @@ import dniel.forwardauth.domain.State
 import dniel.forwardauth.domain.service.VerifyTokenService
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
+import dniel.forwardauth.infrastructure.spring.exceptions.Auth0Exception
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -54,7 +55,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             throw PermissionDeniedException(errorDescription ?: "no error description.")
         } else if (!error.isNullOrEmpty()) {
             LOGGER.error("Signing received unknown error from Auth0 on sign in: ${errorDescription}")
-            throw ApplicationErrorException(errorDescription ?: "no error description.")
+            throw Auth0Exception(error, errorDescription ?: "no error description.")
         }
 
         LOGGER.debug("Sign in with code=$code")
