@@ -70,7 +70,7 @@ the difference between Access Tokens and Id tokens
 >without making additional requests after the completion of the authentication process. ID Tokens should never be used
 >to obtain direct access to resources or to make authorization decisions.
 
-Eg.
+I.e,
 1) The ID token is only to be consumed by the ForwardAuth application that requested it, it shouldn't be read by other applications.
 2) Don't limit access based on content in the ID Token. The Id token is for authenticating the user, not for authorization.
 
@@ -84,7 +84,7 @@ More from the same Auth0 documentation about [Access Tokens](https://auth0.com/d
 >The token only contains authorization information about the actions that application is allowed to perform at the API 
 >(such permissions are referred to as scopes).
 
-eg.
+I.e,
 1) Use the content of the Access Token to make authorization decisions.
 2) Use scopes to define permissions.
 3) Traefik ForwardAuth application should'nt do anything with the Access Token.
@@ -108,7 +108,8 @@ The [Auth0 documentation](https://auth0.com/docs/authorization/concepts/authz-an
 Authentication and Authorization.
 
 Auth0 has two systems for doing authorization to APIs. The current system is the Authorization Extension and will be 
-gradually replaced by a more integrated solution in Auth0, Auth0 Role Based Access Control (RBAC). 
+gradually replaced by a more integrated solution in Auth0, Auth0 Role Based Access Control (RBAC).
+
 The Authorization Extension has currently (06.06.2019) more features but will be replaced eventually by Auth0 RBAC. 
 Check out the [feature comparison](https://auth0.com/docs/authorization/concepts/core-vs-extension) for more details.
 
@@ -122,11 +123,33 @@ Both systems can use [rules to decide access](https://auth0.com/docs/authorizati
 
 ### Auth0 Role Based Access Control, RBAC
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
-the current Authorization Extension.    
+the current Authorization Extension. 
 
-To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch.
+#### Assign permissions to users
+To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch. Then create 
+under Permissions in your API's settings create permissions for your api to use. Then go to Users & Roles and add 
+either directly to a user the permissions you created in your API, or create a role with a set of permissions and
+assign to your users.
+
 The RBAC system will run when the user log in and match all the scopes you send in to the permissions of the user.
 Any permissions requested by the user that they dont have, will be removed by the RBAC system when returning the response.
+
+#### Require Permissions to access an application in ForwardAuth
+In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
+will check before letting the user access the application. The permissions is transferred on login from Auth0
+to ForwardAuth using the Access Token.
+
+The required-permissions is an Array of permissions and if the user that tries to login and access an application
+does not have the required permissions an HTTP 403 Forbidden will be thrown and an error page will be displayed.
+E.g, 
+```yaml
+apps:
+  - name: whoami.example.test
+    audience: https://whoami.dniel.se
+    required-permissions:
+      - write:whoami
+      - read:whoami
+```
 
 ### Rules
 #### Example rule for access control with the Auth0 RBAC
@@ -151,6 +174,9 @@ function (user, context, callback) {
   callback(null, user, context);
 }
 ```
+
+When ForwardAuth received a "Unautorized" error from Auth0 an HTTP 403 Forbidden will be thrown and an 
+error page will be displayed to the user saying 403 Forbidden and the message from the rule will be displayed.
 
 
 ### Reference
