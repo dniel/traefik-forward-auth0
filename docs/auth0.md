@@ -180,6 +180,14 @@ function (user, context, callback) {
 When ForwardAuth received a "Unautorized" error from Auth0 an HTTP 403 Forbidden will be thrown and an 
 error page will be displayed to the user saying 403 Forbidden and the message from the rule will be displayed.
 
+### Suggestions of how to structure Applications, Apis and Permissions
+- Add one common application, maybe call it Traefik.
+- Add all applications that should be controlled through Traefik as API's
+- Possibly create API's that span more than one backend application but should share a `Audience` with a common api
+  to let users jump between the applications without requiring to re-login again. 
+- The shared API could be site with more than one backend service that share the same audience.
+- Add permissions for all the backend applications to the shared API.
+- Use a Default Audience set on the tenant to always have a JWT token that can be verified. 
 
 ### Reference
 - [OAuth 2 specification](https://tools.ietf.org/html/rfc6749)
