@@ -57,7 +57,7 @@ class AuthorizeHandler(val properties: AuthProperties,
         class IllegalIdTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
 
         abstract class PermissionDeniedEvent : AuthEvent()
-        object MissingPermissionsEvent : PermissionDeniedEvent()
+        class MissingPermissionsEvent(val reason: String) : PermissionDeniedEvent()
         object IllegalMethodEvent : PermissionDeniedEvent()
 
         object ValidPermissionsEvent : AuthEvent()
@@ -99,7 +99,7 @@ class AuthorizeHandler(val properties: AuthProperties,
                 accessToken is InvalidToken -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
                 accessToken is JwtToken && accessToken.hasPermission(app.requiredPermissions) -> AuthEvent.ValidPermissionsEvent
                 accessToken is OpaqueToken && app.requiredPermissions.isNullOrEmpty() -> AuthEvent.ValidPermissionsEvent
-                else -> AuthEvent.MissingPermissionsEvent
+                else -> AuthEvent.MissingPermissionsEvent("Required permissions to access: " + app.requiredPermissions.joinToString(","))
             }
         }
     }

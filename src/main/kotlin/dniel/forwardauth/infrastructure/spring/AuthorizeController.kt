@@ -63,14 +63,17 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             nonceCookie.isHttpOnly = true
             nonceCookie.path = "/"
             response.addCookie(nonceCookie)
+            LOGGER.debug("Redirect to ${redirectEvent.authorizeUrl}")
             return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(redirectEvent.authorizeUrl).build()
         }
 
         // 3. check authorization.
         // check if we got a permission denied event in result.
-        if (authorizeResult.find {
-                    it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
-                } != null) {
+        val permissionDeniedEvent = authorizeResult.find {
+            it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
+        } as AuthorizeHandler.AuthEvent.PermissionDeniedEvent?
+        if (permissionDeniedEvent != null) {
+            LOGGER.debug("Got permission denied event, throw 403 Forbidden.")
             throw PermissionDeniedException()
         }
 
@@ -82,8 +85,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             it is AuthorizeHandler.AuthEvent.ValidAccessTokenEvent
         } as AuthorizeHandler.AuthEvent.ValidAccessTokenEvent?
 
-        // it should really not be possible to end up here after all validation above.
         if (validIdTokenEvent == null || validAccessTokenEvent == null) {
+            // it should really not be possible to end up here after all validation above.
             throw ApplicationErrorException()
         } else {
             val builder = ResponseEntity.noContent()

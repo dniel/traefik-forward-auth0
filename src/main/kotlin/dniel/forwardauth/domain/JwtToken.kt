@@ -16,8 +16,8 @@ class JwtToken(val value: DecodedJWT) : Token {
             asArray(String::class.java)
         }.run {
             val hasPermission = asList().containsAll(requiredPermissions.asList())
-            LOGGER.debug("Required scopes: ${requiredPermissions.joinToString()}")
-            LOGGER.debug("Has Permission: ${hasPermission}")
+            LOGGER.trace("Required permissions: [${requiredPermissions.joinToString()}]")
+            LOGGER.trace("User permissions: [${asList().joinToString()}]")
             hasPermission
         }
     }

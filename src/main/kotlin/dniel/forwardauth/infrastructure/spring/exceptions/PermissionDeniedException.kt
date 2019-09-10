@@ -5,6 +5,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(value = HttpStatus.FORBIDDEN)
 class PermissionDeniedException : Exception {
-    constructor() : super("Permission denied to resource.")
+    constructor() : super("Permission denied to application.")
     constructor(message: String) : super(message)
 }
