@@ -137,7 +137,9 @@ Any permissions requested by the user that they dont have, will be removed by th
 #### Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
 will check before letting the user access the application. The permissions is transferred on login from Auth0
-to ForwardAuth using the Access Token.
+to ForwardAuth using the Access Token when the Access Token is a JWT Token,  i.e, the audience for an API has been
+set. This also means that permissions is only useful for access control to API's. There is no way to assign permissions
+to applications in Auth0.
 
 The required-permissions is an Array of permissions and if the user that tries to login and access an application
 does not have the required permissions an HTTP 403 Forbidden will be thrown and an error page will be displayed.
