@@ -1,8 +1,9 @@
 package dniel.forwardauth.infrastructure.spring
 
 import dniel.forwardauth.application.AuthorizeHandler
-import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
+import dniel.forwardauth.application.LoggingHandler
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
+import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -39,8 +40,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
 
     private fun authenticateToken(accessToken: String?, idToken: String?, method: String, host: String, protocol: String, uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
-        val authorizeResult = authorizeHandler.handle(command)
-        authorizeResult.forEachIndexed { index, authEvent -> LOGGER.trace("AuthEvent #${index}: ${authEvent}") }
+        val authorizeResult = LoggingHandler(authorizeHandler).handle(command)
 
         // 1. check special sign in case
         // always let the sigin request through.

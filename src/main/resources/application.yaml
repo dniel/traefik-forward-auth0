@@ -1,5 +1,4 @@
 spring.profiles.active: ${ENV:DEV}
-server:
-  port: ${PORT:8080}
-
-server.error.whitelabel.enabled: false
+server.port: ${PORT:8080}
+server.error.whitelabel.enabled: true
+server.error.include-exception: true

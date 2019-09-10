@@ -1,15 +1,69 @@
 <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
 <html>
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
 </head>
 <body>
 <div class="container">
-    <div class="jumbotron" >
-        <h1 class="text-center"><i class="fa fa-frown-o"> 500 Internal Server Error</i> </h1>
+    <div class="jumbotron">
+        <h1 class="text-left"><i class="fa fa-frown-o">&nbsp;<span th:text="${status}"/>&nbsp;<span th:text="${error}"/></i></h1>
 
-        <h2 class="text-center">Something went wrong, Our Engineers are on it.</h2>
-    </div></div>
+        <h2 class="text-left"><span th:text="${message}"/>.</h2>
+        <table cellspacing="10px" cellpadding="3px">
+            <tr>
+                <td>Date</td>
+                <td th:text="${timestamp}"/>
+            </tr>
+            <tr>
+                <td>Path</td>
+                <td th:text="${path}"/>
+            </tr>
+            <tr>
+                <td>Error</td>
+                <td th:text="${error}"/>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td th:text="${status}"/>
+            </tr>
+            <tr>
+                <td>Message</td>
+                <td th:text="${message}"/>
+            </tr>
+            <tr>
+                <td>Exception</td>
+                <td th:text="${exception}"/>
+            </tr>
+            <!--tr>
+                <td>Trace</td>
+                <td>
+                    <pre th:text="${trace}"/>
+                </td>
+            </tr>
+        </table>
+        <!--table>
+            <tr th:each="var : ${#vars.getVariableNames()}">
+                <td th:text="${var}"></td>
+                <td th:text="${#vars.getVariable(var)}"></td>
+            </tr>
+            <tr>
+                <td>param</td>
+                <td th:text="${#vars.getVariable('param')}"></td>
+            </tr>
+            <tr>
+                <td>session</td>
+                <td th:text="${#vars.getVariable('session')}"></td>
+            </tr>
+            <tr>
+                <td>application</td>
+                <td th:text="${#vars.getVariable('application')}"></td>
+            </tr>
+        </table-->
+    </div>
+</div>
 </body>
 </html>
