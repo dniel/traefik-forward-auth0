@@ -185,6 +185,7 @@ class AuthorizeHandler(val properties: AuthProperties,
         }
 
         private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
+            app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
             return token.value.claims
                     .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
                     .filterKeys { app.claims.contains(it) }
