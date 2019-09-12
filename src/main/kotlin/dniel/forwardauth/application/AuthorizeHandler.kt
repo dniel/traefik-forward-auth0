@@ -31,10 +31,12 @@ class AuthorizeHandler(val properties: AuthProperties,
                        val verifyTokenService: VerifyTokenService,
                        val nonceService: NonceGeneratorService) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
-    private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     private val AUTHORIZE_URL = properties.authorizeUrl
     private val AUTH_DOMAIN = properties.domain
 
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+    }
 
     /**
      * This is the parameter object for the handler to pass inn all
@@ -184,7 +186,9 @@ class AuthorizeHandler(val properties: AuthProperties,
 
         private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
             return token.value.claims
+                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
                     .filterKeys { app.claims.contains(it) }
+                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
                     .mapValues { getClaimValue(it.value) }
                     .filterValues { it != null } as Map<String, String>
         }

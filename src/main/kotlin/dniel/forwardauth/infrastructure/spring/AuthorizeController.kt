@@ -87,8 +87,10 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
 
         if (validIdTokenEvent == null || validAccessTokenEvent == null) {
             // it should really not be possible to end up here after all validation above.
-            throw ApplicationErrorException()
+            LOGGER.error("Missing access token or id token.")
+            throw ApplicationErrorException("Missing Access Token or ID-Token.")
         } else {
+            LOGGER.debug("Access authorized for user.")
             val builder = ResponseEntity.noContent()
 
             // add the authorization bearer header with token so that
