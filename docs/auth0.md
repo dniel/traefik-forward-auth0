@@ -72,7 +72,7 @@ the difference between Access Tokens and Id tokens
 
 I.e,
 1) The ID token is only to be consumed by the ForwardAuth application that requested it, it shouldn't be read by other applications.
-2) Don't limit access based on content in the ID Token. The Id token is for authenticating the user, not for authorization.
+2) Don't limit access based on content in the ID Token. The Id token is for transferring the user profile, not for authorization.
 
 ### Access Token
 More from the same Auth0 documentation about [Access Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
