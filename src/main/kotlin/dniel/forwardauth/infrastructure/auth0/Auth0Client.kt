@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component
 @Component
 class Auth0Client(val properties: AuthProperties) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+    val DOMAIN = properties.domain
+    val SIGNOUT_ENDPOINT = "${DOMAIN}v2/logout"
+    val USERINFO_ENDPOINT = "${DOMAIN}userinfo"
     val TOKEN_ENDPOINT = properties.tokenEndpoint
     val JSON = jacksonObjectMapper()
 
@@ -38,8 +41,8 @@ class Auth0Client(val properties: AuthProperties) {
                 .asJson();
         val status = response.status
         val body = response.body
-        LOGGER.debug("Got response status $status from token endpoint");
-        LOGGER.debug("BODY: " + body)
+        LOGGER.trace("Response status: ${response.status}")
+        LOGGER.trace("Response body: ${response.body}")
 
         if (body.`object`.has("error")) {
             val error = body.`object`.getString("error")
@@ -67,6 +70,47 @@ class Auth0Client(val properties: AuthProperties) {
 
         LOGGER.info("response: " + response.toString())
         return response.getBody().getObject()
+    }
+
+    /**
+     * Call Auth0 to exchange received code with a JWT Token to decode.
+     */
+    fun signout(clientId: String, returnTo: String): String? {
+        LOGGER.debug("Perform Sign Out")
+        Unirest.setHttpClient(org.apache.http.impl.client.HttpClients.custom()
+                .disableRedirectHandling()
+                .build())
+
+        LOGGER.trace("Request Signout Endpoint: ${SIGNOUT_ENDPOINT}")
+        val response = with(Unirest.get(SIGNOUT_ENDPOINT)) {
+            queryString("client_id", clientId)
+            queryString("returnTo", returnTo)
+        }.asString()
+        LOGGER.trace("Response status: ${response.status}")
+        LOGGER.trace("Response body: ${response.body}")
+        if (response.status == 302) {
+            return response.headers.getFirst("location")
+        } else {
+            return null
+        }
+    }
+
+    /**
+     * Call auth0 and retrieve Userinfo
+     *
+     * See the Auth0 documentation.
+     * @link https://auth0.com/docs/api/authentication#get-user-info
+     */
+    fun userinfo(accesstoken: String): String {
+        LOGGER.debug("Get userinfo")
+        LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT} with token ${accesstoken}")
+        val response = Unirest
+                .get(USERINFO_ENDPOINT)
+                .header("Authorization", "Bearer ${accesstoken}")
+                .asString()
+        LOGGER.trace("Response status: ${response.status}")
+        LOGGER.trace("Response body: ${response.body}")
+        return response.body
     }
 
     /**
