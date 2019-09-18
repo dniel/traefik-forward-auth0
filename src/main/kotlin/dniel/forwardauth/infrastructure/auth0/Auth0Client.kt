@@ -90,7 +90,9 @@ class Auth0Client(val properties: AuthProperties) {
         LOGGER.trace("Response status: ${response.status}")
         LOGGER.trace("Response body: ${response.body}")
         if (response.status == HttpStatus.SC_TEMPORARY_REDIRECT) {
-            return response.headers.getFirst("Location")
+            val returnToUrl = response.headers.getFirst("Location")
+            LOGGER.trace("Should redirect to: ${returnToUrl}")
+            return returnToUrl
         } else {
             return null
         }
@@ -104,7 +106,7 @@ class Auth0Client(val properties: AuthProperties) {
      */
     fun userinfo(accesstoken: String): String {
         LOGGER.debug("Get userinfo")
-        LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT} with token ${accesstoken}")
+        LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT}")
         val response = Unirest
                 .get(USERINFO_ENDPOINT)
                 .header("Authorization", "Bearer ${accesstoken}")
