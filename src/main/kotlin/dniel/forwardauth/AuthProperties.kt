@@ -37,6 +37,7 @@ class AuthProperties {
         var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
         var requiredPermissions: Array<String> = emptyArray()
         var claims: Array<String> = emptyArray()
+        var returnTo: String = ""
 
         override fun toString(): String {
             return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, requiredPermissions=${Arrays.toString(requiredPermissions)}, claims=${Arrays.toString(claims)})"
@@ -57,6 +58,7 @@ class AuthProperties {
 
         val application = apps.find() { it.name.equals(name, ignoreCase = true) }
         if (application !== null) {
+            application.returnTo = if (application.returnTo.isNotEmpty()) application.returnTo else default.returnTo
             application.redirectUri = if (application.redirectUri.isNotEmpty()) application.redirectUri else default.redirectUri
             application.audience = if (application.audience.isNotEmpty()) application.audience else default.audience
             application.scope = if (application.scope.isNotEmpty()) application.scope else default.scope

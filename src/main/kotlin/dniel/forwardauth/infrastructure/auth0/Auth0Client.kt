@@ -6,6 +6,7 @@ import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import dniel.forwardauth.AuthProperties
+import org.apache.http.HttpStatus
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -88,8 +89,8 @@ class Auth0Client(val properties: AuthProperties) {
         }.asString()
         LOGGER.trace("Response status: ${response.status}")
         LOGGER.trace("Response body: ${response.body}")
-        if (response.status == 302) {
-            return response.headers.getFirst("location")
+        if (response.status == HttpStatus.SC_TEMPORARY_REDIRECT) {
+            return response.headers.getFirst("Location")
         } else {
             return null
         }

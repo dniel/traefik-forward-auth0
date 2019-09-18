@@ -7,6 +7,8 @@ class JwtToken(val value: DecodedJWT) : Token {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
+    fun subject(): String = value.subject
+
     fun hasPermission(requiredPermissions: Array<String>): Boolean {
         // if required permissions list is empty any permission is allowed.
         if (requiredPermissions.isEmpty()) return true

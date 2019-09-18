@@ -57,12 +57,14 @@ class AuthorizeHandler(val properties: AuthProperties,
         abstract class NeedRedirectEvent(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
         class IllegalAccessTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
         class IllegalIdTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
-
         abstract class PermissionDeniedEvent : AuthEvent()
+
         class MissingPermissionsEvent(val reason: String) : PermissionDeniedEvent()
         object IllegalMethodEvent : PermissionDeniedEvent()
+        object IllegalSubsTokenEvent : PermissionDeniedEvent()
 
         object ValidPermissionsEvent : AuthEvent()
+        object ValidSubsTokenEvent : AuthEvent()
         object ValidAccessTokenEvent : AuthEvent()
         class ValidIdTokenEvent(val userinfo: Map<String, String>) : AuthEvent()
         object ValidSignInEvent : AuthEvent()
@@ -104,6 +106,29 @@ class AuthorizeHandler(val properties: AuthProperties,
                 else -> AuthEvent.MissingPermissionsEvent("Required permissions to access: " + app.requiredPermissions.joinToString(","))
             }
         }
+    }
+
+
+    /**
+     * The Signin Request url should not be protected.
+     * If the signin redirect url was protected no-one would be able to sign in and be stuck in
+     * sign in loop.
+     */
+    class VerifySameSubInBothTokens(context: Map<String, Any>) : AuthRule(context) {
+        override fun verify(params: AuthorizeCommand): AuthEvent? {
+            val accessToken = context.get("access_token") as Token
+            val idToken = context.get("id_token") as Token
+
+            // check if both tokens have the same subject
+            if (hasDifferentSubs(accessToken, idToken)) {
+                return AuthEvent.IllegalSubsTokenEvent
+            } else {
+                return AuthEvent.ValidSubsTokenEvent
+            }
+        }
+
+        private fun hasDifferentSubs(accessToken: Token, idToken: Token) =
+                accessToken is JwtToken && idToken is JwtToken && idToken.subject() != accessToken.subject()
     }
 
     /**
@@ -150,7 +175,7 @@ class AuthorizeHandler(val properties: AuthProperties,
 
     /**
      * Verify that the Access Token was decoded and verified as correct and not tampered with token.
-     * The code as checked that the singature, audience, domain is as expected and that the the token has not expired.
+     * The code as checked that the signature, audience, domain is as expected and that the the token has not expired.
      */
     class VerifyValidAccessToken(context: Map<String, Any>) : AuthRule(context) {
         override fun verify(params: AuthorizeCommand): AuthEvent? {
@@ -215,7 +240,8 @@ class AuthorizeHandler(val properties: AuthProperties,
                 VerifyRestrictedMethod(context),
                 VerifyHasPermission(context),
                 VerifyValidAccessToken(context),
-                VerifyValidIdToken(context))
+                VerifyValidIdToken(context),
+                VerifySameSubInBothTokens(context))
 
         val events = rules.foldRight(mutableListOf<AuthEvent>()) { rule, acc ->
             rule.verify(params)?.let {
