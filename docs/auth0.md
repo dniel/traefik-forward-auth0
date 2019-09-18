@@ -1,40 +1,4 @@
 # Auth0
-The Auth0 service is conforming to the [OAuth 2 specification](https://tools.ietf.org/html/rfc6749)
-and is a certified [Open ID Connect Provider](http://openid.net/certification/). It implements the 
-[Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html) and has added
-its own features on top.
-
-From Section 1.1 in the [OAuth specification](https://tools.ietf.org/html/rfc6749#section-1.1)
->   OAuth defines four roles:
->
->   resource owner
->      An entity capable of granting access to a protected resource.
->      When the resource owner is a person, it is referred to as an
->      end-user.
->
->   resource server
->      The server hosting the protected resources, capable of accepting
->      and responding to protected resource requests using access tokens.
->
->   client
->      An application making protected resource requests on behalf of the
->      resource owner and with its authorization.  The term "client" does
->      not imply any particular implementation characteristics (e.g.,
->      whether the application executes on a server, a desktop, or other
->      devices).
->
->   authorization server
->      The server issuing access tokens to the client after successfully
->      authenticating the resource owner and obtaining authorization.
- 
-In the Auth0 and ForwardAuth setup with Traefik
-- _Auth0_ is the authorization server
-- _Client_ is the ForwardAuth application
-- _Resource Server_ is a web application you want to protect with Traefik.
-
-In the Auth0 configuration
-- _Client_ is an Application.
-- _Resource Server_ is an API.
 
 ### API
 The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
@@ -58,39 +22,7 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 
 Register Traefik ForwardAuth as an application to be able to assign APIs to it.
 
-## Tokens
-### Id Token
-From the [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens) describing 
-the difference between Access Tokens and Id tokens
-
->Note that the audience value (located in the aud claim) of the token is set to the application's identifier.
->This means that only this specific application should consume the token.   
-
->You can think of the ID Token as a performance optimization that allows applications to obtain user profile information
->without making additional requests after the completion of the authentication process. ID Tokens should never be used
->to obtain direct access to resources or to make authorization decisions.
-
-I.e,
-1) The ID token is only to be consumed by the ForwardAuth application that requested it, it shouldn't be read by other applications.
-2) Don't limit access based on content in the ID Token. The Id token is for transferring the user profile, not for authorization.
-
-### Access Token
-More from the same Auth0 documentation about [Access Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
-
->The Access Token is meant to authorize the user to the API (resource server). As such, the token is Completely opaque 
->to applications -- applications should not care about the contents of the token.
-
->The token does not contain any information about the user except for the user ID (located in the sub claim). 
->The token only contains authorization information about the actions that application is allowed to perform at the API 
->(such permissions are referred to as scopes).
-
-I.e,
-1) Use the content of the Access Token to make authorization decisions.
-2) Use scopes to define permissions.
-3) Traefik ForwardAuth application should'nt do anything with the Access Token.
-4) The receiving API can do whatever it wants with the Access Token.
-
-## Authentication
+### Authentication
 From [the Auth0 documentation on authentication](https://auth0.com/docs/application-auth/current) 
 > Authentication refers to the process of confirming identity. While often used interchangeably with authorization, 
 > authentication represents a fundamentally different function.
@@ -99,7 +31,7 @@ From [the Auth0 documentation on authentication](https://auth0.com/docs/applicat
 > for verification. Authentication is often proved through a username and password, sometimes combined with other 
 > elements called factors, which fall into three categories: what you know, what you have, or what you are.
 
-## Authorization
+### Authorization
 From [the wikipedia article](https://en.wikipedia.org/wiki/Authorization) describing Authorization.
 > Authorization is the function of specifying access rights/privileges to resources, which is related to information 
 > security and computer security in general and to access control in particular. More formally, "to authorize" is to define an access policy.
@@ -107,21 +39,7 @@ From [the wikipedia article](https://en.wikipedia.org/wiki/Authorization) descri
 The [Auth0 documentation](https://auth0.com/docs/authorization/concepts/authz-and-authn) describes the difference between 
 Authentication and Authorization.
 
-Auth0 has two systems for doing authorization to APIs. The current system is the Authorization Extension and will be 
-gradually replaced by a more integrated solution in Auth0, Auth0 Role Based Access Control (RBAC).
-
-The Authorization Extension has currently (06.06.2019) more features but will be replaced eventually by Auth0 RBAC. 
-Check out the [feature comparison](https://auth0.com/docs/authorization/concepts/core-vs-extension) for more details.
-
-Both systems use a similar User, Roles and permissions model where you can assign permissions to roles or directly to a user.
-
-Auth0 RBAC and Authorization Extension use APIs when assigning permissions. You can't assign a permission to an 
-application. That means that to use authorization in you need to create an application for the ForwardAuth 
-application and for all the applications you want ForwardAuth to protect you need to create an API.
-
-Both systems can use [rules to decide access](https://auth0.com/docs/authorization/concepts/authz-rules).
-
-### Auth0 Role Based Access Control, RBAC
+#### Auth0 Role Based Access Control, RBAC
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension. 
 
@@ -182,17 +100,13 @@ error page will be displayed to the user saying 403 Forbidden and the message fr
 
 ### Suggestions of how to structure Applications, Apis and Permissions
 - Add one common application, maybe call it Traefik.
-- Add all applications that should be controlled through Traefik as API's
-- Possibly create API's that span more than one backend application but should share a `Audience` with a common api
-  to let users jump between the applications without requiring to re-login again. 
-- The shared API could be site with more than one backend service that share the same audience.
-- Add permissions for all the backend applications to the shared API.
+- Create API's for all applications you want Traefik and ForwardAuth to protect 
+- Enable RBAC and Add Permissions to Access Token under API Settings. 
+- Create permissions in your API.
+- Add the permissions directly to users or to roles assigned to users.
 - Use a Default Audience set on the tenant to always have a JWT token that can be verified. 
 
 ### Reference
-- [OAuth 2 specification](https://tools.ietf.org/html/rfc6749)
-- [Open ID Connect Provider](http://openid.net/certification/)
-- [Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html)
 - [Auth0 documentation on APIs](https://auth0.com/docs/apis)
 - [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 - [Auth0 documentation on difference between Access Tokens and ID Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
