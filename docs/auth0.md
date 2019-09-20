@@ -63,9 +63,10 @@ The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being r
 the current Authorization Extension. 
 
 #### Assign permissions to users
-To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch. Then create 
-under Permissions in your API's settings create permissions for your api to use. Then go to Users & Roles and add 
-either directly to a user the permissions you created in your API, or create a role with a set of permissions and
+To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch, and also 
+the "Add Permissions to Access Token" so that ForwardAuth can see them in the returned token.
+Then under Permissions in your API's settings create permissions for your API. Then go to Users & Roles
+and add either directly to a user the permissions you created in your API, or create a role with a set of permissions and
 assign to your users.
 
 The RBAC system will run when the user log in and match all the scopes you send in to the permissions of the user.
