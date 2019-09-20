@@ -26,9 +26,9 @@ open class AuthApplication(val auth: AuthProperties) {
 
 fun main(args: Array<String>) {
     val applicationContext = runApplication<AuthApplication>(*args)
-    val env = applicationContext.getEnvironment()
+/*    val env = applicationContext.getEnvironment()
     LOGGER.info("====== Environment and configuration ======")
     val sources = (env as AbstractEnvironment).propertySources
 
-    LOGGER.info("===========================================")
+    LOGGER.info("===========================================")*/
 }
