@@ -47,7 +47,6 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         if (authorizeResult.find {
                     it is AuthorizeHandler.AuthEvent.ValidSignInEvent
                 } != null) {
-            LOGGER.debug("Let the sign in request through.")
             return ResponseEntity.noContent().build()
         }
 
@@ -73,7 +72,6 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
         } as AuthorizeHandler.AuthEvent.PermissionDeniedEvent?
         if (permissionDeniedEvent != null) {
-            LOGGER.debug("Got permission denied event, throw 403 Forbidden.")
             throw PermissionDeniedException()
         }
 
@@ -87,10 +85,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
 
         if (validIdTokenEvent == null || validAccessTokenEvent == null) {
             // it should really not be possible to end up here after all validation above.
-            LOGGER.error("Missing access token or id token.")
             throw ApplicationErrorException("Missing Access Token or ID-Token.")
         } else {
-            LOGGER.debug("Access authorized for user.")
             val builder = ResponseEntity.noContent()
 
             // add the authorization bearer header with token so that

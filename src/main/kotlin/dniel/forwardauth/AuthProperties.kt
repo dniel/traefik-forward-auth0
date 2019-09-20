@@ -49,7 +49,6 @@ class AuthProperties {
         return "AuthProperties(domain='$domain', tokenEndpoint='$tokenEndpoint', authorizeUrl='$authorizeUrl', default=$default, apps=$apps)"
     }
 
-
     /**
      * Return application with application specific values, default values or inherited values.
      */

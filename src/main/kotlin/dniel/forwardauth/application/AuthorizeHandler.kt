@@ -35,7 +35,7 @@ class AuthorizeHandler(val properties: AuthProperties,
     private val AUTH_DOMAIN = properties.domain
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+        private val LOGGER = LoggerFactory.getLogger(this::class.java)
     }
 
     /**

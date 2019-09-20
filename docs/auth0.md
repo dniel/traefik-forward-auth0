@@ -72,6 +72,9 @@ assign to your users.
 The RBAC system will run when the user log in and match all the scopes you send in to the permissions of the user.
 Any permissions requested by the user that they dont have, will be removed by the RBAC system when returning the response.
 
+If you dont enable RBAC for your API, or dont enable "Add permissions to Access Token" everybody will be 
+let through to the API.
+
 #### Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
 will check before letting the user access the application. The permissions is transferred on login from Auth0
