@@ -8,7 +8,7 @@ Quoted from https://auth0.com/docs/getting-started/overview
 > their identity and send the required information back to your app. 
 
 ## Auth0 Central Components
-Auth0 is built on the following central components that ForwardAuth depends heavily on:
+ForwardAuth is built on the following central components from Auth0:
 * Authorization Code OAuth 2.0 grant-flow 
 * Applications
 * APIs
