@@ -12,10 +12,6 @@ application and will save the JWT and the Access Token received from Auth0 as a 
 access a protected frontend configured in Traefik, a http call will be sent to this backend to validate that the user is
 a valid user.
 
-# Pardon The Mess!
-This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
-I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
-
 # Documentation
 - [Overview](/docs/overview.md)
 - [Development](/docs/development.md)
