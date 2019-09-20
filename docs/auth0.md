@@ -7,7 +7,7 @@ Quoted from https://auth0.com/docs/getting-started/overview
 > our SDKs (or call our API), and hook it up to your app. Now each time a user tries to authenticate, Auth0 will verify 
 > their identity and send the required information back to your app. 
 
-## Auth2 Central Components
+## Auth0 Central Components
 Auth2 is built on the following central components that ForwardAuth depends heavily on:
 * Authorization Code OAuth 2.0 grant-flow 
 * Applications
