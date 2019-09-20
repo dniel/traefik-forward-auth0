@@ -21,3 +21,9 @@ The callback URL that Auth0 redirects after the user has authorized the requst a
 Will set the Session Cookies in the browser with Access Token and ID-Token to hold the current user session 
 between http request.
 
+### Signout
+Call this endpoint when logged in to remove the session cookies from your browser and call Auth0 logout endpoint
+which will log out your session in Auth0 as well.
+
+### Userinfo
+Call this endpoint when logged in to retrieve user information.
