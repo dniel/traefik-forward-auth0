@@ -1,15 +1,41 @@
-# Auth0
+# What is Auth0? 
+Quoted from https://auth0.com/docs/getting-started/overview
+> Auth0 provides authentication and authorization as a service.
+> We are here to give developers and companies the building blocks they need to secure their applications without having 
+> to become security experts. You can connect any application (written in any language or on any stack) to Auth0 and define
+> the identity providers you want to use (how you want your users to log in). Based on your app's technology, choose one of 
+> our SDKs (or call our API), and hook it up to your app. Now each time a user tries to authenticate, Auth0 will verify 
+> their identity and send the required information back to your app. 
 
-### API
-The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
->An API is an entity that represents an external resource, capable of accepting and responding to protected resource requests 
->made by applications. At the OAuth2 spec an API maps to the Resource Server.
->
->When an application wants to access an API's protected resources it must provide an Access Token. 
->The same Access Token can be used to access the API's resources without having to authenticate again, until it expires.
+## Auth2 Central Components
+Auth2 is built on the following central components that ForwardAuth depends heavily on:
+* Authorization Code OAuth 2.0 grant-flow 
+* Applications
+* APIs
+* Role Based Access Control
+* Users, Roles and Permissions
+* Rules
 
-Register the web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
-permissions to them.
+### Authorization Code OAuth 2.0 grant-flow
+ForwardAuth uses the Authorization Code OAuth 2.0 grant-flow to do a redirect exchange of code and retrieve an
+access token and user token. Check the [Auth0 Documentation](https://auth0.com/docs/api-auth/grant/authorization-code)
+on how this flow works.
+
+*First* when a request is received by the ForwardAuth-backend and it need to authenticate the use, it uses the x-forwarded-host 
+to match a application name to the loaded list of apps in the config. If an application is matched the application uses the
+client-id, client-secret, scope and audience for that application to request a access token exchange code from Auth0.
+
+*Then* it will validate the Access Token found in the HTTP headers to verify that its a valid and not tampered JWT. 
+Because of Auth0 has two different formats for Access Tokens, Opaque and Jwt Token, depending on if the audience 
+was set when requesting the token, the only way for ForwardAuth to validate that the Access Token has not been
+tampered with and has not expired is if you use a token with JWT format. This means that Auth0 *MUST* be configured
+with either and Audience or a Default Audience in the Auth0 Tenant when requesting an Access Token to receive a token
+of JWT Format, or else the user will get Access Denied from ForwardAuth because the token could not be verified. 
+
+*Afterwards* it will check if the audience of the Access Token is the same as the one specified for the application matched
+in the application config to the forwarded-host to make sure that the application that the token is actually the intended
+audience for the http request. If the Access Token is not intended for the current application audience, the user will
+be redirected to authorize again with Auth0.
 
 ### Application
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
@@ -20,26 +46,19 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > be a native app that executes on a mobile device, a single-page app that executes on a browser, or a regular web app
 > that executes on a server.
 
-Register Traefik ForwardAuth as an application to be able to assign APIs to it.
-
-### Authentication
-From [the Auth0 documentation on authentication](https://auth0.com/docs/application-auth/current) 
-> Authentication refers to the process of confirming identity. While often used interchangeably with authorization, 
-> authentication represents a fundamentally different function.
+### API
+The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
+>An API is an entity that represents an external resource, capable of accepting and responding to protected resource requests 
+>made by applications. At the OAuth2 spec an API maps to the Resource Server.
 >
-> In authentication, a user or application proves they are who they say they are by providing valid credentials 
-> for verification. Authentication is often proved through a username and password, sometimes combined with other 
-> elements called factors, which fall into three categories: what you know, what you have, or what you are.
+>When an application wants to access an API's protected resources it must provide an Access Token. 
+>The same Access Token can be used to access the API's resources without having to authenticate again, until it expires.
 
-### Authorization
-From [the wikipedia article](https://en.wikipedia.org/wiki/Authorization) describing Authorization.
-> Authorization is the function of specifying access rights/privileges to resources, which is related to information 
-> security and computer security in general and to access control in particular. More formally, "to authorize" is to define an access policy.
+Register the web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
+permissions to them. You can also [represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)
+so that they doesn't need to re-authenticate when navigating between services.
 
-The [Auth0 documentation](https://auth0.com/docs/authorization/concepts/authz-and-authn) describes the difference between 
-Authentication and Authorization.
-
-#### Auth0 Role Based Access Control, RBAC
+#### Role Based Access Control (RBAC)
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension. 
 
@@ -100,7 +119,7 @@ error page will be displayed to the user saying 403 Forbidden and the message fr
 
 ### Suggestions of how to structure Applications, Apis and Permissions
 - Add one common application, maybe call it Traefik.
-- Create API's for all applications you want Traefik and ForwardAuth to protect 
+- Create a shared Logical Api that span several services to create a system context.
 - Enable RBAC and Add Permissions to Access Token under API Settings. 
 - Create permissions in your API.
 - Add the permissions directly to users or to roles assigned to users.
@@ -110,11 +129,9 @@ error page will be displayed to the user saying 403 Forbidden and the message fr
 - [Auth0 documentation on APIs](https://auth0.com/docs/apis)
 - [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 - [Auth0 documentation on difference between Access Tokens and ID Tokens](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens)
-- [Wikipedia article on Authorization](https://en.wikipedia.org/wiki/Authorization)
-- [Auth0 documentation on authentication](https://auth0.com/docs/application-auth/current) 
-- [Auth0 documentation on the difference between Authorization and Authentication](https://auth0.com/docs/authorization/concepts/authz-and-authn)
 - [Auth0 documentation on implementing Authorization Rules](https://auth0.com/docs/authorization/concepts/authz-rules)
 - [How to configure the Authorization Extension](https://auth0.com/docs/architecture-scenarios/spa-api/part-2#configure-the-authorization-extension)
 - [Feature comparision between Auth0 RBAC and the Authorization Extension](https://auth0.com/docs/authorization/concepts/core-vs-extension)
 - [Auth0 RBAC](https://auth0.com/docs/authorization)
 - [Auth0 Rules to decide access](https://auth0.com/docs/authorization/concepts/authz-rules)
+- [Represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)

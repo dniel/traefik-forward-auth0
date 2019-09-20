@@ -4,6 +4,9 @@ and is a certified [Open ID Connect Provider](http://openid.net/certification/).
 [Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html) and has added
 its own features on top.
 
+Read more about https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth
+
+## The different roles of OAuth and how they are related to ForwardAuth
 From Section 1.1 in the [OAuth specification](https://tools.ietf.org/html/rfc6749#section-1.1)
 >   OAuth defines four roles:
 >
@@ -36,7 +39,15 @@ In the Auth0 configuration
 - _Client_ is an Application.
 - _Resource Server_ is an API.
 
-## Access Tokens and ID Tokens
+## Tokens
+The ForwardAuth make heavy use of the Access Tokens and ID Tokens. Its actually what the application 
+is all about, it retrieves, validates, verifies, parses and checks the Access Tokens and the ID tokens and its content
+to make sure that the user has access to the URL he/she requested. The two tokens come from two different specifications
+and serves different purposes.
+
+* The ID Token comes from the OIDC spec, and is for authentication, eg. the user profile
+* The Access Token comes from the OAuth2 spec, and is for authorization, eg. the user access assertions.
+* There is also a Refresh token also from the OAuth2 spec, but its not in use in the ForwardAuth application. 
 
 ### Id Token
 From the [Auth0 documentation](https://auth0.com/docs/api-auth/tutorials/adoption/api-tokens#access-vs-id-tokens) describing 

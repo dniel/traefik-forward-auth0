@@ -23,4 +23,5 @@ I'm working on making stuff much more stable like a Beta release, something that
 - [Configuration](/docs/configuration.md)
 - [Auth0](/docs/auth0.md)
 - [OAuth and Open ID Connect](/docs/oauth-oidc.md)
+- [FAQ](/docs/faq.md)
 - [Contributing](/docs/contributing.md)
