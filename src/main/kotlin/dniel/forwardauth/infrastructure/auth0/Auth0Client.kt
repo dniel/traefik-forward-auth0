@@ -42,8 +42,8 @@ class Auth0Client(val properties: AuthProperties) {
                 .asJson();
         val status = response.status
         val body = response.body
-        LOGGER.trace("Response status: ${response.status}")
-        LOGGER.trace("Response body: ${response.body}")
+        LOGGER.trace("Response status: ${status}")
+        LOGGER.trace("Response body: ${body}")
 
         if (body.`object`.has("error")) {
             val error = body.`object`.getString("error")

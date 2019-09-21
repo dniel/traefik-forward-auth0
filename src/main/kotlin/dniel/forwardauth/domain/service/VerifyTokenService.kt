@@ -1,13 +1,16 @@
 package dniel.forwardauth.domain.service
 
-import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.google.common.cache.CacheBuilder
 import dniel.forwardauth.domain.InvalidToken
 import dniel.forwardauth.domain.JwtToken
 import dniel.forwardauth.domain.OpaqueToken
 import dniel.forwardauth.domain.Token
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.TimeUnit
 
 /**
  * Interface for decoder of Jwt Tokens that is provided to the VerifyTokenService
@@ -16,14 +19,15 @@ import org.springframework.stereotype.Component
  * @see dniel.forwardauth.infrastructure.auth0.Auth0JwtDecoder
  */
 interface JwtDecoder {
-    fun verify(token: String, domain: String): DecodedJWT
+    fun verify(token: String): DecodedJWT
 }
 
 @Component
 class VerifyTokenService(val decoder: JwtDecoder) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+    val cache = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).build<String, DecodedJWT>()
 
-    fun verify(token: String?, expectedAudience: String, expectedDomain: String): Token {
+    fun verify(token: String?, expectedAudience: String): Token {
         return when {
             // if its a null or empty string just fail fast.
             token.isNullOrEmpty() -> InvalidToken("Missing token")
@@ -33,26 +37,27 @@ class VerifyTokenService(val decoder: JwtDecoder) {
 
             else -> {
                 try {
-                    val decodedJWT = decodeToken(token, expectedDomain)
-                    if (verifyAudience(decodedJWT, expectedAudience)) {
-                        LOGGER.debug("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
-                        throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}. " +
-                                "Probably error in application configuration or Auth0 service configuration.")
-                    } else {
-                        JwtToken(decodedJWT)
+                    val decodedJWT = cache.get(token, Callable<DecodedJWT> {
+                        decodeToken(token)
+                    })
+                    when {
+                        hasIllegalAudience(decodedJWT, expectedAudience) -> throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
+                        hasExpired(decodedJWT) -> throw IllegalStateException("Token has expired ${decodedJWT.expiresAt}")
+                        else -> JwtToken(decodedJWT)
                     }
-                } catch (e: JWTVerificationException) {
-                    val reason = "Failed to decode the token: ${e.message}"
-                    LOGGER.debug(reason)
-                    InvalidToken(reason)
+                } catch (e: Exception) {
+                    cache.invalidate(token)
+                    InvalidToken("" + e.message)
                 }
             }
         }
     }
 
+    private fun hasExpired(decodedJWT: DecodedJWT): Boolean = decodedJWT.expiresAt.before(Date())
+
     private fun isOpaqueToken(token: String): Boolean = token.split(".").size == 0
 
-    private fun verifyAudience(decodedJWT: DecodedJWT, expectedAudience: String): Boolean = !decodedJWT.audience.contains(expectedAudience)
+    private fun hasIllegalAudience(decodedJWT: DecodedJWT, expectedAudience: String): Boolean = !decodedJWT.audience.contains(expectedAudience)
 
-    private fun decodeToken(token: String, domain: String): DecodedJWT = decoder.verify(token, domain)
+    private fun decodeToken(token: String): DecodedJWT = decoder.verify(token)
 }

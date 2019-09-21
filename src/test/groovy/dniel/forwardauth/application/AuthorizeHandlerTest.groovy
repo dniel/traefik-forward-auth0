@@ -29,7 +29,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(validJwtTokenString, _, _) >> new JwtToken(jwtToken)
+        verifyTokenService.verify(validJwtTokenString, _) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -66,8 +66,8 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(null, _, _) >> new InvalidToken("missing token return invalid token.")
-        verifyTokenService.verify("", _, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify(null, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify("", _) >> new InvalidToken("missing token return invalid token.")
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -105,7 +105,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify( _, _, _) >> new InvalidToken("simulating an invalid token resposne from the token service.")
+        verifyTokenService.verify( _, _) >> new InvalidToken("simulating an invalid token resposne from the token service.")
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -136,9 +136,9 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(validJwtTokenString, _, _) >> new JwtToken(jwtToken)
-        verifyTokenService.verify(null, _, _) >> new InvalidToken("missing token return invalid token.")
-        verifyTokenService.verify("", _, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify(validJwtTokenString, _) >> new JwtToken(jwtToken)
+        verifyTokenService.verify(null, _) >> new InvalidToken("missing token return invalid token.")
+        verifyTokenService.verify("", _) >> new InvalidToken("missing token return invalid token.")
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -175,7 +175,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(_,_,_) >> new JwtToken(jwtToken)
+        verifyTokenService.verify(_,_) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -207,7 +207,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify( _, _, _) >> new JwtToken(jwtToken)
+        verifyTokenService.verify( _, _) >> new JwtToken(jwtToken)
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -238,7 +238,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(_, _, _) >> new InvalidToken(("Just to get a redirect event to check"))
+        verifyTokenService.verify(_, _) >> new InvalidToken(("Just to get a redirect event to check"))
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
@@ -265,7 +265,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
-        verifyTokenService.verify(_, _, _) >> new InvalidToken(("Just to get a redirect event to check"))
+        verifyTokenService.verify(_, _) >> new InvalidToken(("Just to get a redirect event to check"))
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(

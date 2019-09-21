@@ -1,33 +1,39 @@
 package dniel.forwardauth.infrastructure.auth0
 
 import com.auth0.jwk.GuavaCachedJwkProvider
-import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.UrlJwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.RSAKeyProvider
+import com.google.common.cache.CacheBuilder
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.service.JwtDecoder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
+import java.util.concurrent.Callable
+import java.util.concurrent.TimeUnit
 
 
 @Component
-class Auth0JwtDecoder : JwtDecoder {
+class Auth0JwtDecoder(val properties: AuthProperties) : JwtDecoder {
     val LOGGER = LoggerFactory.getLogger(this.javaClass)
-    var provider: JwkProvider? = null
+    val AUTH_DOMAIN = properties.domain
+    val cache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build<String, DecodedJWT>()
+    val provider = GuavaCachedJwkProvider(UrlJwkProvider(AUTH_DOMAIN))
 
-    override fun verify(token: String, domain: String): DecodedJWT {
-        this.provider = GuavaCachedJwkProvider(UrlJwkProvider(domain))
-        return verifyJWT(token, domain)
+    override fun verify(token: String): DecodedJWT {
+        return cache.get(token, Callable<DecodedJWT> {
+            verifyJWT(token, AUTH_DOMAIN)
+        })
     }
 
     private fun verifyJWT(token: String, domain: String): DecodedJWT {
         val decodedJWT = JWT.decode(token)
-        val jwk = provider!!.get(decodedJWT.keyId)
+        val jwk = provider.get(decodedJWT.keyId)
         val keyProvider = object : RSAKeyProvider {
             override fun getPublicKeyById(kid: String): RSAPublicKey = jwk.publicKey as RSAPublicKey
             override fun getPrivateKey(): RSAPrivateKey? = null

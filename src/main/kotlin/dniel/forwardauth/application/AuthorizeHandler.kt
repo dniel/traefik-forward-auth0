@@ -50,6 +50,29 @@ class AuthorizeHandler(val properties: AuthProperties,
                                 val method: String
     ) : Command
 
+
+    /**
+     * Main Handle Command method.
+     */
+    override fun handle(params: AuthorizeCommand): List<AuthEvent> {
+        val context = createAuthRuleContext(params)
+        val rules = listOf<AuthRule>(
+                VerifyAllowSignInRequest(context),
+                VerifyRestrictedMethod(context),
+                VerifyHasPermission(context),
+                VerifyValidAccessToken(context),
+                VerifyValidIdToken(context),
+                VerifySameSubInBothTokens(context))
+
+        val events = rules.foldRight(mutableListOf<AuthEvent>()) { rule, acc ->
+            rule.verify(params)?.let {
+                acc.add(it)
+            }
+            acc
+        }
+        return events
+    }
+
     /**
      * This command can produce a set of events as response from the handle method.
      */
@@ -230,28 +253,6 @@ class AuthorizeHandler(val properties: AuthProperties,
         }
     }
 
-    /**
-     * Main Handle Command method.
-     */
-    override fun handle(params: AuthorizeCommand): List<AuthEvent> {
-        val context = createAuthRuleContext(params)
-        val rules = listOf<AuthRule>(
-                VerifyAllowSignInRequest(context),
-                VerifyRestrictedMethod(context),
-                VerifyHasPermission(context),
-                VerifyValidAccessToken(context),
-                VerifyValidIdToken(context),
-                VerifySameSubInBothTokens(context))
-
-        val events = rules.foldRight(mutableListOf<AuthEvent>()) { rule, acc ->
-            rule.verify(params)?.let {
-                acc.add(it)
-            }
-            acc
-        }
-        return events
-    }
-
     private fun createAuthRuleContext(params: AuthorizeCommand): MutableMap<String, Any> {
         val app = properties.findApplicationOrDefault(params.host)
         val nonce = nonceService.generate()
@@ -263,8 +264,8 @@ class AuthorizeHandler(val properties: AuthProperties,
         LOGGER.debug("Authorize request=${originUrl} to app=${app.name}")
         val context = emptyMap<String, Any>().toMutableMap()
 
-        val accessToken = verifyTokenService.verify(params.accessToken, app.audience, AUTH_DOMAIN)
-        val idToken = verifyTokenService.verify(params.idToken, app.clientId, AUTH_DOMAIN)
+        val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
+        val idToken = verifyTokenService.verify(params.idToken, app.clientId)
 
         context.put("access_token", accessToken)
         context.put("id_token", idToken)

@@ -6,9 +6,7 @@ import dniel.forwardauth.domain.InvalidToken
 import dniel.forwardauth.domain.JwtToken
 import spock.lang.Specification
 
-import static org.hamcrest.Matchers.containsString
-import static org.hamcrest.Matchers.instanceOf
-import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
 class VerifyTokenServiceTest extends Specification {
@@ -22,14 +20,14 @@ class VerifyTokenServiceTest extends Specification {
 
         and: "a stubbed jwt decoder"
         def decoder = Stub(JwtDecoder) {
-            verify(_, _) >> exampleToken
+            verify(_) >> exampleToken
         }
 
         and: "a verification token service which is the system under test"
         VerifyTokenService sut = new VerifyTokenService(decoder)
 
         when: "we verify the token"
-        def verifiedToken = sut.verify(tokenString, exampleAudience, domain)
+        def verifiedToken = sut.verify(tokenString, exampleAudience)
 
         then:
         that(verifiedToken, is(instanceOf(JwtToken)))
@@ -44,17 +42,17 @@ class VerifyTokenServiceTest extends Specification {
 
         and: "a stubbed jwt decoder"
         def decoder = Stub(JwtDecoder) {
-            verify(_, _) >> exampleToken
+            verify(_) >> exampleToken
         }
 
         and: "a verification token service which is the system under test"
         VerifyTokenService sut = new VerifyTokenService(decoder)
 
         when: "we verify the token"
-        def token = sut.verify(tokenString, exampleAudience, domain)
+        def token = sut.verify(tokenString, exampleAudience)
 
         then:
-        thrown(IllegalStateException)
+        that(token, is(instanceOf(InvalidToken)))
     }
 
     def "should return invalid token with reason if token fails to decode"() {
@@ -66,7 +64,7 @@ class VerifyTokenServiceTest extends Specification {
 
         and: "a stubbed jwt decoder that throws an exception on verify"
         def decoder = Stub(JwtDecoder) {
-            verify(_, _) >> {
+            verify(_) >> {
                 throw new JWTVerificationException("something went wrong.")
             }
         }
@@ -75,7 +73,7 @@ class VerifyTokenServiceTest extends Specification {
         VerifyTokenService sut = new VerifyTokenService(decoder)
 
         when: "we verify the token"
-        def token = sut.verify(tokenString, exampleAudience, domain)
+        def token = sut.verify(tokenString, exampleAudience)
 
         then:
         that(token, is(instanceOf(InvalidToken)))
