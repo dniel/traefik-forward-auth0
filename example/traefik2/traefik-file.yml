@@ -19,9 +19,29 @@ http:
     routerAuth:
       rule: "Host(`auth.example.test`)"
       service: auth
+      tls: {}
   
   services:
     auth:
       loadBalancer:
         servers:
         - url: http://host.docker.internal:8080
+
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+
+    forward-auth:
+      forwardAuth:
+        address: http://host.docker.internal:8080/authorize
+        trustForwardHeader: true
+        authResponseHeaders:
+          - X-FORWARDAUTH-NAME
+          - X-FORWARDAUTH-SUB
+          - X-FORWARDAUTH-EMAIL
+
+    secured:
+      chain:
+        middlewares:
+          - forward-auth
