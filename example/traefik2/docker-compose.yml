@@ -25,6 +25,7 @@ services:
       # Terminate SSL, whoami doesnt listen on SSL traffic, whoami is listening on plain text unencrypted http connections.
       # https://docs.traefik.io/v2.0/routing/routers/#tls
       - "traefik.http.routers.dashboard.tls"
+      - "traefik.http.routers.dashboard.entrypoints=https"
       - "traefik.http.routers.dashboard.middlewares=forward-auth@file"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)"
       - "traefik.http.services.dashboard.LoadBalancer.server.Port=8080"
@@ -34,6 +35,7 @@ services:
     labels:
       - "traefik.http.routers.whoami.tls"
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
+      - "traefik.http.routers.whoami.entrypoints=https"
       - "traefik.http.routers.whoami.middlewares=forward-auth@file"
 
   www:
@@ -41,6 +43,7 @@ services:
     labels:
       - "traefik.http.routers.www.tls"
       - "traefik.http.routers.www.middlewares=forward-auth@file"
+      - "traefik.http.routers.www.entrypoints=https"
       - "traefik.http.routers.www.rule=Host(`www.example.test`)"
 
   graphql:
@@ -48,6 +51,7 @@ services:
     labels:
       - "traefik.http.routers.graphql.tls"
       - "traefik.http.routers.graphql.rule=Host(`graphql.example.test`)"
+      - "traefik.http.routers.graphql.entrypoints=https"
       - "traefik.http.routers.graphql.middlewares=forward-auth@file"
 
 #################################################################

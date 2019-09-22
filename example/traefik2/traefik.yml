@@ -1,5 +1,13 @@
+global:
+  checkNewVersion: true
+
 api:
   dashboard: true
+
+accesslog: {}
+
+log:
+  level: "INFO"
 
 entryPoints:
   http:
