@@ -26,6 +26,10 @@ default:
   redirect-uri: http://www.example.test/oauth2/signin
   token-cookie-domain: example.test
 
+  # this is the url to redirect to after successfull /signout has been called.
+  # this url must also be set on the Application in Auth0 as valid signout redirect url.
+  return-to: https://www.example.test
+
   # By default all method (GET, HEAD, OPTION, DELETE, PUT, PATCH and POST)
   # is restricted and must have an access token and a id token set in the
   # browser cookies.
