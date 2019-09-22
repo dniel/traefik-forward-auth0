@@ -1,7 +1,7 @@
 # Configuration
 
 ## Auth0
-@gkoerk has create a good [step-by-step instructions](https://github.com/gkoerk/QNAP-Docker-Swarm-Setup#forwardauth-setup-steps)
+[@gkoerk](https://github.com/gkoerk) has create a good [step-by-step instructions](https://github.com/gkoerk/QNAP-Docker-Swarm-Setup#forwardauth-setup-steps)
 about installing ForwardAuth and configuring Auth0.
 
 ### Suggestions of how to structure Applications, Apis and Permissions
