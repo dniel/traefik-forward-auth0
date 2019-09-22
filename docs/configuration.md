@@ -38,14 +38,22 @@ redirect-uri: http://www.example.test/oauth2/signin
 authorize-url: https://xxxx.xx.auth0.com/authorize
 
 default: 
-    name: www.example.test
-    client-id: <from auth0 application config>
-    client-secret: <from auth0 application config>
-    audience: <from auth0 api config>
-    scope: "profile openid email"
-    redirect-uri: http://www.example.test/oauth2/signin
-    token-cookie-domain: example.test
-
+  name: www.example.test
+  client-id: <from auth0 application config>
+  client-secret: <from auth0 application config>
+  audience: <from auth0 api config>
+  scope: "profile openid email"
+  redirect-uri: http://www.example.test/oauth2/signin
+  token-cookie-domain: example.test
+  
+  # the ID Token from Auth0 contains user claims, specify a list of claims you want to 
+  # pass to the protected website. The access token is always added to the protected request
+  # as header Authorization: Bearer <ACCESS TOKEN> and should be used to verify access in the backend API.
+  # In addition to the mandatory Authorization header, you can specify a list of user claims from the ID Token below. 
+  claims:
+    - sub
+    - name
+    - email
 apps:
   - name: www.example.test
     client-id: <from auth0 application config>
@@ -54,6 +62,16 @@ apps:
     scope: "profile openid email"
     redirect-uri: http://www.example.test/oauth2/signin
     token-cookie-domain: example.test
+    # if the user doesnt have all of the permissions required, he will get a 403 Permission Denied response. 
+    required-permissions: 
+    - read:whoami
+    - read:website
+    # sometimes it isn't necessary to limit read access for users, only limit state altering methods. 
+    restricted-methods:
+    - PUT
+    - PATCH
+    - DELETE
+    - POST
 
   - name: traefik.example.test          # this application will inherit most of the values from the default app.
     audience: <from auth0 api config>   # just the audience field will be used, all other values from the default.
