@@ -83,7 +83,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
         } as AuthorizeHandler.AuthEvent.PermissionDeniedEvent?
         if (permissionDeniedEvent != null) {
-            throw PermissionDeniedException()
+            throw PermissionDeniedException(permissionDeniedEvent.reason)
         }
 
         // if we managed to get all here through all three cases above, the user has access.

@@ -25,6 +25,8 @@ interface JwtDecoder {
 @Component
 class VerifyTokenService(val decoder: JwtDecoder) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
+
+    // Cache to hold already verified Tokens, expire them from cache after 15 minutes of inactivity.
     val cache = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).build<String, DecodedJWT>()
 
     fun verify(token: String?, expectedAudience: String): Token {
@@ -46,7 +48,9 @@ class VerifyTokenService(val decoder: JwtDecoder) {
                         else -> JwtToken(decodedJWT)
                     }
                 } catch (e: Exception) {
-                    cache.invalidate(token)
+                    // handle errors from get and decode in cache.
+                    cache.invalidate(token) // remove token from cache if found illegal token state.
+                    LOGGER.info("Invalid token: ${e.message}")
                     InvalidToken("" + e.message)
                 }
             }
@@ -55,7 +59,7 @@ class VerifyTokenService(val decoder: JwtDecoder) {
 
     private fun hasExpired(decodedJWT: DecodedJWT): Boolean = decodedJWT.expiresAt.before(Date())
 
-    private fun isOpaqueToken(token: String): Boolean = token.split(".").size == 0
+    private fun isOpaqueToken(token: String): Boolean = token.split(".").size == 1
 
     private fun hasIllegalAudience(decodedJWT: DecodedJWT, expectedAudience: String): Boolean = !decodedJWT.audience.contains(expectedAudience)
 

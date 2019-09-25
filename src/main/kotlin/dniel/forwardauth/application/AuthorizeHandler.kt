@@ -6,6 +6,7 @@ import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
+import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -80,11 +81,12 @@ class AuthorizeHandler(val properties: AuthProperties,
         abstract class NeedRedirectEvent(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
         class IllegalAccessTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
         class IllegalIdTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
-        abstract class PermissionDeniedEvent : AuthEvent()
+        abstract class PermissionDeniedEvent(val reason: String) : AuthEvent()
 
-        class MissingPermissionsEvent(val reason: String) : PermissionDeniedEvent()
-        object IllegalMethodEvent : PermissionDeniedEvent()
-        object IllegalSubsTokenEvent : PermissionDeniedEvent()
+        class MissingPermissionsEvent(reason: String) : PermissionDeniedEvent(reason)
+        class IllegalMethodEvent(reason: String) : PermissionDeniedEvent(reason)
+        object IllegalSubsTokenEvent : PermissionDeniedEvent("Different subs in access_token and id_token")
+        object IllegalOpaqueTokenEvent : PermissionDeniedEvent("Opaque Access Token, must be a JWT Token to be validated.")
 
         object ValidPermissionsEvent : AuthEvent()
         object ValidSubsTokenEvent : AuthEvent()
@@ -125,7 +127,6 @@ class AuthorizeHandler(val properties: AuthProperties,
             return when {
                 accessToken is InvalidToken -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
                 accessToken is JwtToken && accessToken.hasPermission(app.requiredPermissions) -> AuthEvent.ValidPermissionsEvent
-                accessToken is OpaqueToken && app.requiredPermissions.isNullOrEmpty() -> AuthEvent.ValidPermissionsEvent
                 else -> AuthEvent.MissingPermissionsEvent("Required permissions to access: " + app.requiredPermissions.joinToString(","))
             }
         }
@@ -186,7 +187,7 @@ class AuthorizeHandler(val properties: AuthProperties,
             val accessToken = context.get("access_token") as Token
 
             return if (isRestrictedUrl(app, method) && accessToken is InvalidToken) {
-                AuthEvent.IllegalMethodEvent
+                AuthEvent.IllegalMethodEvent("${method} is a protected http method.")
             } else {
                 AuthEvent.ValidMethodEvent
             }
@@ -208,6 +209,8 @@ class AuthorizeHandler(val properties: AuthProperties,
             val cookieDomain = context.get("cookie_domain") as String
 
             return when {
+                token is OpaqueToken -> throw ApplicationErrorException("Opaque Access Token, must be a JWT Token to be validated.\n" +
+                        "Read more about what to do here: https://github.com/dniel/traefik-forward-auth0/issues/131")
                 token is JwtToken -> AuthEvent.ValidAccessTokenEvent
                 else -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
             }
