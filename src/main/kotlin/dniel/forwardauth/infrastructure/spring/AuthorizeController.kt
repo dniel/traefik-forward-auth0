@@ -28,6 +28,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
     fun authorize(@RequestHeader headers: MultiValueMap<String, String>,
                   @CookieValue("ACCESS_TOKEN", required = false) accessTokenCookie: String?,
                   @CookieValue("JWT_TOKEN", required = false) userinfoCookie: String?,
+                  @RequestHeader("Accept") acceptContent: String?,
+                  @RequestHeader("x-requested-with") requestedWithHeader: String?,
                   @RequestHeader("x-forwarded-host") forwardedHostHeader: String,
                   @RequestHeader("x-forwarded-proto") forwardedProtoHeader: String,
                   @RequestHeader("x-forwarded-uri") forwardedUriHeader: String,
@@ -35,10 +37,14 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
                   response: HttpServletResponse): ResponseEntity<Unit> {
 
         printHeaders(headers)
-        return authenticateToken(accessTokenCookie, userinfoCookie, forwardedMethodHeader, forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response)
+        return authenticateToken(acceptContent, requestedWithHeader,
+                accessTokenCookie, userinfoCookie, forwardedMethodHeader,
+                forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response)
     }
 
-    private fun authenticateToken(accessToken: String?, idToken: String?, method: String, host: String, protocol: String, uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
+    private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, accessToken: String?,
+                                  idToken: String?, method: String, host: String, protocol: String,
+                                  uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
         val authorizeResult = LoggingHandler(authorizeHandler).handle(command)
 
@@ -55,15 +61,20 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             it is AuthorizeHandler.AuthEvent.NeedRedirectEvent
         } as AuthorizeHandler.AuthEvent.NeedRedirectEvent?
         if (redirectEvent != null) {
-            // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-            val nonceCookie = Cookie("AUTH_NONCE", redirectEvent.nonce.value)
-            nonceCookie.domain = redirectEvent.cookieDomain
-            nonceCookie.maxAge = 60
-            nonceCookie.isHttpOnly = true
-            nonceCookie.path = "/"
-            response.addCookie(nonceCookie)
-            LOGGER.debug("Redirect to ${redirectEvent.authorizeUrl}")
-            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(redirectEvent.authorizeUrl).build()
+            if ((acceptContent != null && acceptContent == "application/json") ||
+                    requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest") {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            } else {
+                // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
+                val nonceCookie = Cookie("AUTH_NONCE", redirectEvent.nonce.value)
+                nonceCookie.domain = redirectEvent.cookieDomain
+                nonceCookie.maxAge = 60
+                nonceCookie.isHttpOnly = true
+                nonceCookie.path = "/"
+                response.addCookie(nonceCookie)
+                LOGGER.debug("Redirect to ${redirectEvent.authorizeUrl}")
+                return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(redirectEvent.authorizeUrl).build()
+            }
         }
 
         // 3. check authorization.
