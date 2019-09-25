@@ -6,7 +6,6 @@ import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -86,7 +85,8 @@ class AuthorizeHandler(val properties: AuthProperties,
         class MissingPermissionsEvent(reason: String) : PermissionDeniedEvent(reason)
         class IllegalMethodEvent(reason: String) : PermissionDeniedEvent(reason)
         object IllegalSubsTokenEvent : PermissionDeniedEvent("Different subs in access_token and id_token")
-        object IllegalOpaqueTokenEvent : PermissionDeniedEvent("Opaque Access Token, must be a JWT Token to be validated.")
+        object IllegalOpaqueTokenEvent : PermissionDeniedEvent("Opaque Access Token, must be a JWT Token to be validated.\n" +
+                "Read more about what to do here: https://github.com/dniel/traefik-forward-auth0/issues/131")
 
         object ValidPermissionsEvent : AuthEvent()
         object ValidSubsTokenEvent : AuthEvent()
@@ -209,8 +209,7 @@ class AuthorizeHandler(val properties: AuthProperties,
             val cookieDomain = context.get("cookie_domain") as String
 
             return when {
-                token is OpaqueToken -> throw ApplicationErrorException("Opaque Access Token, must be a JWT Token to be validated.\n" +
-                        "Read more about what to do here: https://github.com/dniel/traefik-forward-auth0/issues/131")
+                token is OpaqueToken -> AuthEvent.IllegalOpaqueTokenEvent
                 token is JwtToken -> AuthEvent.ValidAccessTokenEvent
                 else -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
             }
