@@ -61,7 +61,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             it is AuthorizeHandler.AuthEvent.NeedRedirectEvent
         } as AuthorizeHandler.AuthEvent.NeedRedirectEvent?
         if (redirectEvent != null) {
-            if ((acceptContent != null && acceptContent == "application/json") ||
+            if ((acceptContent != null && acceptContent.contains("application/json")) ||
                     requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest") {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
             } else {
