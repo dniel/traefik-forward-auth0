@@ -108,6 +108,7 @@ class Authorizer(accessToken: Token, idToken: Token, app: Application, nonce: No
     }
 }
 
+/*
 fun main(args: Array<String>) {
     val app = Application()
     val aToken = InvalidToken("just for testing")
@@ -122,3 +123,4 @@ fun main(args: Array<String>) {
     val output = authorizer.authorize()
     println(output)
 }
+ */

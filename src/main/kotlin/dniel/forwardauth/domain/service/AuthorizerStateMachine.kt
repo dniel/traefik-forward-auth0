@@ -203,7 +203,7 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
-        config.generateDotFileInto(System.err)
+        // config.generateDotFileInto(System.err)
     }
 
     private fun immediateTransition() {

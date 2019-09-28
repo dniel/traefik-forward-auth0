@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
+import dniel.forwardauth.domain.service.Authorizer
 import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
 import org.slf4j.LoggerFactory
@@ -278,6 +279,11 @@ class AuthorizeHandler(val properties: AuthProperties,
         context.put("authorize_url", authorizeUrl)
         context.put("cookie_domain", cookieDomain)
         context.put("auth_domain", AUTH_DOMAIN)
+
+
+        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(AUTHORIZE_URL, app, state), properties.domain)
+        val output = authorizer.authorize()
+
         return context
     }
 }
