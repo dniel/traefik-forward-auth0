@@ -70,7 +70,7 @@ services:
 # 
 # In development mode, use the File provider to point
 # auth.example.test to your development environment 
-# on your local machine where you can update the code faster.
+# on your local machineConfig where you can update the code faster.
 #################################################################
 #  auth:
 #    image: dniel/forwardauth

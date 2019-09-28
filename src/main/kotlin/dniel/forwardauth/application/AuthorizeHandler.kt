@@ -72,8 +72,28 @@ class AuthorizeHandler(val properties: AuthProperties,
         return when (output) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl, nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
-            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted
+            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
             else -> AuthEvent.Error
+        }
+    }
+
+    private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
+        app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
+        return token.value.claims
+                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
+                .filterKeys { app.claims.contains(it) }
+                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
+                .mapValues { getClaimValue(it.value) }
+                .filterValues { it != null } as Map<String, String>
+    }
+
+    private fun getClaimValue(claim: Claim): String? {
+        return when {
+            claim.asArray(String::class.java) != null -> claim.asArray(String::class.java).joinToString()
+            claim.asBoolean() != null -> claim.asBoolean().toString()
+            claim.asString() != null -> claim.asString().toString()
+            claim.asLong() != null -> claim.asLong().toString()
+            else -> null
         }
     }
 
@@ -81,210 +101,10 @@ class AuthorizeHandler(val properties: AuthProperties,
      * This command can produce a set of events as response from the handle method.
      */
     sealed class AuthEvent : Event {
-        abstract class NeedRedirectEvent(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
-        class IllegalAccessTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
-        class IllegalIdTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
-
         class NeedRedirect(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
-        object AccessGranted : AuthEvent()
+        class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
         object AccessDenied : AuthEvent()
         object Error : AuthEvent()
-
-        abstract class PermissionDeniedEvent(val reason: String) : AuthEvent()
-        class MissingPermissionsEvent(reason: String) : PermissionDeniedEvent(reason)
-        class IllegalMethodEvent(reason: String) : PermissionDeniedEvent(reason)
-        object IllegalSubsTokenEvent : PermissionDeniedEvent("Different subs in access_token and id_token")
-        object IllegalOpaqueTokenEvent : PermissionDeniedEvent("Opaque Access Token, must be a JWT Token to be validated.\n" +
-                "Read more about what to do here: https://github.com/dniel/traefik-forward-auth0/issues/131")
-
-        object ValidPermissionsEvent : AuthEvent()
-        object ValidSubsTokenEvent : AuthEvent()
-        object ValidAccessTokenEvent : AuthEvent()
-        class ValidIdTokenEvent(val userinfo: Map<String, String>) : AuthEvent()
-        object ValidSignInEvent : AuthEvent()
-        object ValidMethodEvent : AuthEvent()
     }
 
-    /**
-     * To handle authorization checks in a structured way each check
-     * has been implemented as an Authentication Rule, each rule produces and
-     * event as a response and all the events are returned as a result out of
-     * command handler.
-     */
-    abstract class AuthRule(val context: Map<String, Any>) {
-        abstract fun verify(params: AuthorizeCommand): AuthEvent?
-    }
-
-    /**
-     * Verify that its a valid and verified JWT token, and if required permissions
-     * has been configured for the application check that the permissions set in
-     * the token matches all required permissions set for the application.
-     *
-     * If the token is Opaque its not possible in Auth0 to set required permissions
-     * the application configured in ForwardAuth cant have required permissions set
-     * to avoid confusion. If opaque token and no permissions required in config
-     * everything is ok and access granted.
-     */
-    class VerifyHasPermission(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val app = context.get("app") as Application
-            val accessToken = context.get("access_token") as Token
-            val authorizeUrl = context.get("authorize_url") as URI
-            val nonce = context.get("nonce") as Nonce
-            val cookieDomain = context.get("cookie_domain") as String
-
-            return when {
-                accessToken is InvalidToken -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
-                accessToken is JwtToken && accessToken.hasPermission(app.requiredPermissions) -> AuthEvent.ValidPermissionsEvent
-                else -> AuthEvent.MissingPermissionsEvent("Required permissions to access: " + app.requiredPermissions.joinToString(","))
-            }
-        }
-    }
-
-
-    /**
-     * The Signin Request url should not be protected.
-     * If the signin redirect url was protected no-one would be able to sign in and be stuck in
-     * sign in loop.
-     */
-    class VerifySameSubInBothTokens(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val accessToken = context.get("access_token") as Token
-            val idToken = context.get("id_token") as Token
-
-            // check if both tokens have the same subject
-            if (hasDifferentSubs(accessToken, idToken)) {
-                return AuthEvent.IllegalSubsTokenEvent
-            } else {
-                return AuthEvent.ValidSubsTokenEvent
-            }
-        }
-
-        private fun hasDifferentSubs(accessToken: Token, idToken: Token) =
-                accessToken is JwtToken && idToken is JwtToken && idToken.subject() != accessToken.subject()
-    }
-
-    /**
-     * The Signin Request url should not be protected.
-     * If the signin redirect url was protected no-one would be able to sign in and be stuck in
-     * sign in loop.
-     */
-    class VerifyAllowSignInRequest(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val app = context.get("app") as Application
-            val originUrl = context.get("origin_url") as OriginUrl
-
-            return if (isSigninUrl(originUrl, app)) {
-                AuthEvent.ValidSignInEvent
-            } else {
-                null
-            }
-        }
-
-        private fun isSigninUrl(originUrl: OriginUrl, app: Application) =
-                originUrl.startsWith(app.redirectUri)
-    }
-
-    /**
-     * Verify if the origin url request has a http-method that was restricted/protected.
-     */
-    class VerifyRestrictedMethod(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val app = context.get("app") as Application
-            val originUrl = context.get("origin_url") as OriginUrl
-            val method = originUrl.method
-            val accessToken = context.get("access_token") as Token
-
-            return if (isRestrictedUrl(app, method) && accessToken is InvalidToken) {
-                AuthEvent.IllegalMethodEvent("${method} is a protected http method.")
-            } else {
-                AuthEvent.ValidMethodEvent
-            }
-        }
-
-        private fun isRestrictedUrl(app: Application, method: String) =
-                app.restrictedMethods.any() { t -> t.equals(method, true) }
-    }
-
-    /**
-     * Verify that the Access Token was decoded and verified as correct and not tampered with token.
-     * The code as checked that the signature, audience, domain is as expected and that the the token has not expired.
-     */
-    class VerifyValidAccessToken(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val token = context.get("access_token") as Token
-            val authorizeUrl = context.get("authorize_url") as URI
-            val nonce = context.get("nonce") as Nonce
-            val cookieDomain = context.get("cookie_domain") as String
-
-            return when {
-                token is OpaqueToken -> AuthEvent.IllegalOpaqueTokenEvent
-                token is JwtToken -> AuthEvent.ValidAccessTokenEvent
-                else -> AuthEvent.IllegalAccessTokenEvent(authorizeUrl, nonce, cookieDomain)
-            }
-        }
-    }
-
-    /**
-     * Verify that the Access Token was decoded and verified as correct and not tampered with token.
-     * The code as checked that the singature, audience, domain is as expected and that the the token has not expired.
-     */
-    class VerifyValidIdToken(context: Map<String, Any>) : AuthRule(context) {
-        override fun verify(params: AuthorizeCommand): AuthEvent? {
-            val app = context.get("app") as Application
-            val token = context.get("id_token") as Token
-            val authorizeUrl = context.get("authorize_url") as URI
-            val nonce = context.get("nonce") as Nonce
-            val cookieDomain = context.get("cookie_domain") as String
-
-            return when {
-                token is JwtToken -> AuthEvent.ValidIdTokenEvent(getUserinfoFromToken(app, token))
-                else -> AuthEvent.IllegalIdTokenEvent(authorizeUrl, nonce, cookieDomain)
-            }
-        }
-
-        private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
-            app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
-            return token.value.claims
-                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
-                    .filterKeys { app.claims.contains(it) }
-                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
-                    .mapValues { getClaimValue(it.value) }
-                    .filterValues { it != null } as Map<String, String>
-        }
-
-        private fun getClaimValue(claim: Claim): String? {
-            return when {
-                claim.asArray(String::class.java) != null -> claim.asArray(String::class.java).joinToString()
-                claim.asBoolean() != null -> claim.asBoolean().toString()
-                claim.asString() != null -> claim.asString().toString()
-                claim.asLong() != null -> claim.asLong().toString()
-                else -> null
-            }
-        }
-    }
-
-    private fun createAuthRuleContext(params: AuthorizeCommand): MutableMap<String, Any> {
-        val app = properties.findApplicationOrDefault(params.host)
-        val nonce = nonceService.generate()
-        val originUrl = OriginUrl(params.protocol, params.host, params.uri, params.method)
-        val state = State.create(originUrl, nonce)
-        val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
-        val cookieDomain = app.tokenCookieDomain
-        val context = emptyMap<String, Any>().toMutableMap()
-        val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
-        val idToken = verifyTokenService.verify(params.idToken, app.clientId)
-
-        context.put("access_token", accessToken)
-        context.put("id_token", idToken)
-        context.put("app", app)
-        context.put("nonce", nonce)
-        context.put("origin_url", originUrl)
-        context.put("state", state)
-        context.put("authorize_url", authorizeUrl)
-        context.put("cookie_domain", cookieDomain)
-        context.put("auth_domain", AUTH_DOMAIN)
-
-        return context
-    }
 }

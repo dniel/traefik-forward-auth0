@@ -53,8 +53,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             is AuthorizeHandler.AuthEvent.Error -> throw ApplicationErrorException()
 
             is AuthorizeHandler.AuthEvent.NeedRedirect -> {
-                if ((acceptContent != null && acceptContent.contains("application/json")) ||
-                        requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest") {
+                val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
+                        requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
+                if (isApi) {
                     ResponseEntity.status(HttpStatus.FORBIDDEN).build()
                 } else {
                     // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
@@ -70,22 +71,18 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             }
             is AuthorizeHandler.AuthEvent.AccessGranted -> {
                 val builder = ResponseEntity.noContent()
+                // add the authorization bearer header with token so that
+                // the backend api receives it and knows that the user has been authenticated.
+                builder.header("Authorization", "Bearer ${accessToken}")
+                authorizeResult.userinfo.forEach { k, v ->
+                    val headerName = "X-Forwardauth-${k.capitalize()}"
+                    LOGGER.trace("Add header ${headerName} with value ${v}")
+                    builder.header(headerName, v)
+                }
                 builder.build()
             }
             else -> throw ApplicationErrorException()
         }
-
-/*
-            // add the authorization bearer header with token so that
-            // the backend api receives it and knows that the user has been authenticated.
-            builder.header("Authorization", "Bearer ${accessToken}")
-            validIdTokenEvent.userinfo.forEach { k, v ->
-                val headerName = "X-Forwardauth-${k.capitalize()}"
-                LOGGER.trace("Add header ${headerName} with value ${v}")
-                builder.header(headerName, v)
-            }
-*/
-
     }
 
 

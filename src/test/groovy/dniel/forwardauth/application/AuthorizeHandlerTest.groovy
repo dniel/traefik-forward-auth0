@@ -39,8 +39,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.ValidIdTokenEvent)))
-        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.ValidAccessTokenEvent)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.AccessGranted)))
 
         where:
         jwt                 | protocol | host               | uri              | method
@@ -77,7 +76,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
         jwt  | protocol | host               | uri     | method
@@ -115,7 +114,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
         jwt                  | protocol | host               | uri     | method | authenticated | restricted
@@ -148,7 +147,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, hasItem(isA(AuthorizeHandler.AuthEvent.NeedRedirectEvent)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
         idtoken             | accesstoken         | protocol | host               | uri     | method | authenticated | restricted
@@ -183,10 +182,9 @@ class AuthorizeHandlerTest extends Specification {
 
         when: "we authorize the request"
         def result = sut.handle(command)
-        def idTokenEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.ValidIdTokenEvent }
 
         then: "we should get a valid response"
-        that(idTokenEvent.userinfo, hasEntry(key, value))
+        that(result.userinfo, hasEntry(key, value))
 
         where:
         jwt                 | protocol | host               | uri     | method | key     | value
@@ -215,10 +213,9 @@ class AuthorizeHandlerTest extends Specification {
 
         when: "we authorize the request"
         def result = sut.handle(command)
-        def idTokenEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.ValidIdTokenEvent }
 
         then: "we should get a valid response"
-        that(idTokenEvent.userinfo, not(hasKey(key)))
+        that(result.userinfo, not(hasKey(key)))
 
         where:
         jwt                 | protocol | host               | uri     | method | key
@@ -246,10 +243,10 @@ class AuthorizeHandlerTest extends Specification {
 
         when: "we authorize the request"
         def result = sut.handle(command)
-        def needRedirectEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.NeedRedirectEvent }
 
         then: "we should get a valid response"
-        that(needRedirectEvent.authorizeUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result.authorizeUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
     }
 
     def "should have nonce set in result"() {
@@ -273,9 +270,9 @@ class AuthorizeHandlerTest extends Specification {
 
         when: "we authorize the request"
         def result = sut.handle(command)
-        def needRedirectEvent = result.find { it instanceof AuthorizeHandler.AuthEvent.NeedRedirectEvent }
 
         then: "we should get a valid response"
-        that(needRedirectEvent.nonce, not(isEmptyOrNullString()))
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result.nonce, not(isEmptyOrNullString()))
     }
 }
