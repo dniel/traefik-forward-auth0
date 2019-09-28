@@ -135,27 +135,10 @@ class Authorizer(val accessToken: Token, val idToken: Token, val app: Applicatio
     }
 
     fun trace(message: String) {
-        LOGGER.debug(message)
+        LOGGER.trace(message)
     }
 
     fun state(): AuthorizerStateMachine.State {
         return fsm.state
     }
 }
-
-/*
-fun main(args: Array<String>) {
-    val app = Application()
-    val aToken = InvalidToken("just for testing")
-    val idToken = InvalidToken("just for testing")
-    val nonce = Nonce.generate()
-    val originUrl = OriginUrl("https", "www.exampple.com", "/", "GET")
-    val state = State.create(originUrl, nonce)
-    val authUrl = AuthorizeUrl("auth0autorhizeurl", app, state)
-    val authDomain = "authdomain"
-
-    val authorizer = Authorizer.create(aToken, idToken, app, nonce, originUrl, state, authUrl, authDomain)
-    val output = authorizer.authorize()
-    println(output)
-}
- */

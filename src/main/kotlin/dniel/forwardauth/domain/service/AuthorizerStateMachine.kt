@@ -224,14 +224,9 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
             isProcessing = true
             while (pendingEvents.isNotEmpty()) {
                 val processedEvent = pendingEvents.removeFirst()
-                trace("Event: " + processedEvent)
                 fsm.fire(processedEvent)
             }
             isProcessing = false
         }
-    }
-
-    fun trace(message: String) {
-        LOGGER.debug(message)
     }
 }

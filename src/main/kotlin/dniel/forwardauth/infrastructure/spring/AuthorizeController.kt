@@ -71,8 +71,6 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             }
             is AuthorizeHandler.AuthEvent.AccessGranted -> {
                 val builder = ResponseEntity.noContent()
-                // add the authorization bearer header with token so that
-                // the backend api receives it and knows that the user has been authenticated.
                 builder.header("Authorization", "Bearer ${accessToken}")
                 authorizeResult.userinfo.forEach { k, v ->
                     val headerName = "X-Forwardauth-${k.capitalize()}"
