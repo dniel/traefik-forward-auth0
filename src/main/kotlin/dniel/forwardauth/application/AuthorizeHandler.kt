@@ -283,7 +283,7 @@ class AuthorizeHandler(val properties: AuthProperties,
 
         val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(AUTHORIZE_URL, app, state), properties.domain)
         val output = authorizer.authorize()
-
+        LOGGER.debug("" + output)
         return context
     }
 }

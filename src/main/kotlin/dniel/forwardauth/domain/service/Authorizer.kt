@@ -4,8 +4,8 @@ import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import org.slf4j.LoggerFactory
 
-class Authorizer(accessToken: Token, idToken: Token, app: Application, nonce: Nonce,
-                 originUrl: OriginUrl, state: State, authUrl: AuthorizeUrl, authDomain: String) : AuthorizerStateMachine.Delegate {
+class Authorizer(val accessToken: Token, val idToken: Token, val app: Application, val nonce: Nonce,
+                 val originUrl: OriginUrl, val state: State, val authUrl: AuthorizeUrl, val authDomain: String) : AuthorizerStateMachine.Delegate {
 
     private var fsm: AuthorizerStateMachine
     private var lastError: Error? = null
@@ -39,12 +39,26 @@ class Authorizer(accessToken: Token, idToken: Token, app: Application, nonce: No
 
     override fun onValidateWhitelistedUrl() {
         trace("onValidateWhitelistedUrl")
-        fsm.post(AuthorizerStateMachine.Event.RESTRICTED_URL)
+        fun isSigninUrl(originUrl: OriginUrl, app: Application) =
+                originUrl.startsWith(app.redirectUri)
+
+        if (isSigninUrl(originUrl, app)) {
+            fsm.post(AuthorizerStateMachine.Event.WHITELISTED_URL)
+        } else {
+            fsm.post(AuthorizerStateMachine.Event.RESTRICTED_URL)
+        }
     }
 
     override fun onValidateRestrictedMethod() {
         trace("onValidateRestrictedMethod")
-        fsm.post(AuthorizerStateMachine.Event.RESTRICTED_METHOD)
+        val method = originUrl.method
+        fun isRestrictedMethod(app: Application, method: String) =
+                app.restrictedMethods.any() { t -> t.equals(method, true) }
+
+        when {
+            isRestrictedMethod(app, method) -> fsm.post(AuthorizerStateMachine.Event.RESTRICTED_METHOD)
+            else -> fsm.post(AuthorizerStateMachine.Event.UNRESTRICTED_METHOD)
+        }
     }
 
     override fun onStartValidateTokens() {
@@ -54,22 +68,43 @@ class Authorizer(accessToken: Token, idToken: Token, app: Application, nonce: No
 
     override fun onValidateAccessToken() {
         trace("onValidateAccessToken")
-        fsm.post(AuthorizerStateMachine.Event.VALID_ACCESS_TOKEN)
+        when {
+            accessToken is OpaqueToken -> {
+                lastError = Error("Opaque Access Tokens is not supported.")
+                fsm.post(AuthorizerStateMachine.Event.ERROR)
+            }
+            accessToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ACCESS_TOKEN)
+            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ACCESS_TOKEN)
+        }
     }
 
     override fun onValidateIdToken() {
         trace("onValidateIdToken")
-        fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
+        when {
+            idToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
+            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ID_TOKEN)
+        }
     }
 
     override fun onValidatePermissions() {
         trace("onValidatePermissions")
-        fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
+        when {
+            (accessToken as JwtToken).hasPermission(app.requiredPermissions) -> fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
+            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
+        }
     }
 
     override fun onValidateSameSubs() {
         trace("onValidateSameSubs")
-        fsm.post(AuthorizerStateMachine.Event.VALID_SAME_SUBS)
+        fun hasSameSubs(accessToken: Token, idToken: Token) =
+                accessToken is JwtToken && idToken is JwtToken && idToken.subject()  == accessToken.subject()
+
+        // check if both tokens have the same subject
+        if (hasSameSubs(accessToken, idToken)) {
+            fsm.post(AuthorizerStateMachine.Event.VALID_SAME_SUBS)
+        } else {
+            fsm.post(AuthorizerStateMachine.Event.INVALID_SAME_SUBS)
+        }
     }
 
     override fun onNeedRedirect() {

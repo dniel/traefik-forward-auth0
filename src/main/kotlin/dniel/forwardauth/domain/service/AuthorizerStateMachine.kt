@@ -2,6 +2,7 @@ package dniel.forwardauth.domain.service
 
 import com.github.oxo42.stateless4j.StateMachine
 import com.github.oxo42.stateless4j.StateMachineConfig
+import org.slf4j.LoggerFactory
 import java.util.*
 
 
@@ -31,6 +32,7 @@ import java.util.*
  *
  */
 class AuthorizerStateMachine(initialState: State, private val delegate: Delegate) {
+    val LOGGER = LoggerFactory.getLogger(this::class.java)
 
     constructor(delegate: Delegate) : this(State.AWAIT_AUTHORIZING, delegate)
 
@@ -157,25 +159,25 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
         config.configure(State.VALIDATING_ACCESS_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
                 .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
-                .permitIf(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
+                .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
                 .onEntry(delegate::onValidateAccessToken)
 
         config.configure(State.VALIDATING_SAME_SUBS)
                 .substateOf(State.VALIDATING_ACCESS_TOKEN)
                 .permitIf(Event.VALID_SAME_SUBS, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
-                .permitIf(Event.INVALID_SAME_SUBS, State.INVALID_TOKEN) { delegate.hasError }
+                .permit(Event.INVALID_SAME_SUBS, State.INVALID_TOKEN)
                 .onEntry(delegate::onValidateSameSubs)
 
         config.configure(State.VALIDATING_PERMISSIONS)
                 .substateOf(State.VALIDATING_ACCESS_TOKEN)
                 .permitIf(Event.VALID_PERMISSIONS, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
-                .permitIf(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED) { delegate.hasError }
+                .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
                 .onEntry(delegate::onValidatePermissions)
 
         config.configure(State.VALIDATING_ID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
                 .permitIf(Event.VALID_ID_TOKEN, State.ACCESS_GRANTED) { !delegate.hasError }
-                .permitIf(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
+                .permit(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN)
                 .onEntry(delegate::onValidateIdToken)
 
         config.configure(State.INVALID_TOKEN)
@@ -231,6 +233,7 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
             isProcessing = true
             while (pendingEvents.isNotEmpty()) {
                 val processedEvent = pendingEvents.removeFirst()
+                trace("" + processedEvent)
                 fsm.fire(processedEvent)
             }
             isProcessing = false
@@ -238,6 +241,6 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
     }
 
     fun trace(message: String) {
-        println(message)
+        LOGGER.debug(message)
     }
 }
