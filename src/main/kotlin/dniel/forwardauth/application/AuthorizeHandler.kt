@@ -6,7 +6,6 @@ import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.service.Authorizer
 import dniel.forwardauth.domain.service.AuthorizerStateMachine
-import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -20,28 +19,24 @@ import java.net.URI
  * of AuthEvents that will be returned as the result from the handle method.
  * <p/>
  * The handle-method will take all the input and verify according to a set of rules
- * if the user has access the requested url. The return list of AuthEvents will contain
- * both successful events an error events from the access logic.
+ * if the user has access the requested url.
  *
  * <p/>
  * Ideas to error handling
  * http://www.douevencode.com/articles/2018-09/kotlin-error-handling/
  * https://medium.com/@spaghetticode/finite-state-machines-in-kotlin-part-1-57e68d54d93b
+ * https://github.com/stateless4j
  */
 @Component
 class AuthorizeHandler(val properties: AuthProperties,
-                       val verifyTokenService: VerifyTokenService,
-                       val nonceService: NonceGeneratorService) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
-
-    private val AUTHORIZE_URL = properties.authorizeUrl
-    private val AUTH_DOMAIN = properties.domain
+                       val verifyTokenService: VerifyTokenService) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(this::class.java)
     }
 
     /**
-     * This is the parameter object for the handler to pass inn all
+     * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
     data class AuthorizeCommand(val accessToken: String?,
@@ -54,19 +49,31 @@ class AuthorizeHandler(val properties: AuthProperties,
 
 
     /**
+     * This command can produce a set of events as response from the handle method.
+     */
+    sealed class AuthEvent : Event {
+        class NeedRedirect(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
+        class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
+        object AccessDenied : AuthEvent()
+        object Error : AuthEvent()
+    }
+
+    /**
      * Main Handle Command method.
      */
     override fun handle(params: AuthorizeCommand): AuthEvent {
+        val authDomain = properties.domain
+        val authUrl = properties.authorizeUrl
         val app = properties.findApplicationOrDefault(params.host)
-        val nonce = nonceService.generate()
+        val nonce = Nonce.generate()
         val originUrl = OriginUrl(params.protocol, params.host, params.uri, params.method)
         val state = State.create(originUrl, nonce)
-        val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
+        val authorizeUrl = AuthorizeUrl(authUrl, app, state).toURI()
         val cookieDomain = app.tokenCookieDomain
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
         val idToken = verifyTokenService.verify(params.idToken, app.clientId)
 
-        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(AUTHORIZE_URL, app, state), properties.domain)
+        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(authUrl, app, state), authDomain)
         val output = authorizer.authorize()
         LOGGER.debug("" + output)
         return when (output) {
@@ -95,16 +102,6 @@ class AuthorizeHandler(val properties: AuthProperties,
             claim.asLong() != null -> claim.asLong().toString()
             else -> null
         }
-    }
-
-    /**
-     * This command can produce a set of events as response from the handle method.
-     */
-    sealed class AuthEvent : Event {
-        class NeedRedirect(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
-        class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
-        object AccessDenied : AuthEvent()
-        object Error : AuthEvent()
     }
 
 }

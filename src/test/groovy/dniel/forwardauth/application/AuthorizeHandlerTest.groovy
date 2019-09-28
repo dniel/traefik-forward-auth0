@@ -3,7 +3,6 @@ package dniel.forwardauth.application
 import dniel.forwardauth.ObjectMother
 import dniel.forwardauth.domain.InvalidToken
 import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -33,7 +32,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -70,7 +69,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -108,7 +107,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -141,7 +140,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -178,7 +177,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -209,7 +208,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -239,7 +238,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
@@ -266,7 +265,7 @@ class AuthorizeHandlerTest extends Specification {
 
         and: "a command handler that is the system under test"
         AuthorizeHandler sut = new AuthorizeHandler(
-                ObjectMother.properties, verifyTokenService, new NonceGeneratorService())
+                ObjectMother.properties, verifyTokenService)
 
         when: "we authorize the request"
         def result = sut.handle(command)
