@@ -1,5 +1,7 @@
 package dniel.forwardauth.domain
 
+import java.util.*
+
 /**
  * The nonce parameter value needs to include per-session state and be unguessable to attackers.
  *
@@ -15,6 +17,12 @@ package dniel.forwardauth.domain
  */
 class Nonce(val value: String) {
 
+    companion object {
+        fun generate(): Nonce {
+            return Nonce(UUID.randomUUID().toString().replace("-", ""))
+        }
+
+    }
     override fun toString(): String = value
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
