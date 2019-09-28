@@ -7,5 +7,5 @@ interface Command {
 }
 
 interface CommandHandler<in T : Command> {
-    fun handle(params: T): List<Event>
+    fun handle(params: T): Event
 }

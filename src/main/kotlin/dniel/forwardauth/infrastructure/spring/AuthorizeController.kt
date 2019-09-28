@@ -48,58 +48,34 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
         val authorizeResult = LoggingHandler(authorizeHandler).handle(command)
 
-        // 1. check special sign in case
-        // always let the sigin request through.
-        if (authorizeResult.find {
-                    it is AuthorizeHandler.AuthEvent.ValidSignInEvent
-                } != null) {
-            return ResponseEntity.noContent().build()
-        }
+        return when (authorizeResult) {
+            is AuthorizeHandler.AuthEvent.AccessDenied -> throw PermissionDeniedException()
+            is AuthorizeHandler.AuthEvent.Error -> throw ApplicationErrorException()
 
-        // 2. check authentication is needed.
-        val redirectEvent = authorizeResult.find {
-            it is AuthorizeHandler.AuthEvent.NeedRedirectEvent
-        } as AuthorizeHandler.AuthEvent.NeedRedirectEvent?
-        if (redirectEvent != null) {
-            if ((acceptContent != null && acceptContent.contains("application/json")) ||
-                    requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest") {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-            } else {
-                // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-                val nonceCookie = Cookie("AUTH_NONCE", redirectEvent.nonce.value)
-                nonceCookie.domain = redirectEvent.cookieDomain
-                nonceCookie.maxAge = 60
-                nonceCookie.isHttpOnly = true
-                nonceCookie.path = "/"
-                response.addCookie(nonceCookie)
-                LOGGER.debug("Redirect to ${redirectEvent.authorizeUrl}")
-                return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(redirectEvent.authorizeUrl).build()
+            is AuthorizeHandler.AuthEvent.NeedRedirect -> {
+                if ((acceptContent != null && acceptContent.contains("application/json")) ||
+                        requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest") {
+                    ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+                } else {
+                    // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
+                    val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
+                    nonceCookie.domain = authorizeResult.cookieDomain
+                    nonceCookie.maxAge = 60
+                    nonceCookie.isHttpOnly = true
+                    nonceCookie.path = "/"
+                    response.addCookie(nonceCookie)
+                    LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
+                    ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
+                }
             }
+            is AuthorizeHandler.AuthEvent.AccessGranted -> {
+                val builder = ResponseEntity.noContent()
+                builder.build()
+            }
+            else -> throw ApplicationErrorException()
         }
 
-        // 3. check authorization.
-        // check if we got a permission denied event in result.
-        val permissionDeniedEvent = authorizeResult.find {
-            it is AuthorizeHandler.AuthEvent.PermissionDeniedEvent
-        } as AuthorizeHandler.AuthEvent.PermissionDeniedEvent?
-        if (permissionDeniedEvent != null) {
-            throw PermissionDeniedException(permissionDeniedEvent.reason)
-        }
-
-        // if we managed to get all here through all three cases above, the user has access.
-        val validIdTokenEvent = authorizeResult.find {
-            it is AuthorizeHandler.AuthEvent.ValidIdTokenEvent
-        } as AuthorizeHandler.AuthEvent.ValidIdTokenEvent?
-        val validAccessTokenEvent = authorizeResult.find {
-            it is AuthorizeHandler.AuthEvent.ValidAccessTokenEvent
-        } as AuthorizeHandler.AuthEvent.ValidAccessTokenEvent?
-
-        if (validIdTokenEvent == null || validAccessTokenEvent == null) {
-            // it should really not be possible to end up here after all validation above.
-            throw ApplicationErrorException("Missing Access Token or ID-Token.")
-        } else {
-            val builder = ResponseEntity.noContent()
-
+/*
             // add the authorization bearer header with token so that
             // the backend api receives it and knows that the user has been authenticated.
             builder.header("Authorization", "Bearer ${accessToken}")
@@ -108,9 +84,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
                 LOGGER.trace("Add header ${headerName} with value ${v}")
                 builder.header(headerName, v)
             }
+*/
 
-            return builder.build()
-        }
     }
 
 

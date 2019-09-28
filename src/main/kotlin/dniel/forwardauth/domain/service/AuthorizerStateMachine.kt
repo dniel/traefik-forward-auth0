@@ -31,10 +31,8 @@ import java.util.*
  * }
  *
  */
-class AuthorizerStateMachine(initialState: State, private val delegate: Delegate) {
+class AuthorizerStateMachine(private val delegate: Delegate) {
     val LOGGER = LoggerFactory.getLogger(this::class.java)
-
-    constructor(delegate: Delegate) : this(State.AWAIT_AUTHORIZING, delegate)
 
     interface Delegate {
         val hasError: Boolean
@@ -83,7 +81,6 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
 
         VALIDATE_REQUESTED_URL,
         VALIDATE_WHITELISTED_URL,
-        VALIDATE_RESTRICTED_METHOD,
 
         WHITELISTED_URL,
         RESTRICTED_URL,
@@ -106,18 +103,13 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
 
         // generic error event
         ERROR,
-        IMMEDIATE_TRANSITION
+        NEXT
     }
-
 
     private var pendingEvents = ArrayDeque<Event>()
     private var isProcessing = false
     private val fsm: StateMachine<State, Event>
 
-    /**
-     * Immediate state machine state. This attribute provides innermost active state.
-     * For checking parent states, use [PlayerStateMachine.isInState].
-     */
     val state: State
         get() {
             return fsm.state
@@ -182,8 +174,8 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
 
         config.configure(State.INVALID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permit(Event.IMMEDIATE_TRANSITION, State.NEED_REDIRECT)
-                .onEntry(this::immediateTransition)
+                .permit(Event.NEXT, State.NEED_REDIRECT)
+                .onEntry(this::nextEvent)
 
         config.configure(State.ERROR)
                 .substateOf(State.AUTHORIZING)
@@ -201,22 +193,21 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
                 .substateOf(State.AUTHORIZING)
                 .onEntry(delegate::onAccessDenied)
 
-        fsm = StateMachine(initialState, config)
+        fsm = StateMachine(State.AWAIT_AUTHORIZING, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
         // config.generateDotFileInto(System.err)
     }
 
-    private fun immediateTransition() {
-        fsm.fire(Event.IMMEDIATE_TRANSITION)
+    private fun nextEvent() {
+        fsm.fire(Event.NEXT)
     }
 
     fun authorize(): State {
         fsm.fire(Event.AUTHORIZE)
         return fsm.state
     }
-
 
     /**
      * Post state machine event to internal queue.
@@ -233,7 +224,7 @@ class AuthorizerStateMachine(initialState: State, private val delegate: Delegate
             isProcessing = true
             while (pendingEvents.isNotEmpty()) {
                 val processedEvent = pendingEvents.removeFirst()
-                trace("" + processedEvent)
+                trace("Event: " + processedEvent)
                 fsm.fire(processedEvent)
             }
             isProcessing = false

@@ -5,6 +5,7 @@ import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.service.Authorizer
+import dniel.forwardauth.domain.service.AuthorizerStateMachine
 import dniel.forwardauth.domain.service.NonceGeneratorService
 import dniel.forwardauth.domain.service.VerifyTokenService
 import org.slf4j.LoggerFactory
@@ -55,23 +56,25 @@ class AuthorizeHandler(val properties: AuthProperties,
     /**
      * Main Handle Command method.
      */
-    override fun handle(params: AuthorizeCommand): List<AuthEvent> {
-        val context = createAuthRuleContext(params)
-        val rules = listOf<AuthRule>(
-                VerifyAllowSignInRequest(context),
-                VerifyRestrictedMethod(context),
-                VerifyHasPermission(context),
-                VerifyValidAccessToken(context),
-                VerifyValidIdToken(context),
-                VerifySameSubInBothTokens(context))
+    override fun handle(params: AuthorizeCommand): AuthEvent {
+        val app = properties.findApplicationOrDefault(params.host)
+        val nonce = nonceService.generate()
+        val originUrl = OriginUrl(params.protocol, params.host, params.uri, params.method)
+        val state = State.create(originUrl, nonce)
+        val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
+        val cookieDomain = app.tokenCookieDomain
+        val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
+        val idToken = verifyTokenService.verify(params.idToken, app.clientId)
 
-        val events = rules.foldRight(mutableListOf<AuthEvent>()) { rule, acc ->
-            rule.verify(params)?.let {
-                acc.add(it)
-            }
-            acc
+        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(AUTHORIZE_URL, app, state), properties.domain)
+        val output = authorizer.authorize()
+        LOGGER.debug("" + output)
+        return when (output) {
+            AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl, nonce, cookieDomain)
+            AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
+            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted
+            else -> AuthEvent.Error
         }
-        return events
     }
 
     /**
@@ -81,8 +84,13 @@ class AuthorizeHandler(val properties: AuthProperties,
         abstract class NeedRedirectEvent(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
         class IllegalAccessTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
         class IllegalIdTokenEvent(authorizeUrl: URI, nonce: Nonce, cookieDomain: String) : NeedRedirectEvent(authorizeUrl, nonce, cookieDomain)
-        abstract class PermissionDeniedEvent(val reason: String) : AuthEvent()
 
+        class NeedRedirect(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
+        object AccessGranted : AuthEvent()
+        object AccessDenied : AuthEvent()
+        object Error : AuthEvent()
+
+        abstract class PermissionDeniedEvent(val reason: String) : AuthEvent()
         class MissingPermissionsEvent(reason: String) : PermissionDeniedEvent(reason)
         class IllegalMethodEvent(reason: String) : PermissionDeniedEvent(reason)
         object IllegalSubsTokenEvent : PermissionDeniedEvent("Different subs in access_token and id_token")
@@ -263,10 +271,7 @@ class AuthorizeHandler(val properties: AuthProperties,
         val state = State.create(originUrl, nonce)
         val authorizeUrl = AuthorizeUrl(AUTHORIZE_URL, app, state).toURI()
         val cookieDomain = app.tokenCookieDomain
-
-        LOGGER.debug("Authorize request=${originUrl} to app=${app.name}")
         val context = emptyMap<String, Any>().toMutableMap()
-
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
         val idToken = verifyTokenService.verify(params.idToken, app.clientId)
 
@@ -280,10 +285,6 @@ class AuthorizeHandler(val properties: AuthProperties,
         context.put("cookie_domain", cookieDomain)
         context.put("auth_domain", AUTH_DOMAIN)
 
-
-        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(AUTHORIZE_URL, app, state), properties.domain)
-        val output = authorizer.authorize()
-        LOGGER.debug("" + output)
         return context
     }
 }
