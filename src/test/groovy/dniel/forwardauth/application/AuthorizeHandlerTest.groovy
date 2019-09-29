@@ -23,7 +23,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isApi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -41,13 +42,13 @@ class AuthorizeHandlerTest extends Specification {
         that(result, is(instanceOf(AuthorizeHandler.AuthEvent.AccessGranted)))
 
         where:
-        jwt                 | protocol | host               | uri              | method
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test"          | "GET"
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/oauth2/signin" | "GET"
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/OaUth2/SiGNIn" | "GET"
-        validJwtTokenString | "HTTPS"  | "opaque.com"       | "/test"          | "GET"
-        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "GET"
-        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "POST"
+        jwt                 | protocol | host               | uri              | method | isApi
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test"          | "GET"  | false
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/oauth2/signin" | "GET"  | false
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/OaUth2/SiGNIn" | "GET"  | false
+        validJwtTokenString | "HTTPS"  | "opaque.com"       | "/test"          | "GET"  | false
+        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "GET"  | false
+        validJwtTokenString | "HTTPS"  | "restricted.com"   | "/test"          | "POST" | false
     }
 
     @Unroll
@@ -59,7 +60,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isApi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -78,15 +80,15 @@ class AuthorizeHandlerTest extends Specification {
         that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
-        jwt  | protocol | host               | uri     | method
-        null | "HTTPS"  | "www.example.test" | "/test" | "GET"
-        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"
-        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"
-        null | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"
-        ""   | "HTTPS"  | "www.example.test" | "/test" | "GET"
-        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"
-        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"
-        ""   | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"
+        jwt  | protocol | host               | uri     | method | isApi
+        null | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false
+        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"  | false
+        null | "HTTPS"  | "www.example.test" | "/test" | "GeT"  | false
+        null | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"  | false
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"  | false
+        ""   | "HTTPS"  | "www.example.test" | "/test" | "GeT"  | false
+        ""   | "hTTpS"  | "WwW.ExaMplE.TeST" | "/test" | "GeT"  | false
     }
 
     @Unroll
@@ -98,7 +100,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isApi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -116,8 +119,8 @@ class AuthorizeHandlerTest extends Specification {
         that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
-        jwt                  | protocol | host               | uri     | method | authenticated | restricted
-        "invalid jwt string" | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
+        jwt                  | protocol | host               | uri     | method | authenticated | restricted | isApi
+        "invalid jwt string" | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true       | false
     }
 
     @Unroll
@@ -129,7 +132,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isApi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -149,14 +153,14 @@ class AuthorizeHandlerTest extends Specification {
         that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
 
         where:
-        idtoken             | accesstoken         | protocol | host               | uri     | method | authenticated | restricted
-        validJwtTokenString | null                | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        validJwtTokenString | ""                  | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        null                | validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        ""                  | validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        ""                  | null                | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        null                | null                | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
-        ""                  | ""                  | "HTTPS"  | "www.example.test" | "/test" | "GET" || false         | true
+        idtoken             | accesstoken         | protocol | host               | uri     | method | isApi  | authenticated | restricted
+        validJwtTokenString | null                | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        validJwtTokenString | ""                  | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        null                | validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        ""                  | validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        ""                  | null                | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        null                | null                | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
+        ""                  | ""                  | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || false         | true
     }
 
     @Unroll
@@ -168,7 +172,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isApi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -186,9 +191,9 @@ class AuthorizeHandlerTest extends Specification {
         that(result.userinfo, hasEntry(key, value))
 
         where:
-        jwt                 | protocol | host               | uri     | method | key     | value
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "sub"   | "daniel@example.com"
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "email" | "jrocket@example.com"
+        jwt                 | protocol | host               | uri     | method | isApi  | key     | value
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || "sub"   | "daniel@example.com"
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || "email" | "jrocket@example.com"
     }
 
     def "should ignore unknown claim from idtoken"() {
@@ -199,7 +204,8 @@ class AuthorizeHandlerTest extends Specification {
                 protocol,
                 host,
                 uri,
-                method)
+                method,
+                isAPi)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
@@ -217,8 +223,8 @@ class AuthorizeHandlerTest extends Specification {
         that(result.userinfo, not(hasKey(key)))
 
         where:
-        jwt                 | protocol | host               | uri     | method | key
-        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET" || "a claim that is not in the jwt token"
+        jwt                 | protocol | host               | uri     | method | isAPi  | key
+        validJwtTokenString | "HTTPS"  | "www.example.test" | "/test" | "GET"  | false || "a claim that is not in the jwt token"
     }
 
     def "should have authorization url for redirect url as configured in properties"() {
@@ -229,8 +235,8 @@ class AuthorizeHandlerTest extends Specification {
                 "https",
                 "www.example.test",
                 "/test",
-                "GET")
-
+                "GET",
+                false)
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"
         def verifyTokenService = Stub(VerifyTokenService)
@@ -248,6 +254,60 @@ class AuthorizeHandlerTest extends Specification {
         that(result.authorizeUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
     }
 
+    def "should need redirect for non-api calls when missing authentication"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeHandler.AuthorizeCommand(
+                validJwtTokenString,
+                validJwtTokenString,
+                "https",
+                "www.example.test",
+                "/test",
+                "GET",
+                false)
+
+
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(_, _) >> new InvalidToken(("Just to get a redirect event to check"))
+
+        and: "a command handler that is the system under test"
+        AuthorizeHandler sut = new AuthorizeHandler(
+                ObjectMother.properties, verifyTokenService)
+
+        when: "we authorize the request"
+        def result = sut.handle(command)
+
+        then: "we should get a valid response"
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+    }
+
+    def "should deny access for api calls when missing authentication"() {
+        given: "an authorize command with input parameters"
+        def command = new AuthorizeHandler.AuthorizeCommand(
+                validJwtTokenString,
+                validJwtTokenString,
+                "https",
+                "www.example.test",
+                "/test",
+                "GET",
+                true)
+
+
+        and: "a stub VerifyTokenService that return a valid JWT JwtToken"
+        def verifyTokenService = Stub(VerifyTokenService)
+        verifyTokenService.verify(_, _) >> new InvalidToken(("Just to get a redirect event to check"))
+
+        and: "a command handler that is the system under test"
+        AuthorizeHandler sut = new AuthorizeHandler(
+                ObjectMother.properties, verifyTokenService)
+
+        when: "we authorize the request"
+        def result = sut.handle(command)
+
+        then: "we should get a valid response"
+        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.AccessDenied)))
+    }
+
     def "should have nonce set in result"() {
         given: "an authorize command with input parameters"
         def command = new AuthorizeHandler.AuthorizeCommand(
@@ -256,7 +316,8 @@ class AuthorizeHandlerTest extends Specification {
                 "https",
                 "www.example.test",
                 "/test",
-                "get")
+                "get",
+                false)
 
 
         and: "a stub VerifyTokenService that return a valid JWT JwtToken"

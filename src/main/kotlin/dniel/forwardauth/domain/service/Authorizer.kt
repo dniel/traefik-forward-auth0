@@ -1,11 +1,15 @@
 package dniel.forwardauth.domain.service
 
 import dniel.forwardauth.AuthProperties.Application
-import dniel.forwardauth.domain.*
+import dniel.forwardauth.domain.JwtToken
+import dniel.forwardauth.domain.OpaqueToken
+import dniel.forwardauth.domain.OriginUrl
+import dniel.forwardauth.domain.Token
 import org.slf4j.LoggerFactory
 
-class Authorizer(val accessToken: Token, val idToken: Token, val app: Application, val nonce: Nonce,
-                 val originUrl: OriginUrl, val state: State, val authUrl: AuthorizeUrl, val authDomain: String) : AuthorizerStateMachine.Delegate {
+class Authorizer private constructor(val accessToken: Token, val idToken: Token,
+                                     val app: Application, val originUrl: OriginUrl,
+                                     override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
 
     private var fsm: AuthorizerStateMachine
     private var lastError: Error? = null
@@ -13,9 +17,9 @@ class Authorizer(val accessToken: Token, val idToken: Token, val app: Applicatio
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
-        fun create(accessToken: Token, idToken: Token, app: Application, nonce: Nonce,
-                   originUrl: OriginUrl, state: State, authUrl: AuthorizeUrl, authDomain: String):
-                Authorizer = Authorizer(accessToken, idToken, app, nonce, originUrl, state, authUrl, authDomain)
+        fun create(accessToken: Token, idToken: Token, app: Application,
+                   originUrl: OriginUrl, isApi: Boolean):
+                Authorizer = Authorizer(accessToken, idToken, app, originUrl, isApi)
     }
 
     init {

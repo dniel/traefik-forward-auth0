@@ -45,7 +45,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
     private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, accessToken: String?,
                                   idToken: String?, method: String, host: String, protocol: String,
                                   uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
-        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method)
+        val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
+                requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method, isApi)
         val authorizeResult = LoggingHandler(authorizeHandler).handle(command)
 
         return when (authorizeResult) {
@@ -53,8 +55,6 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
             is AuthorizeHandler.AuthEvent.Error -> throw ApplicationErrorException()
 
             is AuthorizeHandler.AuthEvent.NeedRedirect -> {
-                val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
-                        requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
                 if (isApi) {
                     ResponseEntity.status(HttpStatus.FORBIDDEN).build()
                 } else {

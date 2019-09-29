@@ -44,7 +44,8 @@ class AuthorizeHandler(val properties: AuthProperties,
                                 val protocol: String,
                                 val host: String,
                                 val uri: String,
-                                val method: String
+                                val method: String,
+                                val isApi: Boolean
     ) : Command
 
 
@@ -62,22 +63,22 @@ class AuthorizeHandler(val properties: AuthProperties,
      * Main Handle Command method.
      */
     override fun handle(params: AuthorizeCommand): AuthEvent {
-        val authDomain = properties.domain
         val authUrl = properties.authorizeUrl
         val app = properties.findApplicationOrDefault(params.host)
         val nonce = Nonce.generate()
         val originUrl = OriginUrl(params.protocol, params.host, params.uri, params.method)
         val state = State.create(originUrl, nonce)
-        val authorizeUrl = AuthorizeUrl(authUrl, app, state).toURI()
+        val authorizeUrl = AuthorizeUrl(authUrl, app, state)
         val cookieDomain = app.tokenCookieDomain
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
         val idToken = verifyTokenService.verify(params.idToken, app.clientId)
+        val isApi = params.isApi
 
-        val authorizer = Authorizer.create(accessToken, idToken, app, nonce, originUrl, state, AuthorizeUrl(authUrl, app, state), authDomain)
+        val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
         val output = authorizer.authorize()
         LOGGER.debug("" + output)
         return when (output) {
-            AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl, nonce, cookieDomain)
+            AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
             AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
             else -> AuthEvent.Error

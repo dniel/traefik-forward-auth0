@@ -36,6 +36,7 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
     interface Delegate {
         val hasError: Boolean
+        val isApi: Boolean
 
         fun onStartAuthorizing()
         fun onStartValidateTokens()
@@ -97,13 +98,12 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         VALID_SAME_SUBS,
 
         // verify ID token and its content
-        VALIDATE_ID_TOKEN,
         VALID_ID_TOKEN,
         INVALID_ID_TOKEN,
 
         // generic error event
         ERROR,
-        NEXT
+        NEXT_TRANSITION
     }
 
     private var pendingEvents = ArrayDeque<Event>()
@@ -174,8 +174,9 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
         config.configure(State.INVALID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permit(Event.NEXT, State.NEED_REDIRECT)
-                .onEntry(this::nextEvent)
+                .permitIf(Event.NEXT_TRANSITION, State.NEED_REDIRECT) { !delegate.isApi }
+                .permitIf(Event.NEXT_TRANSITION, State.ACCESS_DENIED) { delegate.isApi }
+                .onEntry(this::nextTransition)
 
         config.configure(State.ERROR)
                 .substateOf(State.AUTHORIZING)
@@ -197,11 +198,11 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
-        // config.generateDotFileInto(System.err)
+         config.generateDotFileInto(System.err)
     }
 
-    private fun nextEvent() {
-        fsm.fire(Event.NEXT)
+    private fun nextTransition() {
+        fsm.fire(Event.NEXT_TRANSITION)
     }
 
     fun authorize(): State {
