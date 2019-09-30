@@ -14,15 +14,18 @@ import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
 
+/**
+ * Authorize Endpoint.
+ * This endpoint is used by traefik forward properties to authorize requests.
+ * It will return 200 for requests that has a valid JWT_TOKEN and will
+ * redirect other to authenticate at Auth0.
+ */
 @RestController
 class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
-     * Authorize Endpoint.
-     * This endpoint is used by traefik forward properties to authorize requests.
-     * It will return 200 for requests that has a valid JWT_TOKEN and will
-     * redirect other to authenticate at Auth0.
+     * Authorize Endpoint
      */
     @RequestMapping("/authorize", method = [RequestMethod.GET])
     fun authorize(@RequestHeader headers: MultiValueMap<String, String>,
@@ -35,13 +38,17 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
                   @RequestHeader("x-forwarded-uri") forwardedUriHeader: String,
                   @RequestHeader("x-forwarded-method") forwardedMethodHeader: String,
                   response: HttpServletResponse): ResponseEntity<Unit> {
-
         printHeaders(headers)
         return authenticateToken(acceptContent, requestedWithHeader,
                 accessTokenCookie, userinfoCookie, forwardedMethodHeader,
                 forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response)
     }
 
+
+    /**
+     * Authenticate
+     *
+     */
     private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, accessToken: String?,
                                   idToken: String?, method: String, host: String, protocol: String,
                                   uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
@@ -59,6 +66,10 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         }
     }
 
+    /**
+     * Execute AuthorizeCommand
+     *
+     */
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?, accessToken: String?, idToken: String?,
                               protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
@@ -68,6 +79,10 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         return authorizeResult
     }
 
+    /**
+     * Access Granted.
+     *
+     */
     private fun accessGranted(accessToken: String?, authorizeResult: AuthorizeHandler.AuthEvent.AccessGranted): ResponseEntity<Unit> {
         val builder = ResponseEntity.noContent()
         builder.header("Authorization", "Bearer ${accessToken}")
@@ -79,6 +94,10 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         return builder.build()
     }
 
+    /**
+     * Redirect to Authorize
+     *
+     */
     private fun redirect(authorizeResult: AuthorizeHandler.AuthEvent.NeedRedirect, response: HttpServletResponse): ResponseEntity<Unit> {
         // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
         val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
@@ -91,7 +110,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
     }
 
-
+    /**
+     * Debug print headers
+     */
     private fun printHeaders(headers: MultiValueMap<String, String>) {
         if (LOGGER.isTraceEnabled) {
             headers.forEach { (key, value) -> LOGGER.trace(String.format("Header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))) }

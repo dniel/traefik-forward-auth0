@@ -12,6 +12,8 @@
 domain: https://xxxxx.xx.auth0.com/
 token-endpoint: https://xxx.xx.auth0.com/oauth/token
 authorize-url: https://xxxx.xx.auth0.com/authorize
+userinfo-endpoint: https://xxxx.xx.auth0.com/userinfo
+logout-endpoint:  https://xxxx.xx.auth0.com/v2/logout
 
 # default application that is hostname of received request does not
 # match any of the applications in the apps list will use, or if
