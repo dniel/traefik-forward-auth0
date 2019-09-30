@@ -15,9 +15,8 @@ import org.springframework.stereotype.Component
 @Component
 class Auth0Client(val properties: AuthProperties) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
-    val DOMAIN = properties.domain
-    val SIGNOUT_ENDPOINT = "${DOMAIN}v2/logout"
-    val USERINFO_ENDPOINT = "${DOMAIN}userinfo"
+    val LOGOUT_ENDPOINT = properties.logoutEndpoint
+    val USERINFO_ENDPOINT = properties.userinfoEndpoint
     val TOKEN_ENDPOINT = properties.tokenEndpoint
     val JSON = jacksonObjectMapper()
 
@@ -82,8 +81,8 @@ class Auth0Client(val properties: AuthProperties) {
                 .disableRedirectHandling()
                 .build())
 
-        LOGGER.trace("Request Signout Endpoint: ${SIGNOUT_ENDPOINT}")
-        val response = with(Unirest.get(SIGNOUT_ENDPOINT)) {
+        LOGGER.trace("Request Signout Endpoint: ${LOGOUT_ENDPOINT}")
+        val response = with(Unirest.get(LOGOUT_ENDPOINT)) {
             queryString("client_id", clientId)
             queryString("returnTo", returnTo)
         }.asString()

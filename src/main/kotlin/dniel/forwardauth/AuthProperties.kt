@@ -16,6 +16,12 @@ class AuthProperties {
     lateinit var tokenEndpoint: String
 
     @NotEmpty
+    lateinit var logoutEndpoint: String
+
+    @NotEmpty
+    lateinit var userinfoEndpoint: String
+
+    @NotEmpty
     lateinit var authorizeUrl: String
 
     @NotNull
