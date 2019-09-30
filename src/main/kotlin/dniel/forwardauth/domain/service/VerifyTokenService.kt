@@ -49,7 +49,7 @@ class VerifyTokenService(val decoder: JwtDecoder) {
                     }
                 } catch (e: Exception) {
                     // handle errors from get and decode in cache.
-                    cache.invalidate(token) // remove token from cache if found illegal token state.
+                    cache.invalidate(token) // remove token from cache if found illegal token authorizeState.
                     LOGGER.info("Invalid token: ${e.message}")
                     InvalidToken("" + e.message)
                 }

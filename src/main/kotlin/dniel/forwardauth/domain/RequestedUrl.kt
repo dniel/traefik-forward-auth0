@@ -2,7 +2,7 @@ package dniel.forwardauth.domain
 
 import java.net.URI
 
-class OriginUrl(val protocol: String, val host: String, val uri: String, val method: String) {
+class RequestedUrl(val protocol: String, val host: String, val uri: String, val method: String) {
 
     override fun toString(): String {
         return "$protocol://$host$uri".toLowerCase()

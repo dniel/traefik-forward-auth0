@@ -3,12 +3,12 @@ package dniel.forwardauth.domain.service
 import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.JwtToken
 import dniel.forwardauth.domain.OpaqueToken
-import dniel.forwardauth.domain.OriginUrl
+import dniel.forwardauth.domain.RequestedUrl
 import dniel.forwardauth.domain.Token
 import org.slf4j.LoggerFactory
 
 class Authorizer private constructor(val accessToken: Token, val idToken: Token,
-                                     val app: Application, val originUrl: OriginUrl,
+                                     val app: Application, val originUrl: RequestedUrl,
                                      override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
 
     private var fsm: AuthorizerStateMachine
@@ -18,7 +18,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
         fun create(accessToken: Token, idToken: Token, app: Application,
-                   originUrl: OriginUrl, isApi: Boolean):
+                   originUrl: RequestedUrl, isApi: Boolean):
                 Authorizer = Authorizer(accessToken, idToken, app, originUrl, isApi)
     }
 
@@ -43,7 +43,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
 
     override fun onValidateWhitelistedUrl() {
         trace("onValidateWhitelistedUrl")
-        fun isSigninUrl(originUrl: OriginUrl, app: Application) =
+        fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
                 originUrl.startsWith(app.redirectUri)
 
         if (isSigninUrl(originUrl, app)) {

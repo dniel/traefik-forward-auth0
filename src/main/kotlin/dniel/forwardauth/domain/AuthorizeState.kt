@@ -4,16 +4,16 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 
-class State private constructor(val originUrl: OriginUrl, val nonce: Nonce) {
+class AuthorizeState private constructor(val originUrl: RequestedUrl, val nonce: AuthorizeNonce) {
 
     companion object {
         val JSON = jacksonObjectMapper()
-        fun create(originUrl: OriginUrl, nonce: Nonce): State {
-            return State(originUrl = originUrl, nonce = nonce)
+        fun create(originUrl: RequestedUrl, nonce: AuthorizeNonce): AuthorizeState {
+            return AuthorizeState(originUrl = originUrl, nonce = nonce)
         }
 
-        fun decode(base64: String): State {
-            return JSON.readValue(Base64.getDecoder().decode(base64), State::class.java)
+        fun decode(base64: String): AuthorizeState {
+            return JSON.readValue(Base64.getDecoder().decode(base64), AuthorizeState::class.java)
         }
     }
 

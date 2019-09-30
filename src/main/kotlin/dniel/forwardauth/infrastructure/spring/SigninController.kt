@@ -1,7 +1,7 @@
 package dniel.forwardauth.infrastructure.spring
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.domain.State
+import dniel.forwardauth.domain.AuthorizeState
 import dniel.forwardauth.domain.service.VerifyTokenService
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse
 
 /**
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
- * TODO rename to signin
  */
 @RestController
 class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client, val verifyTokenService: VerifyTokenService) {
@@ -60,11 +59,11 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
 
         LOGGER.debug("Sign in with code=$code")
         if (!code.isNullOrBlank() && !state.isNullOrBlank()) {
-            val decodedState = State.decode(state)
+            val decodedState = AuthorizeState.decode(state)
             val receivedNonce = decodedState.nonce.value
             if (receivedNonce != nonce) {
                 LOGGER.error("SignInFailedNonce received=$receivedNonce sent=$nonce")
-                throw ApplicationErrorException("Nonce cookie didnt match the nonce in state.")
+                throw ApplicationErrorException("AuthorizeNonce cookie didnt match the nonce in authorizeState.")
             }
 
             val app = properties.findApplicationOrDefault(forwardedHost)
@@ -97,7 +96,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             LOGGER.info("SignInSuccessful, redirect to requested originUrl=${decodedState.originUrl}")
             return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(decodedState.originUrl.uri()).build()
         } else {
-            LOGGER.error("Unknown request, login redirect request from Auth0 had no code, state or error message.")
+            LOGGER.error("Unknown request, login redirect request from Auth0 had no code, authorizeState or error message.")
             throw ApplicationErrorException()
         }
     }

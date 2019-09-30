@@ -24,7 +24,7 @@ import java.net.URI
  * <p/>
  * Ideas to error handling
  * http://www.douevencode.com/articles/2018-09/kotlin-error-handling/
- * https://medium.com/@spaghetticode/finite-state-machines-in-kotlin-part-1-57e68d54d93b
+ * https://medium.com/@spaghetticode/finite-authorizeState-machines-in-kotlin-part-1-57e68d54d93b
  * https://github.com/stateless4j
  */
 @Component
@@ -53,7 +53,7 @@ class AuthorizeHandler(val properties: AuthProperties,
      * This command can produce a set of events as response from the handle method.
      */
     sealed class AuthEvent : Event {
-        class NeedRedirect(val authorizeUrl: URI, val nonce: Nonce, val cookieDomain: String) : AuthEvent()
+        class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthEvent()
         class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
         object AccessDenied : AuthEvent()
         object Error : AuthEvent()
@@ -65,9 +65,9 @@ class AuthorizeHandler(val properties: AuthProperties,
     override fun handle(params: AuthorizeCommand): AuthEvent {
         val authUrl = properties.authorizeUrl
         val app = properties.findApplicationOrDefault(params.host)
-        val nonce = Nonce.generate()
-        val originUrl = OriginUrl(params.protocol, params.host, params.uri, params.method)
-        val state = State.create(originUrl, nonce)
+        val nonce = AuthorizeNonce.generate()
+        val originUrl = RequestedUrl(params.protocol, params.host, params.uri, params.method)
+        val state = AuthorizeState.create(originUrl, nonce)
         val authorizeUrl = AuthorizeUrl(authUrl, app, state)
         val cookieDomain = app.tokenCookieDomain
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)

@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 
 @RestController
-internal class UserController(val properties: AuthProperties, val auth0Client: Auth0Client) {
+internal class UserinfoController(val properties: AuthProperties, val auth0Client: Auth0Client) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 

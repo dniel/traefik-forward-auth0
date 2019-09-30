@@ -212,10 +212,10 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
     }
 
     /**
-     * Post state machine event to internal queue.
+     * Post authorizeState machine event to internal queue.
      *
      * This design ensures that we're not triggering multiple events
-     * from state machines callbacks before the transition is fully
+     * from authorizeState machines callbacks before the transition is fully
      * completed.
      *
      * Method is re-entrant.
