@@ -1,7 +1,8 @@
 # Frequently asked Questions
 
-## Q: Why is my access token not a JWT?
-See https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028
+## Q: Why Opaque Access Tokens is not supported?
+The only way for ForwardAuth to validate that the Access Token has not been tampered with and has not expired is if you
+use a token with JWT format See https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028
 
 ## Q: How do I check if ForwardAuth is accessible through Traefik?
 After completing the installation instructions, ForwardAuth should be accessible through Traefik on 

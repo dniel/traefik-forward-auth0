@@ -1,10 +1,7 @@
 package dniel.forwardauth.domain.service
 
 import dniel.forwardauth.AuthProperties.Application
-import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.domain.OpaqueToken
-import dniel.forwardauth.domain.RequestedUrl
-import dniel.forwardauth.domain.Token
+import dniel.forwardauth.domain.*
 import org.slf4j.LoggerFactory
 
 class Authorizer private constructor(val accessToken: Token, val idToken: Token,
@@ -12,7 +9,6 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
                                      override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
 
     private var fsm: AuthorizerStateMachine
-    private var lastError: Error? = null
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
@@ -28,8 +24,10 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
 
     data class Error(val message: String)
 
+    var lastError: Error? = null
     override val hasError: Boolean
         get() = lastError != null
+
 
     override fun onStartAuthorizing() {
         trace("onStartAuthorizing")
@@ -78,7 +76,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
                 fsm.post(AuthorizerStateMachine.Event.ERROR)
             }
             accessToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ACCESS_TOKEN)
-            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ACCESS_TOKEN)
+            accessToken is InvalidToken -> fsm.post(AuthorizerStateMachine.Event.INVALID_ACCESS_TOKEN)
         }
     }
 
@@ -94,7 +92,10 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         trace("onValidatePermissions")
         when {
             (accessToken as JwtToken).hasPermission(app.requiredPermissions) -> fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
-            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
+            else -> {
+                lastError = Error("Missing permission/s for user.")
+                fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
+            }
         }
     }
 
@@ -107,6 +108,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         if (hasSameSubs(accessToken, idToken)) {
             fsm.post(AuthorizerStateMachine.Event.VALID_SAME_SUBS)
         } else {
+            lastError = Error("Access Token and Id Token had different value in SUB-claim.")
             fsm.post(AuthorizerStateMachine.Event.INVALID_SAME_SUBS)
         }
     }

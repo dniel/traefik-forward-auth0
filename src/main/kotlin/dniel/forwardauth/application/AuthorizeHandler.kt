@@ -56,7 +56,7 @@ class AuthorizeHandler(val properties: AuthProperties,
         class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthEvent()
         class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
         object AccessDenied : AuthEvent()
-        object Error : AuthEvent()
+        class Error(val reason: String) : AuthEvent()
     }
 
     /**
@@ -76,12 +76,14 @@ class AuthorizeHandler(val properties: AuthProperties,
 
         val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
         val output = authorizer.authorize()
-        LOGGER.debug("" + output)
+        LOGGER.debug("State: ${output}")
+        LOGGER.debug("Last Error: ${authorizer.lastError}")
+
         return when (output) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
             AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
-            else -> AuthEvent.Error
+            else -> AuthEvent.Error(authorizer.lastError?.message ?: "unknown error")
         }
     }
 

@@ -2,7 +2,7 @@ package dniel.forwardauth.infrastructure.spring
 
 import dniel.forwardauth.application.AuthorizeHandler
 import dniel.forwardauth.application.LoggingHandler
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
+import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -45,42 +45,50 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
     private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, accessToken: String?,
                                   idToken: String?, method: String, host: String, protocol: String,
                                   uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
+
+        val authorizeResult = handleCommand(acceptContent, requestedWithHeader, accessToken, idToken, protocol, host, uri, method)
+        return when (authorizeResult) {
+            is AuthorizeHandler.AuthEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
+            is AuthorizeHandler.AuthEvent.Error -> throw AuthorizationException(authorizeResult)
+            is AuthorizeHandler.AuthEvent.NeedRedirect -> {
+                redirect(authorizeResult, response)
+            }
+            is AuthorizeHandler.AuthEvent.AccessGranted -> {
+                accessGranted(accessToken, authorizeResult)
+            }
+        }
+    }
+
+    private fun handleCommand(acceptContent: String?, requestedWithHeader: String?, accessToken: String?, idToken: String?,
+                              protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method, isApi)
-        val authorizeResult = LoggingHandler(authorizeHandler).handle(command)
+        val authorizeResult = LoggingHandler(authorizeHandler).handle(command) as AuthorizeHandler.AuthEvent
+        return authorizeResult
+    }
 
-        return when (authorizeResult) {
-            is AuthorizeHandler.AuthEvent.AccessDenied -> throw PermissionDeniedException()
-            is AuthorizeHandler.AuthEvent.Error -> throw ApplicationErrorException()
-
-            is AuthorizeHandler.AuthEvent.NeedRedirect -> {
-                if (isApi) {
-                    ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-                } else {
-                    // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-                    val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
-                    nonceCookie.domain = authorizeResult.cookieDomain
-                    nonceCookie.maxAge = 60
-                    nonceCookie.isHttpOnly = true
-                    nonceCookie.path = "/"
-                    response.addCookie(nonceCookie)
-                    LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
-                    ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
-                }
-            }
-            is AuthorizeHandler.AuthEvent.AccessGranted -> {
-                val builder = ResponseEntity.noContent()
-                builder.header("Authorization", "Bearer ${accessToken}")
-                authorizeResult.userinfo.forEach { k, v ->
-                    val headerName = "X-Forwardauth-${k.capitalize()}"
-                    LOGGER.trace("Add header ${headerName} with value ${v}")
-                    builder.header(headerName, v)
-                }
-                builder.build()
-            }
-            else -> throw ApplicationErrorException()
+    private fun accessGranted(accessToken: String?, authorizeResult: AuthorizeHandler.AuthEvent.AccessGranted): ResponseEntity<Unit> {
+        val builder = ResponseEntity.noContent()
+        builder.header("Authorization", "Bearer ${accessToken}")
+        authorizeResult.userinfo.forEach { k, v ->
+            val headerName = "X-Forwardauth-${k.capitalize()}"
+            LOGGER.trace("Add header ${headerName} with value ${v}")
+            builder.header(headerName, v)
         }
+        return builder.build()
+    }
+
+    private fun redirect(authorizeResult: AuthorizeHandler.AuthEvent.NeedRedirect, response: HttpServletResponse): ResponseEntity<Unit> {
+        // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
+        val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
+        nonceCookie.domain = authorizeResult.cookieDomain
+        nonceCookie.maxAge = 60
+        nonceCookie.isHttpOnly = true
+        nonceCookie.path = "/"
+        response.addCookie(nonceCookie)
+        LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
     }
 
 

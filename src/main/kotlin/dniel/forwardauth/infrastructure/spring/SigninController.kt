@@ -4,9 +4,8 @@ import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.AuthorizeState
 import dniel.forwardauth.domain.service.VerifyTokenService
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationErrorException
+import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import dniel.forwardauth.infrastructure.spring.exceptions.Auth0Exception
-import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -49,10 +48,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
         printHeaders(headers)
 
         // if error parameter was received something is going on.
-        if (error == "unauthorized") {
-            LOGGER.info("Unauthorized error from Auth0 on sign in: ${errorDescription}")
-            throw PermissionDeniedException(errorDescription ?: "no error description.")
-        } else if (!error.isNullOrEmpty()) {
+        if (!error.isNullOrEmpty()) {
             LOGGER.error("Signing received unknown error from Auth0 on sign in: ${errorDescription}")
             throw Auth0Exception(error, errorDescription ?: "no error description.")
         }
@@ -63,7 +59,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             val receivedNonce = decodedState.nonce.value
             if (receivedNonce != nonce) {
                 LOGGER.error("SignInFailedNonce received=$receivedNonce sent=$nonce")
-                throw ApplicationErrorException("AuthorizeNonce cookie didnt match the nonce in authorizeState.")
+                throw ApplicationException("AuthorizeNonce cookie didnt match the nonce in authorizeState.")
             }
 
             val app = properties.findApplicationOrDefault(forwardedHost)
@@ -97,7 +93,7 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(decodedState.originUrl.uri()).build()
         } else {
             LOGGER.error("Unknown request, login redirect request from Auth0 had no code, authorizeState or error message.")
-            throw ApplicationErrorException()
+            throw ApplicationException()
         }
     }
 
