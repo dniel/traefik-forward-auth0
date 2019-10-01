@@ -27,6 +27,6 @@ a valid user.
 - [Upgrade Notes](/docs/upgrade-notes.md)
 - [Configuration](/docs/configuration.md)
 - [Auth0](/docs/auth0.md)
-- [OAuth and Open ID Connect](/docs/oauth-oidc.md)
+- [OAuth and OpenID Connect](/docs/oauth-oidc.md)
 - [FAQ](/docs/faq.md)
 - [Contributing](/docs/contributing.md)
