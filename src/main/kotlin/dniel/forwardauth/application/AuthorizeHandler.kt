@@ -75,15 +75,16 @@ class AuthorizeHandler(val properties: AuthProperties,
         val isApi = params.isApi
 
         val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
-        val output = authorizer.authorize()
-        LOGGER.debug("State: ${output}")
-        LOGGER.debug("Last Error: ${authorizer.lastError}")
+        val (resultState, error) = authorizer.authorize()
 
-        return when (output) {
+        LOGGER.debug("State: ${resultState}")
+        LOGGER.debug("Last Error: ${error}")
+
+        return when (resultState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
             AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
-            else -> AuthEvent.Error(authorizer.lastError?.message ?: "unknown error")
+            else -> AuthEvent.Error(error?.message ?: "unknown error")
         }
     }
 

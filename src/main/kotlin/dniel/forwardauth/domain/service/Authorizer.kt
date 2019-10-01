@@ -4,11 +4,19 @@ import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.*
 import org.slf4j.LoggerFactory
 
+/**
+ * Authorizer.
+ * This service is responseble for authorizing access for a requested url.
+ * To handle all the logic involved to authorize the request a state machine is
+ * created and all inputs from this class is used as context to find out if
+ * the request can be authorized.
+ *
+ * @see AuthorizerStateMachine for configuration of state machine.
+ *
+ */
 class Authorizer private constructor(val accessToken: Token, val idToken: Token,
                                      val app: Application, val originUrl: RequestedUrl,
                                      override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
-
-    private var fsm: AuthorizerStateMachine
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
@@ -18,13 +26,28 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
                 Authorizer = Authorizer(accessToken, idToken, app, originUrl, isApi)
     }
 
+    private var fsm: AuthorizerStateMachine
+
     init {
         fsm = AuthorizerStateMachine(this)
     }
 
+    /**
+     * To return the resulting state from the State Machine, and also if an error has
+     * occured, this result objects is returned from the authorize() method.
+     */
+    data class AuthorizerResult(val state: AuthorizerStateMachine.State, val error: Error?)
+
+    /**
+     * Error object with error message, this is used to store last error that happened in state machine.
+     */
     data class Error(val message: String)
 
-    var lastError: Error? = null
+    /**
+     * When on of the event callbacks has failed, it signals
+     * and error by setting the lastError variable.
+     */
+    private var lastError: Error? = null
     override val hasError: Boolean
         get() = lastError != null
 
@@ -136,8 +159,8 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
 
     /*
      */
-    fun authorize(): AuthorizerStateMachine.State {
-        return fsm.authorize()
+    fun authorize(): AuthorizerResult {
+        return AuthorizerResult(fsm.authorize(), this.lastError)
     }
 
     fun trace(message: String) {
