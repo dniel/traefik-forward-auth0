@@ -13,12 +13,12 @@ access a protected frontend configured in Traefik, a http call will be sent to t
 a valid user.
 
 # Features
-* Centralized auth mode for simple config via a shared authorization service.
-* Multiple-domain auth mode for more advanced multiple-domain/services configuration
-* Very flexible configuration
-* Support for Auth0 API permissions natively to block access to services by API permissions.
-* Restrict selected HTTP methods, let other methods be unrestricted.
-* Signout and userinfo endpoint for other applications to use.
+- Centralized auth mode for simple config via a shared authorization service.
+- Multiple-domain auth mode for more advanced multiple-domain/services configuration
+- Very flexible configuration
+- Support for Auth0 API permissions natively to block access to services by API permissions.
+- Restrict selected HTTP methods, let other methods be unrestricted.
+- Signout and userinfo endpoint for other applications to use.
 
 # Documentation
 - [Overview](/docs/overview.md)
