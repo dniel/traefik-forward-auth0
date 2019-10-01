@@ -10,3 +10,7 @@ https://auth.domain.com/actuator/info.
 That endpoint should give you some info about which version of ForwardAuth is running.
 If that endpoint is reachable then the other endpoints of ForwardAuth should also be
 reachable and it should be possible to login from auth0.
+
+## Q: How do I adjust loglevel in application?
+By setting the environment variable `ENV` for ForwardAuth to DEV, TEST or PRODUCTION different levels of
+logging is used by the application.
