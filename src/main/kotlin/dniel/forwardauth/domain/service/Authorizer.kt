@@ -167,7 +167,4 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         LOGGER.trace(message)
     }
 
-    fun state(): AuthorizerStateMachine.State {
-        return fsm.state
-    }
 }

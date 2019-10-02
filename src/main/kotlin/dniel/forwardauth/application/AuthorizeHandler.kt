@@ -25,6 +25,7 @@ import java.net.URI
  * Ideas to error handling
  * http://www.douevencode.com/articles/2018-09/kotlin-error-handling/
  * https://medium.com/@spaghetticode/finite-authorizeState-machines-in-kotlin-part-1-57e68d54d93b
+ * https://www.codeproject.com/Articles/509234/The-State-Design-Pattern-vs-State-Machine
  * https://github.com/stateless4j
  */
 @Component
@@ -56,7 +57,9 @@ class AuthorizeHandler(val properties: AuthProperties,
         class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthEvent()
         class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
         object AccessDenied : AuthEvent()
-        class Error(val reason: String) : AuthEvent()
+        class Error(error: Authorizer.Error?) : AuthEvent() {
+            val reason: String = error?.message ?: "Unknown error"
+        }
     }
 
     /**
@@ -75,16 +78,16 @@ class AuthorizeHandler(val properties: AuthProperties,
         val isApi = params.isApi
 
         val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
-        val (resultState, error) = authorizer.authorize()
+        val (authorizerState, authorizerError) = authorizer.authorize()
 
-        LOGGER.debug("State: ${resultState}")
-        LOGGER.debug("Last Error: ${error}")
+        LOGGER.debug("Authorizer State: ${authorizerState}")
+        LOGGER.debug("Authorizer Error: ${authorizerError}")
 
-        return when (resultState) {
+        return when (authorizerState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
             AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
-            else -> AuthEvent.Error(error?.message ?: "unknown error")
+            else -> AuthEvent.Error(authorizerError)
         }
     }
 
