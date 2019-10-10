@@ -13,7 +13,7 @@ class LoggingHandler<T : Command>(val handler: CommandHandler<T>) : CommandHandl
         val start = System.currentTimeMillis()
         val result = handler.handle(params)
         val end = System.currentTimeMillis() - start
-        LOGGER.info("Handle Command ${simpleName} Execution time: " + end + "ms. result=${result}")
+        LOGGER.info("Handle Command ${simpleName} Execution time: " + end + "ms. result=${result.javaClass.simpleName}")
         return result
     }
 }

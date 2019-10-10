@@ -68,7 +68,10 @@ class Authenticator private constructor(val accessToken: Token,
                 fsm.post(AuthenticatorStateMachine.Event.ERROR)
             }
             accessToken is JwtToken -> fsm.post(AuthenticatorStateMachine.Event.VALID_ACCESS_TOKEN)
-            accessToken is InvalidToken -> fsm.post(AuthenticatorStateMachine.Event.INVALID_ACCESS_TOKEN)
+            accessToken is InvalidToken -> {
+                lastError = Error(accessToken.reason)
+                fsm.post(AuthenticatorStateMachine.Event.INVALID_ACCESS_TOKEN)
+            }
         }
     }
 
@@ -76,7 +79,10 @@ class Authenticator private constructor(val accessToken: Token,
         trace("onValidateIdToken")
         when {
             idToken is JwtToken -> fsm.post(AuthenticatorStateMachine.Event.VALID_ID_TOKEN)
-            else -> fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
+            idToken is InvalidToken -> {
+                lastError = Error(idToken.reason)
+                fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
+            }
         }
     }
 
@@ -96,6 +102,7 @@ class Authenticator private constructor(val accessToken: Token,
 
     override fun onInvalidToken() {
         trace("onInvalidToken")
+        trace(lastError!!.message)
     }
 
     override fun onError() {

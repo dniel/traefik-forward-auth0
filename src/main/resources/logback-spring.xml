@@ -2,8 +2,8 @@
 <configuration scan="true" scanPeriod="30 seconds">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>[%X{userId}] - %date{ISO8601} [%thread] %-5level - %logger{120} - %msg%n</pattern>
+        <encoder>
+            <pattern>[%X{userId}] %cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
 
