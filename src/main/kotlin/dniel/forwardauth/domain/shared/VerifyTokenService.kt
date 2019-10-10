@@ -1,11 +1,7 @@
-package dniel.forwardauth.domain.service
+package dniel.forwardauth.domain.shared
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.cache.CacheBuilder
-import dniel.forwardauth.domain.InvalidToken
-import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.domain.OpaqueToken
-import dniel.forwardauth.domain.Token
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*
@@ -48,9 +44,8 @@ class VerifyTokenService(val decoder: JwtDecoder) {
                         else -> JwtToken(decodedJWT)
                     }
                 } catch (e: Exception) {
-                    // handle errors from get and decode in cache.
-                    cache.invalidate(token) // remove token from cache if found illegal token authorizeState.
                     LOGGER.info("Invalid token: ${e.message}")
+                    cache.invalidate(token)
                     InvalidToken("" + e.message)
                 }
             }

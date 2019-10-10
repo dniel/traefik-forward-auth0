@@ -1,7 +1,7 @@
-package dniel.forwardauth.infrastructure.spring
+package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.AuthorizeHandler
-import dniel.forwardauth.application.LoggingHandler
+import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse
  * redirect other to authenticate at Auth0.
  */
 @RestController
-class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
+class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -74,9 +74,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler) {
                               protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
+
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method, isApi)
-        val authorizeResult = LoggingHandler(authorizeHandler).handle(command) as AuthorizeHandler.AuthEvent
-        return authorizeResult
+        return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthEvent
     }
 
     /**

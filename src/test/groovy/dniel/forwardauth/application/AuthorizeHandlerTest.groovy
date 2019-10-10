@@ -1,9 +1,9 @@
 package dniel.forwardauth.application
 
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.domain.InvalidToken
-import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.domain.service.VerifyTokenService
+import dniel.forwardauth.domain.shared.InvalidToken
+import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.shared.VerifyTokenService
 import spock.lang.Specification
 import spock.lang.Unroll
 

@@ -1,9 +1,11 @@
-package dniel.forwardauth.domain.service
+package dniel.forwardauth.domain.authorize.service
 
 import com.auth0.jwt.exceptions.JWTVerificationException
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.domain.InvalidToken
-import dniel.forwardauth.domain.JwtToken
+import dniel.forwardauth.domain.shared.InvalidToken
+import dniel.forwardauth.domain.shared.JwtDecoder
+import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.shared.VerifyTokenService
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.*

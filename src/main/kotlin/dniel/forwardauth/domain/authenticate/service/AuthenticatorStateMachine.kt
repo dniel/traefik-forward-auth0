@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain.service
+package dniel.forwardauth.domain.authorize.service
 
 import com.github.oxo42.stateless4j.StateMachine
 import com.github.oxo42.stateless4j.StateMachineConfig
@@ -32,7 +32,7 @@ import java.util.*
  * }
  *
  */
-class AuthorizerStateMachine(private val delegate: Delegate) {
+class AuthenticatorStateMachine(private val delegate: Delegate) {
     val LOGGER = LoggerFactory.getLogger(this::class.java)
 
     interface Delegate {

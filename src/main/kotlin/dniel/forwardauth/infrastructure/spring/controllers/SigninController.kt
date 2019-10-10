@@ -1,8 +1,7 @@
-package dniel.forwardauth.infrastructure.spring
+package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.domain.AuthorizeState
-import dniel.forwardauth.domain.service.VerifyTokenService
+import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import dniel.forwardauth.infrastructure.spring.exceptions.Auth0Exception
@@ -19,9 +18,8 @@ import javax.servlet.http.HttpServletResponse
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
  */
 @RestController
-class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client, val verifyTokenService: VerifyTokenService) {
+class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
-    private val DOMAIN = properties.domain
 
     /**
      * Sign In Callback Endpoint.

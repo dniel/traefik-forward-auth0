@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain
+package dniel.forwardauth.domain.authorize
 
 import dniel.forwardauth.AuthProperties
 import java.net.URI

@@ -3,10 +3,16 @@ package dniel.forwardauth.application
 import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.AuthProperties.Application
-import dniel.forwardauth.domain.*
-import dniel.forwardauth.domain.service.Authorizer
-import dniel.forwardauth.domain.service.AuthorizerStateMachine
-import dniel.forwardauth.domain.service.VerifyTokenService
+import dniel.forwardauth.domain.authorize.AuthorizeNonce
+import dniel.forwardauth.domain.authorize.AuthorizeState
+import dniel.forwardauth.domain.authorize.AuthorizeUrl
+import dniel.forwardauth.domain.authorize.RequestedUrl
+import dniel.forwardauth.domain.authorize.service.Authenticator
+import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
+import dniel.forwardauth.domain.authorize.service.Authorizer
+import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
+import dniel.forwardauth.domain.shared.VerifyTokenService
+import dniel.forwardauth.domain.shared.JwtToken
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -32,9 +38,7 @@ import java.net.URI
 class AuthorizeHandler(val properties: AuthProperties,
                        val verifyTokenService: VerifyTokenService) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
-    companion object {
-        private val LOGGER = LoggerFactory.getLogger(this::class.java)
-    }
+    private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
     /**
      * This is the input parameter object for the handler to pass inn all

@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain
+package dniel.forwardauth.domain.authorize
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*

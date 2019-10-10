@@ -1,4 +1,4 @@
-package dniel.forwardauth.domain
+package dniel.forwardauth.domain.shared
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import org.slf4j.LoggerFactory
@@ -59,5 +59,14 @@ class JwtToken(val value: DecodedJWT) : Token() {
             LOGGER.trace("User permissions: [${asList().joinToString()}]")
             hasPermission
         }
+    }
+
+    /**
+     * read permissions claim from token and convert to array
+     */
+    fun permisssions(): Array<String> {
+        val claim = value.getClaim("permissions")
+        return if (claim.isNull) emptyArray<String>()
+        else claim.asArray(String::class.java)
     }
 }

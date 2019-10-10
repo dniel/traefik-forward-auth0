@@ -1,8 +1,5 @@
 package dniel.forwardauth.application
 
-interface Event {
-}
-
 interface Command {
 }
 
