@@ -10,25 +10,17 @@ import java.util.*
  * Generated from dot file generator.
  *
  * digraph G {
- *  VALIDATING_ID_TOKEN -> ACCESS_GRANTED;
- *  VALIDATING_ID_TOKEN -> INVALID_TOKEN;
- *  VALIDATING_TOKENS -> VALIDATING_ACCESS_TOKEN;
- *  AUTHORIZING -> ERROR;
- *  AUTHORIZING -> VALIDATING_REQUESTED_URL;
- *  VALIDATING_ACCESS_TOKEN -> INVALID_TOKEN;
- *  VALIDATING_ACCESS_TOKEN -> VALIDATING_SAME_SUBS;
- *  AWAIT_AUTHORIZING -> AUTHORIZING;
- *  VALIDATING_SAME_SUBS -> VALIDATING_PERMISSIONS;
- *  VALIDATING_SAME_SUBS -> INVALID_TOKEN;
- *  VALIDATING_REQUESTED_URL -> VALIDATING_WHITELISTED_URL;
- *  VALIDATING_WHITELISTED_URL -> ACCESS_GRANTED;
- *  VALIDATING_WHITELISTED_URL -> VALIDATING_RESTRICTED_METHOD;
- *  VALIDATING_RESTRICTED_METHOD -> ACCESS_GRANTED;
- *  VALIDATING_RESTRICTED_METHOD -> VALIDATING_TOKENS;
- *  VALIDATING_PERMISSIONS -> VALIDATING_ID_TOKEN;
- *  VALIDATING_PERMISSIONS -> ACCESS_DENIED;
- *  INVALID_TOKEN -> NEED_REDIRECT;
- *  INVALID_TOKEN -> ACCESS_DENIED;
+ * 	VALIDATING_ACCESS_TOKEN -> VALIDATING_ID_TOKEN;
+ * 	VALIDATING_ACCESS_TOKEN -> INVALID_TOKEN;
+ * 	VALIDATING_TOKENS -> VALIDATING_ACCESS_TOKEN;
+ * 	AUTHENTICATING -> VALIDATING_TOKENS;
+ * 	INVALID_TOKEN -> ANONYMOUS;
+ * 	VALIDATING_SAME_SUBS -> INVALID_TOKEN;
+ * 	VALIDATING_SAME_SUBS -> VALID_TOKENS;
+ * 	VALIDATING_ID_TOKEN -> INVALID_TOKEN;
+ * 	VALIDATING_ID_TOKEN -> VALIDATING_SAME_SUBS;
+ * 	VALID_TOKENS -> AUTHENTICATED;
+ * 	AWAIT_AUTHENTICATION -> AUTHENTICATING;
  * }
  *
  */
@@ -37,74 +29,47 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
 
     interface Delegate {
         val hasError: Boolean
-        val isApi: Boolean
 
-        fun onStartAuthorizing()
+        fun onStartAuthentication()
         fun onStartValidateTokens()
         fun onError()
         fun onValidateAccessToken()
         fun onValidateIdToken()
-        fun onValidatePermissions()
         fun onValidateSameSubs()
-        fun onValidateProtectedUrl()
-        fun onValidateWhitelistedUrl()
-        fun onValidateRestrictedMethod()
-        fun onAccessGranted()
-        fun onAccessDenied()
-        fun onNeedRedirect()
         fun onInvalidToken()
+        fun onAuthenticated()
+        fun onAnonymous()
     }
 
     enum class State {
-        AWAIT_AUTHORIZING,
-        AUTHORIZING,
-
+        AWAIT_AUTHENTICATION,
+        AUTHENTICATING,
         VALIDATING_TOKENS,
-
         VALIDATING_ID_TOKEN,
         VALIDATING_ACCESS_TOKEN,
-        VALIDATING_PERMISSIONS,
         VALIDATING_SAME_SUBS,
-
-        VALIDATING_REQUESTED_URL,
-        VALIDATING_WHITELISTED_URL,
-        VALIDATING_RESTRICTED_METHOD,
-
-        ACCESS_GRANTED,
-        ACCESS_DENIED,
-        NEED_REDIRECT,
         INVALID_TOKEN,
-        ERROR,
-
+        VALID_TOKENS,
+        AUTHENTICATED,
+        ANONYMOUS,
+        ERROR
     }
 
     enum class Event {
-        AUTHORIZE,
+        AUTHENTICATE,
 
-        VALIDATE_REQUESTED_URL,
-        VALIDATE_WHITELISTED_URL,
-
-        WHITELISTED_URL,
-        RESTRICTED_URL,
-        RESTRICTED_METHOD,
-        UNRESTRICTED_METHOD,
-
-        // verify access token and its content
+        // validate the tokens.
+        VALIDATE_TOKENS,
         VALIDATE_ACCESS_TOKEN,
         VALID_ACCESS_TOKEN,
         INVALID_ACCESS_TOKEN,
-        VALID_PERMISSIONS,
-        INVALID_PERMISSIONS,
-        INVALID_SAME_SUBS,
-        VALID_SAME_SUBS,
+        INVALID_SUBS,
+        VALID_SUBS,
 
-        // verify ID token and its content
         VALID_ID_TOKEN,
         INVALID_ID_TOKEN,
-
-        // generic error event
         ERROR,
-        NEXT_TRANSITION
+        NEXT_STATE
     }
 
     private var pendingEvents = ArrayDeque<Event>()
@@ -119,95 +84,74 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
     init {
         val config = StateMachineConfig<State, Event>()
 
-        config.configure(State.AWAIT_AUTHORIZING)
-                .permit(Event.AUTHORIZE, State.AUTHORIZING)
+        config.configure(State.AWAIT_AUTHENTICATION)
+                .permit(Event.AUTHENTICATE, State.AUTHENTICATING)
 
-        config.configure(State.AUTHORIZING)
-                .permit(Event.VALIDATE_REQUESTED_URL, State.VALIDATING_REQUESTED_URL)
-                .permitIf(Event.ERROR, State.ERROR) { delegate.hasError }
-                .onEntry(delegate::onStartAuthorizing)
-
-        config.configure(State.VALIDATING_REQUESTED_URL)
-                .substateOf(State.AUTHORIZING)
-                .permit(Event.VALIDATE_WHITELISTED_URL, State.VALIDATING_WHITELISTED_URL)
-                .onEntry(delegate::onValidateProtectedUrl)
-
-        config.configure(State.VALIDATING_WHITELISTED_URL)
-                .substateOf(State.VALIDATING_REQUESTED_URL)
-                .permit(Event.WHITELISTED_URL, State.ACCESS_GRANTED)
-                .permit(Event.RESTRICTED_URL, State.VALIDATING_RESTRICTED_METHOD)
-                .onEntry(delegate::onValidateWhitelistedUrl)
-
-        config.configure(State.VALIDATING_RESTRICTED_METHOD)
-                .substateOf(State.VALIDATING_REQUESTED_URL)
-                .permit(Event.UNRESTRICTED_METHOD, State.ACCESS_GRANTED)
-                .permit(Event.RESTRICTED_METHOD, State.VALIDATING_TOKENS)
-                .onEntry(delegate::onValidateRestrictedMethod)
+        config.configure(State.AUTHENTICATING)
+                .permit(Event.VALIDATE_TOKENS, State.VALIDATING_TOKENS)
+                .onEntry(delegate::onStartAuthentication)
 
         config.configure(State.VALIDATING_TOKENS)
-                .substateOf(State.AUTHORIZING)
+                .substateOf(State.AUTHENTICATING)
                 .permit(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN)
                 .onEntry(delegate::onStartValidateTokens)
 
         config.configure(State.VALIDATING_ACCESS_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
-                .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
+                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
+                .permitIf(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
                 .onEntry(delegate::onValidateAccessToken)
-
-        config.configure(State.VALIDATING_SAME_SUBS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
-                .permitIf(Event.VALID_SAME_SUBS, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
-                .permit(Event.INVALID_SAME_SUBS, State.INVALID_TOKEN)
-                .onEntry(delegate::onValidateSameSubs)
-
-        config.configure(State.VALIDATING_PERMISSIONS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
-                .permitIf(Event.VALID_PERMISSIONS, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
-                .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
-                .onEntry(delegate::onValidatePermissions)
 
         config.configure(State.VALIDATING_ID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ID_TOKEN, State.ACCESS_GRANTED) { !delegate.hasError }
-                .permit(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN)
+                .permitIf(Event.VALID_ID_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
+                .permitIf(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
                 .onEntry(delegate::onValidateIdToken)
+
+        config.configure(State.VALIDATING_SAME_SUBS)
+                .substateOf(State.VALIDATING_TOKENS)
+                .permitIf(Event.VALID_SUBS, State.VALID_TOKENS) { !delegate.hasError }
+                .permitIf(Event.INVALID_SUBS, State.INVALID_TOKEN) { delegate.hasError }
+                .onEntry(delegate::onValidateSameSubs)
 
         config.configure(State.INVALID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.NEXT_TRANSITION, State.NEED_REDIRECT) { !delegate.isApi }
-                .permitIf(Event.NEXT_TRANSITION, State.ACCESS_DENIED) { delegate.isApi }
-                .onEntry(this::nextTransition)
+                .permit(Event.NEXT_STATE, State.ANONYMOUS)
+                .onEntry(this::nextState)
+
+        config.configure(State.VALID_TOKENS)
+                .substateOf(State.VALIDATING_TOKENS)
+                .permit(Event.NEXT_STATE, State.AUTHENTICATED)
+                .onEntry(this::nextState)
 
         config.configure(State.ERROR)
-                .substateOf(State.AUTHORIZING)
+                .substateOf(State.AUTHENTICATING)
                 .onEntry(delegate::onError)
 
-        config.configure(State.NEED_REDIRECT)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onNeedRedirect)
+        config.configure(State.AUTHENTICATED)
+                .substateOf(State.AUTHENTICATING)
+                .onEntry(delegate::onAuthenticated)
 
-        config.configure(State.ACCESS_GRANTED)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onAccessGranted)
+        config.configure(State.ANONYMOUS)
+                .substateOf(State.AUTHENTICATING)
+                .onEntry(delegate::onAnonymous)
 
-        config.configure(State.ACCESS_DENIED)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onAccessDenied)
-
-        fsm = StateMachine(State.AWAIT_AUTHORIZING, config)
+        fsm = StateMachine(State.AWAIT_AUTHENTICATION, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
-        // config.generateDotFileInto(System.err)
+        config.generateDotFileInto(System.err)
     }
 
-    private fun nextTransition() {
-        fsm.fire(Event.NEXT_TRANSITION)
+    private fun nextState() {
+        fsm.fire(Event.NEXT_STATE)
     }
 
-    fun authorize(): State {
-        fsm.fire(Event.AUTHORIZE)
+    /**
+     * Start step of the authentication process.
+     */
+    fun authenticate(): State {
+        fsm.fire(Event.AUTHENTICATE)
         return fsm.state
     }
 

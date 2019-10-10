@@ -1,7 +1,6 @@
 package dniel.forwardauth.domain.authorize.service
 
 import dniel.forwardauth.AuthProperties.Application
-import dniel.forwardauth.domain.authorize.RequestedUrl
 import dniel.forwardauth.domain.shared.InvalidToken
 import dniel.forwardauth.domain.shared.JwtToken
 import dniel.forwardauth.domain.shared.OpaqueToken
@@ -10,24 +9,19 @@ import org.slf4j.LoggerFactory
 
 /**
  * Authenticator.
- * This service is responseble for authorizing access for a requested url.
- * To dispatch all the logic involved to authorize the request a state machine is
- * created and all inputs from this class is used as context to find out if
- * the request can be authorized.
  *
  * @see AuthenticatorStateMachine for configuration of state machine.
  *
  */
-class Authenticator private constructor(val accessToken: Token, val idToken: Token,
-                                        val app: Application, val originUrl: RequestedUrl,
-                                        override val isApi: Boolean) : AuthenticatorStateMachine.Delegate {
+class Authenticator private constructor(val accessToken: Token,
+                                        val idToken: Token,
+                                        val app: Application) : AuthenticatorStateMachine.Delegate {
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
-        fun create(accessToken: Token, idToken: Token, app: Application,
-                   originUrl: RequestedUrl, isApi: Boolean):
-                Authenticator = Authenticator(accessToken, idToken, app, originUrl, isApi)
+        fun create(accessToken: Token, idToken: Token, app: Application):
+                Authenticator = Authenticator(accessToken, idToken, app)
     }
 
     private var fsm: AuthenticatorStateMachine
@@ -40,7 +34,7 @@ class Authenticator private constructor(val accessToken: Token, val idToken: Tok
      * To return the resulting state from the State Machine, and also if an error has
      * occured, this result objects is returned from the authorize() method.
      */
-    data class AuthorizerResult(val state: AuthenticatorStateMachine.State, val error: Error?)
+    data class AuthenticatorResult(val state: AuthenticatorStateMachine.State, val error: Error?)
 
     /**
      * Error object with error message, this is used to store last error that happened in state machine.
@@ -56,38 +50,9 @@ class Authenticator private constructor(val accessToken: Token, val idToken: Tok
         get() = lastError != null
 
 
-    override fun onStartAuthorizing() {
-        trace("onStartAuthorizing")
-        fsm.post(AuthenticatorStateMachine.Event.VALIDATE_REQUESTED_URL)
-    }
-
-    override fun onValidateProtectedUrl() {
-        trace("onValidateProtectedUrl")
-        fsm.post(AuthenticatorStateMachine.Event.VALIDATE_WHITELISTED_URL)
-    }
-
-    override fun onValidateWhitelistedUrl() {
-        trace("onValidateWhitelistedUrl")
-        fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
-                originUrl.startsWith(app.redirectUri)
-
-        if (isSigninUrl(originUrl, app)) {
-            fsm.post(AuthenticatorStateMachine.Event.WHITELISTED_URL)
-        } else {
-            fsm.post(AuthenticatorStateMachine.Event.RESTRICTED_URL)
-        }
-    }
-
-    override fun onValidateRestrictedMethod() {
-        trace("onValidateRestrictedMethod")
-        val method = originUrl.method
-        fun isRestrictedMethod(app: Application, method: String) =
-                app.restrictedMethods.any() { t -> t.equals(method, true) }
-
-        when {
-            isRestrictedMethod(app, method) -> fsm.post(AuthenticatorStateMachine.Event.RESTRICTED_METHOD)
-            else -> fsm.post(AuthenticatorStateMachine.Event.UNRESTRICTED_METHOD)
-        }
+    override fun onStartAuthentication() {
+        trace("onStartAuthentication")
+        fsm.post(AuthenticatorStateMachine.Event.VALIDATE_TOKENS)
     }
 
     override fun onStartValidateTokens() {
@@ -115,17 +80,6 @@ class Authenticator private constructor(val accessToken: Token, val idToken: Tok
         }
     }
 
-    override fun onValidatePermissions() {
-        trace("onValidatePermissions")
-        when {
-            (accessToken as JwtToken).hasPermission(app.requiredPermissions) -> fsm.post(AuthenticatorStateMachine.Event.VALID_PERMISSIONS)
-            else -> {
-                lastError = Error("Missing permission/s for user.")
-                fsm.post(AuthenticatorStateMachine.Event.INVALID_PERMISSIONS)
-            }
-        }
-    }
-
     override fun onValidateSameSubs() {
         trace("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
@@ -133,15 +87,11 @@ class Authenticator private constructor(val accessToken: Token, val idToken: Tok
 
         // check if both tokens have the same subject
         if (hasSameSubs(accessToken, idToken)) {
-            fsm.post(AuthenticatorStateMachine.Event.VALID_SAME_SUBS)
+            fsm.post(AuthenticatorStateMachine.Event.VALID_SUBS)
         } else {
             lastError = Error("Access Token and Id Token had different value in SUB-claim.")
-            fsm.post(AuthenticatorStateMachine.Event.INVALID_SAME_SUBS)
+            fsm.post(AuthenticatorStateMachine.Event.INVALID_SUBS)
         }
-    }
-
-    override fun onNeedRedirect() {
-        trace("onNeedRedirect")
     }
 
     override fun onInvalidToken() {
@@ -153,18 +103,19 @@ class Authenticator private constructor(val accessToken: Token, val idToken: Tok
         trace(lastError!!.message)
     }
 
-    override fun onAccessGranted() {
-        trace("onAccessGranted")
+    override fun onAuthenticated() {
+        trace("onAuthenticated")
     }
 
-    override fun onAccessDenied() {
-        trace("onAccessDenied")
+    override fun onAnonymous() {
+        trace("onAnonymous")
     }
+
 
     /*
      */
-    fun authorize(): AuthorizerResult {
-        return AuthorizerResult(fsm.authorize(), this.lastError)
+    fun authenticate(): AuthenticatorResult {
+        return AuthenticatorResult(fsm.authenticate(), this.lastError)
     }
 
     fun trace(message: String) {
