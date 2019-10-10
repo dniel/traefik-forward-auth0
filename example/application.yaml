@@ -75,6 +75,9 @@ apps:
   - PATCH
   - POST
 
+  # after user has called /signout they will be redirected to this url
+  return-to: http://example.com
+
   # if the user doesnt have all of the permissions required, he will get a 403 Permission Denied response.
   required-permissions:
     - read:whoami

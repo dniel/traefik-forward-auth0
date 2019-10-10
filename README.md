@@ -12,6 +12,11 @@ application and will save the JWT and the Access Token received from Auth0 as a 
 access a protected frontend configured in Traefik, a http call will be sent to this backend to validate that the user is
 a valid user.
 
+# Update Notes
+The version 2.0 configuration has some new fields that need to be set for the application to start up.
+See the page [Upgrade Notes](/docs/upgrade-notes.md) for information about compatability and upgrades between versions.
+The page [Configuration](/docs/configuration.md)  should have a update to date example for the latest version.
+
 # Features
 - Centralized auth mode for simple config via a shared authorization service.
 - Multiple-domain auth mode for more advanced multiple-domain/services configuration
