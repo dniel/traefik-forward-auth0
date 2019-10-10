@@ -10,18 +10,19 @@ import java.util.*
  * Generated from dot file generator.
  *
  * digraph G {
- * 	VALIDATING_ACCESS_TOKEN -> VALIDATING_ID_TOKEN;
- * 	VALIDATING_ACCESS_TOKEN -> INVALID_TOKEN;
- * 	VALIDATING_TOKENS -> VALIDATING_ACCESS_TOKEN;
- * 	AUTHENTICATING -> VALIDATING_TOKENS;
- * 	INVALID_TOKEN -> ANONYMOUS;
- * 	VALIDATING_SAME_SUBS -> INVALID_TOKEN;
- * 	VALIDATING_SAME_SUBS -> VALID_TOKENS;
- * 	VALIDATING_ID_TOKEN -> INVALID_TOKEN;
- * 	VALIDATING_ID_TOKEN -> VALIDATING_SAME_SUBS;
- * 	VALID_TOKENS -> AUTHENTICATED;
- * 	AWAIT_AUTHENTICATION -> AUTHENTICATING;
+ * AUTHENTICATING -> VALIDATING_TOKENS;
+ *  VALIDATING_ID_TOKEN -> INVALID_TOKEN;
+ *  VALIDATING_ID_TOKEN -> VALIDATING_SAME_SUBS;
+ *  VALID_TOKENS -> AUTHENTICATED;
+ *  INVALID_TOKEN -> ANONYMOUS;
+ *  VALIDATING_ACCESS_TOKEN -> VALIDATING_ID_TOKEN;
+ *  VALIDATING_ACCESS_TOKEN -> INVALID_TOKEN;
+ *  VALIDATING_SAME_SUBS -> INVALID_TOKEN;
+ *  VALIDATING_SAME_SUBS -> VALID_TOKENS;
+ *  AWAIT_AUTHENTICATION -> AUTHENTICATING;
+ *  VALIDATING_TOKENS -> VALIDATING_ACCESS_TOKEN;
  * }
+ *
  *
  */
 class AuthenticatorStateMachine(private val delegate: Delegate) {
@@ -140,7 +141,7 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
-        config.generateDotFileInto(System.err)
+        // config.generateDotFileInto(System.err)
     }
 
     private fun nextState() {
