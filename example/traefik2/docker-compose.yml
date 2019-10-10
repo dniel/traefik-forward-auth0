@@ -8,7 +8,7 @@
 version: '2.4'
 services:
   traefik:
-    image: traefik:v2.0.0
+    image: traefik:v2.0.2
     ports:
       - 80:80
       - 443:443
