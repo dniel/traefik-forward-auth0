@@ -87,7 +87,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
         val builder = ResponseEntity.noContent()
         builder.header("Authorization", "Bearer ${accessToken}")
         authorizeResult.userinfo.forEach { k, v ->
-            val headerName = "X-Forwardauth-${k.capitalize()}"
+            val headerName = "X-Forwardauth-${k.capitalize().replace('_', '-')}"
             LOGGER.trace("Add header ${headerName} with value ${v}")
             builder.header(headerName, v)
         }
