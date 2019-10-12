@@ -4,12 +4,8 @@ import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
-import dniel.forwardauth.domain.shared.InvalidToken
-import dniel.forwardauth.domain.shared.JwtToken
-import dniel.forwardauth.domain.shared.User
-import dniel.forwardauth.domain.shared.VerifyTokenService
+import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
@@ -31,11 +27,10 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthentiationEvent : Event {
-        class AuthenticatedEvent(val user: User) : AuthentiationEvent()
-
-        class AnonymousUserEvent() : AuthentiationEvent()
-        class Error(error: Authenticator.Error?) : AuthentiationEvent() {
+    sealed class AuthentiationEvent(val user: User) : Event {
+        class AuthenticatedEvent(user: User) : AuthentiationEvent(user)
+        class AnonymousUserEvent() : AuthentiationEvent(Anonymous)
+        class Error(error: Authenticator.Error?) : AuthentiationEvent(Anonymous) {
             val reason: String = error?.message ?: "Unknown error"
         }
     }
@@ -57,7 +52,7 @@ class AuthenticateHandler(val properties: AuthProperties,
         return when (state) {
             AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUserEvent()
             AuthenticatorStateMachine.State.AUTHENTICATED -> {
-                val user = User(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken as JwtToken))
+                val user = Authenticated(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken as JwtToken))
                 AuthentiationEvent.AuthenticatedEvent(user)
             }
             else -> AuthentiationEvent.Error(error)

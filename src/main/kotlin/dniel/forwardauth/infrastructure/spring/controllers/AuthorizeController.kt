@@ -77,8 +77,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
                               protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
+        val principal = SecurityContextHolder.getContext().authentication.principal as User
 
-        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(accessToken, idToken, protocol, host, uri, method, isApi)
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(principal, protocol, host, uri, method, isApi)
         return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthEvent
     }
 

@@ -2,6 +2,7 @@ package dniel.forwardauth.infrastructure.spring.filters
 
 import dniel.forwardauth.application.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.domain.shared.Anonymous
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.core.annotation.Order
@@ -33,7 +34,7 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
             // just quick skip and continue filters if no cookies present, aka anonymous users.
             SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
                     "anonymous",
-                    "anonymous",
+                    Anonymous,
                     AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
 
             trace("Anonymous authentication set.")

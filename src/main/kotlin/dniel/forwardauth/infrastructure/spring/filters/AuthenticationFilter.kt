@@ -2,6 +2,8 @@ package dniel.forwardauth.infrastructure.spring.filters
 
 import dniel.forwardauth.application.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.domain.shared.Authenticated
 import org.slf4j.MDC
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -39,18 +41,18 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
             val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthentiationEvent
 
             try {
+                // could be a Anonymous user or Authenticated User.
+                val user = event.user
                 when {
-                    // When Authenticated
-                    event is AuthenticateHandler.AuthentiationEvent.AuthenticatedEvent -> {
-                        val user = event.user
-                        val auth = UsernamePasswordAuthenticationToken(user, user.password, user.authorities)
+                    user is Authenticated -> {
+                        val auth = UsernamePasswordAuthenticationToken(user, "", user.authorities)
                         SecurityContextHolder.getContext().authentication = auth
                     }
 
-                    event is AuthenticateHandler.AuthentiationEvent.AnonymousUserEvent -> {
+                    user is Anonymous -> {
                         SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
                                 "anonymous",
-                                "anonymous",
+                                user,
                                 AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
                     }
 
