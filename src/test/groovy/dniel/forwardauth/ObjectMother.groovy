@@ -1,6 +1,9 @@
 package dniel.forwardauth
 
 import com.auth0.jwt.JWT
+import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.domain.shared.Authenticated
+import dniel.forwardauth.domain.shared.JwtToken
 
 class ObjectMother {
 
@@ -8,6 +11,9 @@ class ObjectMother {
     static def exampleAudience = "www.example.com"
     static def validJwtTokenString = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1NTA1MDMzOTMsImV4cCI6MTU4MjAzOTM5MywiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiZGFuaWVsQGV4YW1wbGUuY29tIiwiZW1haWwiOiJqcm9ja2V0QGV4YW1wbGUuY29tIn0.a_1TAIGDQBgt7nqLlSa9xsBD-gfl0-uPf2TQ5J1JyA8"
     static def jwtToken = JWT.decode(validJwtTokenString)
+    static def validJwtToken = new JwtToken(jwtToken)
+    static def authenticatedUser = new Authenticated(validJwtToken, validJwtToken, new HashMap<String, String>())
+    static def anonymousUser = new Anonymous()
     static def opaqueToken = "fzkhwzqgmjrfpdzyzvcaidhiqsjoeyja"
     static def properties = new AuthProperties()
 

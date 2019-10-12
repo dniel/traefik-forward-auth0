@@ -34,8 +34,7 @@ import java.net.URI
  * https://github.com/stateless4j
  */
 @Component
-class AuthorizeHandler(val properties: AuthProperties,
-                       val verifyTokenService: VerifyTokenService) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
+class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
