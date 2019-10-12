@@ -101,7 +101,7 @@ class Auth0Client(val properties: AuthProperties) {
      * Call auth0 and retrieve Userinfo
      *
      * See the Auth0 documentation.
-     * @link https://auth0.com/docs/api/authentication#get-user-info
+     * @link https://auth0.com/docs/api/user#get-user-info
      */
     fun userinfo(accesstoken: String): String {
         LOGGER.debug("Get userinfo")

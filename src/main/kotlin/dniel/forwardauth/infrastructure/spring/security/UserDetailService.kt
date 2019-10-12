@@ -1,4 +1,4 @@
-package dniel.forwardauth.infrastructure.spring.services
+package dniel.forwardauth.infrastructure.spring.security
 
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService

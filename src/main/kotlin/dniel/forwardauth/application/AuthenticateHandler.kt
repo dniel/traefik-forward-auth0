@@ -4,10 +4,12 @@ import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
+import dniel.forwardauth.domain.shared.InvalidToken
 import dniel.forwardauth.domain.shared.JwtToken
-import dniel.forwardauth.domain.shared.Token
+import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.domain.shared.VerifyTokenService
 import org.slf4j.LoggerFactory
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
@@ -30,8 +32,7 @@ class AuthenticateHandler(val properties: AuthProperties,
      * This command can produce a set of events as response from the handle method.
      */
     sealed class AuthentiationEvent : Event {
-        class AuthenticatedEvent(val accessToken: Token, val idToken: Token,
-                                 val userinfo: Map<String, String>) : AuthentiationEvent()
+        class AuthenticatedEvent(val user: User) : AuthentiationEvent()
 
         class AnonymousUserEvent() : AuthentiationEvent()
         class Error(error: Authenticator.Error?) : AuthentiationEvent() {
@@ -50,13 +51,16 @@ class AuthenticateHandler(val properties: AuthProperties,
         val authenticator = Authenticator.create(accessToken, idToken, app)
         val (state, error) = authenticator.authenticate()
 
-        LOGGER.debug("Authenticator State: ${state}")
-        LOGGER.debug("Authenticator Error: ${error}")
+        LOGGER.debug("State: ${state}")
+        LOGGER.debug("Error: ${error}")
 
         return when (state) {
             AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUserEvent()
-            AuthenticatorStateMachine.State.AUTHENTICATED -> AuthentiationEvent.AuthenticatedEvent(accessToken, idToken, getUserinfoFromToken(app, idToken as JwtToken))
-            else -> AuthenticateHandler.AuthentiationEvent.Error(error)
+            AuthenticatorStateMachine.State.AUTHENTICATED -> {
+                val user = User(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken as JwtToken))
+                AuthentiationEvent.AuthenticatedEvent(user)
+            }
+            else -> AuthentiationEvent.Error(error)
         }
     }
 

@@ -1,6 +1,8 @@
 package dniel.forwardauth.infrastructure.spring.config
 
-import dniel.forwardauth.infrastructure.spring.filters.JwtValidationFilter
+import dniel.forwardauth.infrastructure.spring.filters.AnonymousFilter
+import dniel.forwardauth.infrastructure.spring.filters.AuthenticationFilter
+import dniel.forwardauth.infrastructure.spring.filters.LoggingUserFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -16,7 +18,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Autowired
-    private val jwtFilter: JwtValidationFilter? = null
+    private val jwtFilter: AuthenticationFilter? = null
+
+    @Autowired
+    private val anonymousFilter: AnonymousFilter? = null
+
+    @Autowired
+    private val loggingFilter: LoggingUserFilter? = null
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
@@ -30,5 +38,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(anonymousFilter, AuthenticationFilter::class.java)
+        http.addFilterBefore(loggingFilter, AnonymousFilter::class.java)
     }
 }

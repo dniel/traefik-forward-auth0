@@ -7,13 +7,16 @@ import dniel.forwardauth.domain.authorize.AuthorizeNonce
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.authorize.AuthorizeUrl
 import dniel.forwardauth.domain.authorize.RequestedUrl
-import dniel.forwardauth.domain.authorize.service.Authenticator
-import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.authorize.service.Authorizer
 import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
-import dniel.forwardauth.domain.shared.VerifyTokenService
+import dniel.forwardauth.domain.shared.InvalidToken
 import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.shared.User
+import dniel.forwardauth.domain.shared.VerifyTokenService
 import org.slf4j.LoggerFactory
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import java.net.URI
 
@@ -44,13 +47,14 @@ class AuthorizeHandler(val properties: AuthProperties,
      * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
-    data class AuthorizeCommand(val accessToken: String?,
-                                val idToken: String?,
-                                val protocol: String,
-                                val host: String,
-                                val uri: String,
-                                val method: String,
-                                val isApi: Boolean
+    data class AuthorizeCommand(
+            val accessToken: String?,
+            val idToken: String?,
+            val protocol: String,
+            val host: String,
+            val uri: String,
+            val method: String,
+            val isApi: Boolean
     ) : Command
 
 
@@ -77,15 +81,44 @@ class AuthorizeHandler(val properties: AuthProperties,
         val state = AuthorizeState.create(originUrl, nonce)
         val authorizeUrl = AuthorizeUrl(authUrl, app, state)
         val cookieDomain = app.tokenCookieDomain
-        val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
-        val idToken = verifyTokenService.verify(params.idToken, app.clientId)
         val isApi = params.isApi
+
+        LOGGER.debug("Authentication: " + SecurityContextHolder.getContext().authentication)
+        LOGGER.debug("Authentication: " + SecurityContextHolder.getContext().authentication.principal)
+
+        val accessToken = when (SecurityContextHolder.getContext().authentication) {
+            is UsernamePasswordAuthenticationToken -> {
+                val currentUser: User = SecurityContextHolder.getContext().authentication.principal as User
+                currentUser.accessToken
+            }
+            is AnonymousAuthenticationToken -> {
+                InvalidToken("anonymous user")
+            }
+            else -> throw IllegalStateException("Neither Authenticated token, or Anonymous Authentication token found.")
+        }
+
+        val idToken = when (SecurityContextHolder.getContext().authentication) {
+            is UsernamePasswordAuthenticationToken -> {
+                val currentUser: User = SecurityContextHolder.getContext().authentication.principal as User
+                currentUser.idToken
+            }
+            is AnonymousAuthenticationToken -> {
+                InvalidToken("anonymous user")
+            }
+            else -> throw IllegalStateException("Neither Authenticated token, or Anonymous Authentication token found.")
+        }
+
+        /*
+        val user = params.user
+        val accessToken = user.accessToken
+        val idToken = user.idToken
+        */
 
         val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
         val (authorizerState, authorizerError) = authorizer.authorize()
 
-        LOGGER.debug("Authorizer State: ${authorizerState}")
-        LOGGER.debug("Authorizer Error: ${authorizerError}")
+        LOGGER.debug("State: ${authorizerState}")
+        LOGGER.debug("Error: ${authorizerError}")
 
         return when (authorizerState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)

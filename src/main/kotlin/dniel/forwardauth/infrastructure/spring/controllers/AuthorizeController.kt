@@ -2,11 +2,13 @@ package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.AuthorizeHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 import java.util.stream.Collectors
