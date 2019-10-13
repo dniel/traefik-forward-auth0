@@ -50,10 +50,11 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
                     }
 
                     user is Anonymous -> {
-                        SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
+                        val auth = AnonymousAuthenticationToken(
                                 "anonymous",
                                 user,
                                 AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
+                        SecurityContextHolder.getContext().authentication = auth
                     }
 
                 }
