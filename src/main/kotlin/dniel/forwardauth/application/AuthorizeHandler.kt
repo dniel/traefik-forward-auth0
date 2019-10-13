@@ -11,7 +11,6 @@ import dniel.forwardauth.domain.authorize.service.Authorizer
 import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
 import dniel.forwardauth.domain.shared.JwtToken
 import dniel.forwardauth.domain.shared.User
-import dniel.forwardauth.domain.shared.VerifyTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URI
@@ -58,7 +57,9 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
     sealed class AuthEvent : Event {
         class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthEvent()
         class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
-        object AccessDenied : AuthEvent()
+        class AccessDenied(error: Authorizer.Error?) : AuthEvent() {
+            val reason: String = error?.message ?: "Unknown error"
+        }
         class Error(error: Authorizer.Error?) : AuthEvent() {
             val reason: String = error?.message ?: "Unknown error"
         }
@@ -89,7 +90,7 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
 
         return when (authorizerState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
-            AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied
+            AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied(authorizerError)
             AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
             else -> AuthEvent.Error(authorizerError)
         }

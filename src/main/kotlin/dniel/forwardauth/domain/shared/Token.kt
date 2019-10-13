@@ -55,8 +55,10 @@ class JwtToken(val value: DecodedJWT) : Token() {
             asArray(String::class.java)
         }.run {
             val hasPermission = asList().containsAll(requiredPermissions.asList())
-            LOGGER.trace("Required permissions: [${requiredPermissions.joinToString()}]")
-            LOGGER.trace("User permissions: [${asList().joinToString()}]")
+            val missing = requiredPermissions.asList().minus(asList())
+            LOGGER.trace("Missing permissions: $missing")
+            LOGGER.trace("Required permissions: ${requiredPermissions.asList()}")
+            LOGGER.trace("User permissions: ${asList()}")
             hasPermission
         }
     }
@@ -69,4 +71,14 @@ class JwtToken(val value: DecodedJWT) : Token() {
         return if (claim.isNull) emptyArray<String>()
         else claim.asArray(String::class.java)
     }
+
+
+    fun missingPermissions(requiredPermissions: Array<String>): Array<String> {
+        val claim = value.getClaim("permissions")
+        if (claim.isNull) return emptyArray()
+
+        val permissions = claim.asList(String::class.java)
+        return requiredPermissions.asList().minus(permissions).toTypedArray()
+    }
+
 }
