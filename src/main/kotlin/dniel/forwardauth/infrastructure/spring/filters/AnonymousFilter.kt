@@ -14,7 +14,11 @@ import javax.servlet.http.HttpServletResponse
 
 
 /**
- * Validate Tokens and if valid, set as authenticated user.
+ * Anonymous user filter.
+ * To be sure that we always have a user object in authentication context
+ * this filter will check if user credentials, tokens, is set in the cookie headers.
+ * If the cookie headers or token cookies is missing the authentication is set
+ * to be an anonymous user.
  */
 @Component
 class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
