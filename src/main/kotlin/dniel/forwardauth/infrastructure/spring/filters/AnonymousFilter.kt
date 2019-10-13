@@ -25,7 +25,8 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
                       val commandDispatcher: CommandDispatcher) : BaseFilter() {
 
     /**
-     * Filter
+     * Anonymous user filter.
+     * dummy change
      *
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
