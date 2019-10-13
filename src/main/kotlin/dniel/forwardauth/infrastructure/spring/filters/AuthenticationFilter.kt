@@ -37,7 +37,7 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
                            val commandDispatcher: CommandDispatcher) : BaseFilter() {
 
     /**
-     * Filter
+     * Perform filtering.
      *
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
@@ -47,7 +47,7 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
         // the x-forwarded-host must be set to know which application configuration
         // to use for authentication properties.
         if (req.cookies != null && req.getHeader("x-forwarded-host") != null) {
-            trace("Found cookies, validate authentication tokens.")
+            trace("Validate authentication tokens.")
             val accessToken = readCookie(req, "ACCESS_TOKEN")
             val idToken = readCookie(req, "JWT_TOKEN")
             val host = req.getHeader("x-forwarded-host")

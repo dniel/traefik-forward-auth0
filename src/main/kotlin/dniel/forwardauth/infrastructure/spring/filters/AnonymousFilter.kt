@@ -3,9 +3,7 @@ package dniel.forwardauth.infrastructure.spring.filters
 import dniel.forwardauth.application.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Anonymous
-import org.slf4j.LoggerFactory
 import org.slf4j.MDC
-import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
@@ -28,7 +26,7 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AnonymousFilter start")
-        if (SecurityContextHolder.getContext().authentication == null || req.cookies.isNullOrEmpty()) {
+        if (!hasCookie(req, "ACCESS_TOKEN") || !hasCookie(req, "ID_TOKEN")) {
             MDC.put("userId", "anonymous")
 
             // just quick skip and continue filters if no cookies present, aka anonymous users.
@@ -37,15 +35,16 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
                     Anonymous,
                     AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
 
-            trace("Anonymous authentication set.")
+            trace("Either ACCESS_TOKEN or ID_TOKEN was missing, Anonymous authentication set.")
         }
 
         chain.doFilter(req, resp)
         trace("AnonymousFilter filter done")
     }
 
-    fun readCookie(req: HttpServletRequest, key: String): String? {
-        return req.cookies.filter { c -> key.equals(c.getName()) }.map { cookie -> cookie.value }.firstOrNull()
+    fun hasCookie(req: HttpServletRequest, key: String): Boolean {
+        return if (req.cookies.isNullOrEmpty()) false
+        else req.cookies.filter { c -> key.equals(c.getName()) }.firstOrNull() != null
     }
 }
 
