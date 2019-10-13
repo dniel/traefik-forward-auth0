@@ -8,6 +8,16 @@ import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
+/**
+ * Handle Authentication.
+ * This class handles authentication of a user and will produce a result of either an authenticated user
+ * or an anonymous user. The logic for how to perform an authentication is separated out to the
+ * state machine in its own service to be maintainable.
+ *
+ * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
+ * @see dniel.forwardauth.domain.authorize.service.Authenticator
+ *
+ */
 @Component
 class AuthenticateHandler(val properties: AuthProperties,
                           val verifyTokenService: VerifyTokenService) : CommandHandler<AuthenticateHandler.AuthenticateCommand> {
@@ -36,7 +46,11 @@ class AuthenticateHandler(val properties: AuthProperties,
     }
 
     /**
-     * Main handle method.
+     * Main handle Authentication method.
+     * This method will parse all input parameters from the command, create a new
+     * instance of the Authenticator service to perform the authentication logic.
+     * <p/>
+     * The result will be either an Autheniticated user or an Anonymous user.
      */
     override fun handle(params: AuthenticateHandler.AuthenticateCommand): Event {
         val app = properties.findApplicationOrDefault(params.host)
@@ -59,6 +73,9 @@ class AuthenticateHandler(val properties: AuthProperties,
         }
     }
 
+    /**
+     * Get selected userinfo from token claims.
+     */
     private fun getUserinfoFromToken(app: AuthProperties.Application, token: JwtToken): Map<String, String> {
         app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
         return token.value.claims

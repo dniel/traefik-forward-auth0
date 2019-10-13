@@ -17,6 +17,20 @@ import javax.servlet.http.HttpServletResponse
 
 /**
  * Validate Tokens and if valid, set as authenticated user.
+ * The Authentication filter will use the parameters in
+ * <li/>ACCESS_TOKEN cookie
+ * <li/>ID_TOKEN cookie
+ * <li/>x-forwarded-host
+ * <p/>
+ *
+ * When all of them are found, it will parse and validate the content to
+ * authenticate the request.
+ * <p/>
+ *
+ * The main classes responsible for authenticate the user
+ * @see dniel.forwardauth.application.AuthenticateHandler
+ * @see dniel.forwardauth.domain.authorize.service.Authenticator
+ * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
 class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
@@ -28,9 +42,11 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AuthenticationFilter start")
-        if (req.cookies.isNullOrEmpty()) {
-            trace("No cookies found, skip token validation.. anonymous session.")
-        } else {
+
+        // to authenticate we need to have some cookies to search for, and also
+        // the x-forwarded-host must be set to know which application configuration
+        // to use for authentication properties.
+        if (req.cookies != null && req.getHeader("x-forwarded-host") != null) {
             trace("Found cookies, validate authentication tokens.")
             val accessToken = readCookie(req, "ACCESS_TOKEN")
             val idToken = readCookie(req, "JWT_TOKEN")
@@ -63,6 +79,9 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
                 // clear context if something crashes to avoid partly initialized user session for next requests.
                 SecurityContextHolder.clearContext()
             }
+
+        } else {
+            trace("Missing cookies or x-forwarded-host header to authenticate,  skip token validation.. anonymous session.")
         }
         chain.doFilter(req, resp)
         trace("AuthenticationFilter filter done")
