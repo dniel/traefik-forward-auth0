@@ -121,7 +121,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
             (accessToken as JwtToken).hasPermission(app.requiredPermissions) -> fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
             else -> {
                 val missingPermissions = (accessToken as JwtToken).missingPermissions(app.requiredPermissions)
-                lastError = Error("Missing permissions: ${missingPermissions.joinToString()}")
+                lastError = Error("Missing permissions '${missingPermissions.joinToString()}'")
                 fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
             }
         }
