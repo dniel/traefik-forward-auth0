@@ -13,6 +13,12 @@ access a protected frontend configured in Traefik, a http call will be sent to t
 a valid user.
 
 # Update Notes
+There is some important breaking changes in version 2.0 of ForwardAuth. 
+It is now mandatory to set an audience when requesting authorization. This change is required due to 
+how Auth0 handles two different kinds of token formats, opaque tokens and jwt tokens, for access tokens.
+The only token that is possible to validate and verify is the jwt token. Therefor its from now on 
+required to set the audience in the application config and the application will not work otherwise.  
+
 The version 2.0 configuration has some new fields that need to be set for the application to start up.
 See the page [Upgrade Notes](/docs/upgrade-notes.md) for information about compatability and upgrades between versions.
 The page [Configuration](/docs/configuration.md)  should have a update to date example for the latest version.
