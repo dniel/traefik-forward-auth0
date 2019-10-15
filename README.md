@@ -19,7 +19,7 @@ how Auth0 handles two different kinds of token formats, opaque tokens and jwt to
 The only token that is possible to validate and verify is the jwt token. Therefor its from now on 
 required to set the audience in the application config and the application will not work otherwise.  
 
-The version 2.0 configuration has some new fields that need to be set for the application to start up.
+The version 2.0 configuration also has some new fields that need to be set for the application to start up.
 See the page [Upgrade Notes](/docs/upgrade-notes.md) for information about compatability and upgrades between versions.
 The page [Configuration](/docs/configuration.md)  should have a update to date example for the latest version.
 
