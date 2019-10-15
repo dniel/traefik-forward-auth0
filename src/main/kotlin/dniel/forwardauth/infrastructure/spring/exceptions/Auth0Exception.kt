@@ -8,7 +8,5 @@ import org.springframework.web.bind.annotation.ResponseStatus
  * that we dont give access to someone that shouldnt be allowed.
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-class Auth0Exception : ApplicationException {
-    constructor(error: String, description: String) : super("${error}, ${description}")
-
+class Auth0Exception(error: String, description: String) : ApplicationException(description) {
 }

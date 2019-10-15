@@ -39,4 +39,8 @@ object Anonymous : User {
         get() = InvalidToken("anonymous")
     override val idToken: Token
         get() = InvalidToken("anonymous")
+
+    override fun toString(): String {
+        return "anonymous"
+    }
 }

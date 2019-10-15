@@ -4,6 +4,7 @@ import dniel.forwardauth.application.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Anonymous
 import dniel.forwardauth.domain.shared.Authenticated
+import dniel.forwardauth.infrastructure.spring.exceptions.AuthenticationException
 import org.slf4j.MDC
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -55,30 +56,24 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
             // execute command and get result event.
             val command: AuthenticateHandler.AuthenticateCommand = AuthenticateHandler.AuthenticateCommand(accessToken, idToken, host)
             val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthentiationEvent
-
-            try {
-                // could be a Anonymous user or Authenticated User.
-                val user = event.user
-                when {
-                    user is Authenticated -> {
-                        val auth = UsernamePasswordAuthenticationToken(user, "", user.authorities)
-                        SecurityContextHolder.getContext().authentication = auth
-                    }
-
-                    user is Anonymous -> {
-                        val auth = AnonymousAuthenticationToken(
-                                "anonymous",
-                                user,
-                                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
-                        SecurityContextHolder.getContext().authentication = auth
-                    }
-
+            when (event) {
+                is AuthenticateHandler.AuthentiationEvent.Error -> {
+                    throw AuthenticationException(event)
                 }
-                MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
-            } catch (e: Exception) {
-                // clear context if something crashes to avoid partly initialized user session for next requests.
-                SecurityContextHolder.clearContext()
+                is AuthenticateHandler.AuthentiationEvent.AuthenticatedEvent -> {
+                    val user = event.user as Authenticated
+                    val auth = UsernamePasswordAuthenticationToken(user, "", user.authorities)
+                    SecurityContextHolder.getContext().authentication = auth
+                }
+                is AuthenticateHandler.AuthentiationEvent.AnonymousUserEvent -> {
+                    val auth = AnonymousAuthenticationToken(
+                            "anonymous",
+                            Anonymous,
+                            AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
+                    SecurityContextHolder.getContext().authentication = auth
+                }
             }
+            MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
 
         } else {
             trace("Missing cookies or x-forwarded-host header to authenticate,  skip token validation.. anonymous session.")

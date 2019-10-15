@@ -32,13 +32,11 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AnonymousFilter start")
         if (!hasCookie(req, "ACCESS_TOKEN") || !hasCookie(req, "ID_TOKEN")) {
-            MDC.put("userId", "anonymous")
-
-            // just quick skip and continue filters if no cookies present, aka anonymous users.
             SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
                     "anonymous",
                     Anonymous,
                     AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
+            MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
 
             trace("Either ACCESS_TOKEN or ID_TOKEN was missing, Anonymous authentication set.")
         }

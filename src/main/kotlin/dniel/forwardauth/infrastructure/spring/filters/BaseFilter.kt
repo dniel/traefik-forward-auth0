@@ -11,4 +11,8 @@ abstract class BaseFilter() : OncePerRequestFilter() {
         LOGGER.trace(message)
     }
 
+    fun error(message: String){
+        LOGGER.error(message)
+    }
+
 }
