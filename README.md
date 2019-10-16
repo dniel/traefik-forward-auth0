@@ -19,6 +19,7 @@ of the application and Im trying to iron out eventual bugs found.
 - Please test the new version and create issues for bugs you find.  
 - Source Code for the new version: https://github.com/dniel/traefik-forward-auth0/tree/2.0-rc1
 - Dockerhub image url: index.docker.io/dniel/forwardauth:2.0-rc1
+- Upgrade notes for v1.0 user: https://github.com/dniel/traefik-forward-auth0/blob/2.0-rc1/docs/upgrade-notes.md
 
 # Documentation
 - [Overview](/docs/overview.md)
