@@ -12,9 +12,13 @@ application and will save the JWT and the Access Token received from Auth0 as a 
 access a protected frontend configured in Traefik, a http call will be sent to this backend to validate that the user is
 a valid user.
 
-# Pardon The Mess!
-This software is in Alpha state right now beacuse its quite early in development. Expect missing features and bugs everywhere.
-I'm working on making stuff much more stable like a Beta release, something that has basic features in place.
+# Next version of ForwardAuth, aka. ForwardAuth 2.0
+Right now I'm finishing a major refactoring and improved version of ForwardAuth that will get the version 2.0 when released.
+It is now ready for testing and available at dockerhub with the tag 2.0-rc1. I think this is the best and most stable version
+of the application and Im trying to iron out eventual bugs found.   
+- Please test the new version and create issues for bugs you find.  
+- Source Code for the new version: https://github.com/dniel/traefik-forward-auth0/tree/2.0-rc1
+- Dockerhub image url: index.docker.io/dniel/forwardauth:2.0-rc1
 
 # Documentation
 - [Overview](/docs/overview.md)
