@@ -116,7 +116,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result.userinfo, hasEntry(key, value))
+        that(result.user.userinfo, hasEntry(key, value))
 
         where:
         user              | protocol | host               | uri     | method | isApi  | key     | value
@@ -141,7 +141,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result.userinfo, not(hasKey(key)))
+        that(result.user.userinfo, not(hasKey(key)))
 
         where:
         user              | protocol | host               | uri     | method | isAPi  | key
