@@ -1,34 +1,26 @@
 package dniel.forwardauth.domain.shared
 
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.AuthorityUtils
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 /**
  * A generic user interface with access token and id token
  */
 interface User {
+    @get:JsonIgnore
     val accessToken: Token
+    @get:JsonIgnore
     val idToken: Token
 }
 
 /**
  * Authenticated user object
  */
-open class Authenticated(override val accessToken: Token,
-                         override val idToken: Token,
-                         val userinfo: Map<String, String>) : org.springframework.security.core.userdetails.UserDetails, User {
+open class Authenticated(override val accessToken: JwtToken,
+                         override val idToken: JwtToken,
+                         val userinfo: Map<String, String>) : User {
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return AuthorityUtils.createAuthorityList(*(accessToken as JwtToken).permisssions())
-    }
-
-    override fun isEnabled(): Boolean = true
-    override fun getUsername(): String = (accessToken as JwtToken).subject()
-    override fun isCredentialsNonExpired(): Boolean = true
-    override fun getPassword(): String = ""
-    override fun isAccountNonExpired(): Boolean = true
-    override fun isAccountNonLocked(): Boolean = true
-
+    val permissions: Array<String> = accessToken.permisssions()
+    override fun toString(): String = accessToken.subject()
 }
 
 /**

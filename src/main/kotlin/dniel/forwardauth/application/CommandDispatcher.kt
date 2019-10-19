@@ -1,5 +1,6 @@
 package dniel.forwardauth.application
 
+import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.events.EventRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

@@ -1,15 +1,6 @@
 package dniel.forwardauth.application
 
-interface Event {
-
-    /**
-     * return the name of the event as field type.
-     */
-    fun type(): String {
-        return this.javaClass.simpleName
-    }
-}
-
+import dniel.forwardauth.domain.events.Event
 
 interface EventHandler<in T : Event> {
     fun handle(params: T): Event

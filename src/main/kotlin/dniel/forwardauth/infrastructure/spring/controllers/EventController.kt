@@ -1,7 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.application.Event
+import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.events.EventRepository
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity

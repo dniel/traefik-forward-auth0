@@ -2,6 +2,7 @@ package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.AuthorizeHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
-import java.util.Locale
+import java.util.*
 import java.util.stream.Collectors
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
@@ -58,12 +59,12 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
 
         val authorizeResult = handleCommand(acceptContent, requestedWithHeader, accessToken, idToken, protocol, host, uri, method)
         return when (authorizeResult) {
-            is AuthorizeHandler.AuthEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
-            is AuthorizeHandler.AuthEvent.Error -> throw AuthorizationException(authorizeResult)
-            is AuthorizeHandler.AuthEvent.NeedRedirect -> {
+            is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
+            is AuthorizeHandler.AuthorizeEvent.Error -> throw AuthorizationException(authorizeResult)
+            is AuthorizeHandler.AuthorizeEvent.NeedRedirect -> {
                 redirect(authorizeResult, response)
             }
-            is AuthorizeHandler.AuthEvent.AccessGranted -> {
+            is AuthorizeHandler.AuthorizeEvent.AccessGranted -> {
                 accessGranted(accessToken, authorizeResult)
             }
         }
@@ -74,24 +75,24 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      *
      */
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?, accessToken: String?, idToken: String?,
-                              protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthEvent {
+                              protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthorizeEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
         val principal = SecurityContextHolder.getContext().authentication.principal as User
 
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(principal, protocol, host, uri, method, isApi)
-        return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthEvent
+        return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
 
     /**
      * Access Granted.
      *
      */
-    private fun accessGranted(accessToken: String?, authorizeResult: AuthorizeHandler.AuthEvent.AccessGranted): ResponseEntity<Unit> {
+    private fun accessGranted(accessToken: String?, authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): ResponseEntity<Unit> {
         val builder = ResponseEntity.noContent()
         builder.header("Authorization", "Bearer ${accessToken}")
-        authorizeResult.userinfo.forEach { k, v ->
-            val headerName = "X-Forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)
+        (authorizeResult.user as Authenticated).userinfo.forEach { k, v ->
+            val headerName = "x-forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)
             LOGGER.trace("Add header ${headerName} with value ${v}")
             builder.header(headerName, v)
         }
@@ -102,7 +103,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      * Redirect to Authorize
      *
      */
-    private fun redirect(authorizeResult: AuthorizeHandler.AuthEvent.NeedRedirect, response: HttpServletResponse): ResponseEntity<Unit> {
+    private fun redirect(authorizeResult: AuthorizeHandler.AuthorizeEvent.NeedRedirect, response: HttpServletResponse): ResponseEntity<Unit> {
         // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
         val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
         nonceCookie.domain = authorizeResult.cookieDomain

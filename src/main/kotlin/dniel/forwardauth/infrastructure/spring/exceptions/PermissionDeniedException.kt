@@ -6,5 +6,5 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(value = HttpStatus.FORBIDDEN)
 class PermissionDeniedException : ApplicationException {
-    constructor(error: AuthorizeHandler.AuthEvent.AccessDenied) : super(error.reason)
+    constructor(error: AuthorizeHandler.AuthorizeEvent.AccessDenied) : super(error.reason)
 }

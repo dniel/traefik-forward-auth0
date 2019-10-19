@@ -1,15 +1,15 @@
 package dniel.forwardauth.application
 
-import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.AuthProperties.Application
 import dniel.forwardauth.domain.authorize.AuthorizeNonce
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.authorize.AuthorizeUrl
 import dniel.forwardauth.domain.authorize.RequestedUrl
 import dniel.forwardauth.domain.authorize.service.Authorizer
 import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
-import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.events.Event
+import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -54,13 +54,15 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthEvent : Event {
-        class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthEvent()
-        class AccessGranted(val userinfo: Map<String, String>) : AuthEvent()
-        class AccessDenied(error: Authorizer.Error?) : AuthEvent() {
+    sealed class AuthorizeEvent(user: User) : Event(user) {
+
+        class NeedRedirect(val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthorizeEvent(Anonymous)
+        class AccessGranted(user: Authenticated) : AuthorizeEvent(user)
+        class AccessDenied(user: User, error: Authorizer.Error?) : AuthorizeEvent(user) {
             val reason: String = error?.message ?: "Unknown error"
         }
-        class Error(error: Authorizer.Error?) : AuthEvent() {
+
+        class Error(user: User, error: Authorizer.Error?) : AuthorizeEvent(user) {
             val reason: String = error?.message ?: "Unknown error"
         }
     }
@@ -68,7 +70,7 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
     /**
      * Main Handle Command method.
      */
-    override fun handle(params: AuthorizeCommand): AuthEvent {
+    override fun handle(params: AuthorizeCommand): AuthorizeEvent {
         val authUrl = properties.authorizeUrl
         val app = properties.findApplicationOrDefault(params.host)
         val nonce = AuthorizeNonce.generate()
@@ -77,8 +79,8 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
         val authorizeUrl = AuthorizeUrl(authUrl, app, state)
         val cookieDomain = app.tokenCookieDomain
         val isApi = params.isApi
-        val user = params.user
 
+        val user = params.user
         val accessToken = user.accessToken
         val idToken = user.idToken
 
@@ -89,31 +91,10 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
         LOGGER.debug("Error: ${authorizerError}")
 
         return when (authorizerState) {
-            AuthorizerStateMachine.State.NEED_REDIRECT -> AuthEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
-            AuthorizerStateMachine.State.ACCESS_DENIED -> AuthEvent.AccessDenied(authorizerError)
-            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthEvent.AccessGranted(getUserinfoFromToken(app, idToken as JwtToken))
-            else -> AuthEvent.Error(authorizerError)
+            AuthorizerStateMachine.State.NEED_REDIRECT -> AuthorizeEvent.NeedRedirect(authorizeUrl.toURI(), nonce, cookieDomain)
+            AuthorizerStateMachine.State.ACCESS_DENIED -> AuthorizeEvent.AccessDenied(user, authorizerError)
+            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthorizeEvent.AccessGranted(user as Authenticated)
+            else -> AuthorizeEvent.Error(user, authorizerError)
         }
     }
-
-    private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
-        app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
-        return token.value.claims
-                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
-                .filterKeys { app.claims.contains(it) }
-                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
-                .mapValues { getClaimValue(it.value) }
-                .filterValues { it != null } as Map<String, String>
-    }
-
-    private fun getClaimValue(claim: Claim): String? {
-        return when {
-            claim.asArray(String::class.java) != null -> claim.asArray(String::class.java).joinToString()
-            claim.asBoolean() != null -> claim.asBoolean().toString()
-            claim.asString() != null -> claim.asString().toString()
-            claim.asLong() != null -> claim.asLong().toString()
-            else -> null
-        }
-    }
-
 }

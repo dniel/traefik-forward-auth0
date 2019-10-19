@@ -1,5 +1,6 @@
 package dniel.forwardauth.application
 
+import dniel.forwardauth.domain.events.Event
 import org.slf4j.LoggerFactory
 
 /**

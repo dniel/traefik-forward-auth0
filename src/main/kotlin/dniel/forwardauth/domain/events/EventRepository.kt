@@ -1,7 +1,5 @@
 package dniel.forwardauth.domain.events
 
-import dniel.forwardauth.application.Event
-import org.springframework.security.access.annotation.Secured
 import org.springframework.stereotype.Component
 
 /**
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Component
  */
 @Component()
 class EventRepository {
+
     private val events = ArrayList<Event>()
 
     fun all(): List<Event> {

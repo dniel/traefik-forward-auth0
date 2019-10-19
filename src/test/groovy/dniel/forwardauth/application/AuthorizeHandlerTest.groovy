@@ -29,7 +29,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.AccessGranted)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.AccessGranted)))
 
         where:
         user              | protocol | host               | uri              | method | isApi
@@ -59,7 +59,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.NeedRedirect)))
 
         where:
         user          | protocol | host               | uri     | method | isApi
@@ -91,7 +91,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.NeedRedirect)))
 
         where:
         user          | protocol | host               | uri     | method | authenticated | restricted | isApi
@@ -165,7 +165,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.NeedRedirect)))
         that(result.authorizeUrl.toString(), startsWith("https://example.eu.auth0.com/authorize"))
     }
 
@@ -186,7 +186,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.NeedRedirect)))
     }
 
     def "should deny access for api calls when anonymous user"() {
@@ -207,7 +207,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.AccessDenied)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.AccessDenied)))
     }
 
     def "should have nonce when redirect to authenticate anonymous user"() {
@@ -227,7 +227,7 @@ class AuthorizeHandlerTest extends Specification {
         def result = sut.handle(command)
 
         then: "we should get a valid response"
-        that(result, is(instanceOf(AuthorizeHandler.AuthEvent.NeedRedirect)))
+        that(result, is(instanceOf(AuthorizeHandler.AuthorizeEvent.NeedRedirect)))
         that(result.nonce, not(isEmptyOrNullString()))
     }
 }

@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
+import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -37,7 +38,7 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthentiationEvent(val user: User) : Event {
+    sealed class AuthentiationEvent(user: User) : Event(user) {
         class AuthenticatedEvent(user: User) : AuthentiationEvent(user)
         class AnonymousUserEvent() : AuthentiationEvent(Anonymous)
         class Error(error: Authenticator.Error?) : AuthentiationEvent(Anonymous) {

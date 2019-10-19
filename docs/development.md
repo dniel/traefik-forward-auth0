@@ -46,14 +46,13 @@ Each commit get a tag with the commit timestamp and commit-shorthash.
 Latest tag is only updated when pushing the master branch.
 
 ## Tech
-- Java8
 - Tomcat
 - Kotlin
-- JAX-RS/Jersey
-- SpringBoot2
+- Spring MVC
+- Spring Boot
 - Kubernetes
 - Helm
 - Docker
 - Traefik
-- Spockframework/Groovy (unit tests)
+- Spock Framework
 

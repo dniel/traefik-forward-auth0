@@ -1,5 +1,7 @@
 package dniel.forwardauth.application
 
+import dniel.forwardauth.domain.events.Event
+
 interface Command {
 }
 
