@@ -21,7 +21,7 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
      * @param response
      */
     @RequestMapping("/events", method = [RequestMethod.GET], produces = ["application/json"])
-    fun all(): ResponseEntity<List<Event>> {
+    fun all(): ResponseEntity<Collection<Event>> {
         LOGGER.trace("Get all events")
         return ResponseEntity.ok(repo.all())
     }

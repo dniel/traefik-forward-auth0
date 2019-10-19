@@ -35,7 +35,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .antMatchers("/signin").permitAll()
                 .antMatchers("/actuator/info").permitAll()
                 .antMatchers("/actuator/health").permitAll()
-                .antMatchers("/events").hasAuthority("events:forwardauth")
+                .antMatchers("/events").hasAuthority("admin:forwardauth")
                 .anyRequest().authenticated();
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)

@@ -1,21 +1,27 @@
 package dniel.forwardauth.domain.events
 
+import com.google.common.cache.CacheBuilder
 import org.springframework.stereotype.Component
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Simple in-memory repository to hold events.
- * Should have a max limit and/or auto-expire items.
+ * It expires the entries 24 hours after they have been written to the cache to
+ * avoid memory usage to build up.
+ * <p/>
+ * TODO: implement more advanced repository and/or configuration for events.
  */
 @Component()
 class EventRepository {
 
-    private val events = ArrayList<Event>()
+    private val cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
 
-    fun all(): List<Event> {
-        return events
+    fun all(): Collection<Event> {
+        return cache.asMap().values
     }
 
     fun put(event: Event) {
-        events.add(event)
+        cache.put(event.id, event)
     }
 }
