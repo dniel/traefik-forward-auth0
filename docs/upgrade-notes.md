@@ -2,9 +2,7 @@
 
 ## Upgrade to version 2.0 from version 1.0
 #### Important note about opaque access tokens and audience.
-From version 2.0 its mandatory to set an `audience` in the application.yaml.
-The only way for ForwardAuth to validate that the Access Token has not been tampered with and has not expired is if you
-use a token with JWT format See https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028 for more info.
+There is some important breaking changes in version 2.0 of ForwardAuth. It is now mandatory to set an audience when requesting authorization. This change is required due to how Auth0 handles two different kinds of token formats, opaque tokens and jwt tokens, for access tokens. The only token that is possible to validate and verify is the jwt token. Therefor its from now on required to set the audience in the application config and the application will not work otherwise. See https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028 for more info.
 
 In effect it means that you now *must* create an API in Auth0 and set that API as audience in your application.yaml.
 
