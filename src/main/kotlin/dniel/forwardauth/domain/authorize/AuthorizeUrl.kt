@@ -1,12 +1,12 @@
 package dniel.forwardauth.domain.authorize
 
-import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.domain.shared.Application
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 class AuthorizeUrl(val authorizeUrl: String,
-                   val app: AuthProperties.Application,
+                   val app: Application,
                    val authorizeState: AuthorizeState) {
 
     override fun toString(): String {

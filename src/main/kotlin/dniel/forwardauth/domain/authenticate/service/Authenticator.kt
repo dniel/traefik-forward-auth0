@@ -1,6 +1,6 @@
 package dniel.forwardauth.domain.authorize.service
 
-import dniel.forwardauth.AuthProperties.Application
+import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.domain.shared.InvalidToken
 import dniel.forwardauth.domain.shared.JwtToken
 import dniel.forwardauth.domain.shared.OpaqueToken

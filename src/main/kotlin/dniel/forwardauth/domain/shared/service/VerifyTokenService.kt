@@ -1,7 +1,11 @@
-package dniel.forwardauth.domain.shared
+package dniel.forwardauth.domain.shared.service
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.cache.CacheBuilder
+import dniel.forwardauth.domain.shared.InvalidToken
+import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.shared.OpaqueToken
+import dniel.forwardauth.domain.shared.Token
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*

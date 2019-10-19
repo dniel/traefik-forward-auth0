@@ -1,5 +1,6 @@
 package dniel.forwardauth
 
+import dniel.forwardauth.domain.shared.Application
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.validation.annotation.Validated
 import java.util.*
@@ -29,27 +30,6 @@ class AuthProperties {
 
     @NotNull
     val apps = ArrayList<Application>()
-
-    class Application {
-        @NotEmpty
-        lateinit var name: String
-
-        var clientId: String = ""
-        var clientSecret: String = ""
-        var audience: String = ""
-        var scope: String = "profile openid email"
-        var redirectUri: String = ""
-        var tokenCookieDomain: String = ""
-        var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
-        var requiredPermissions: Array<String> = emptyArray()
-        var claims: Array<String> = emptyArray()
-        var returnTo: String = ""
-
-        override fun toString(): String {
-            return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, requiredPermissions=${Arrays.toString(requiredPermissions)}, claims=${Arrays.toString(claims)})"
-        }
-
-    }
 
     override fun toString(): String {
         return "AuthProperties(domain='$domain', tokenEndpoint='$tokenEndpoint', authorizeUrl='$authorizeUrl', default=$default, apps=$apps)"

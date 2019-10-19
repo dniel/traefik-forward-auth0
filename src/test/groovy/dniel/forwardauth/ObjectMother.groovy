@@ -2,6 +2,7 @@ package dniel.forwardauth
 
 import com.auth0.jwt.JWT
 import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.JwtToken
 
@@ -30,11 +31,11 @@ class ObjectMother {
         properties.default.clientId = "123456789"
         properties.default.clientSecret = "987654321"
 
-        properties.apps << new AuthProperties.Application()
+        properties.apps << new Application()
         properties.apps[0].name = "restricted.com"
         properties.apps[0].restrictedMethods = ["POST", "PUT", "DELETE", "PATCH"]
 
-        properties.apps << new AuthProperties.Application()
+        properties.apps << new Application()
         properties.apps[1].name = "opaque.com"
         properties.apps[1].audience = "${domain}/userinfo"
     }

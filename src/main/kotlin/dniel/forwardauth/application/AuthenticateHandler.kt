@@ -1,11 +1,13 @@
 package dniel.forwardauth.application
 
 import com.auth0.jwt.interfaces.Claim
+import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.*
+import dniel.forwardauth.domain.shared.service.VerifyTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -77,7 +79,7 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * Get selected userinfo from token claims.
      */
-    private fun getUserinfoFromToken(app: AuthProperties.Application, token: JwtToken): Map<String, String> {
+    private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
         app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
         return token.value.claims
                 .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
