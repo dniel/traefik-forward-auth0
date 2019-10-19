@@ -40,7 +40,7 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthentiationEvent(user: User) : Event(user) {
+    sealed class AuthentiationEvent(val user: User) : Event() {
         class AuthenticatedEvent(user: User) : AuthentiationEvent(user)
         class AnonymousUserEvent() : AuthentiationEvent(Anonymous)
         class Error(error: Authenticator.Error?) : AuthentiationEvent(Anonymous) {

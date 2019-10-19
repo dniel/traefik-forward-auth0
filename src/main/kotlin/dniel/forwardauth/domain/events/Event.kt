@@ -1,10 +1,9 @@
 package dniel.forwardauth.domain.events
 
-import dniel.forwardauth.domain.shared.User
 import java.time.LocalDateTime
 import java.util.*
 
-abstract class Event(val user: User) {
+abstract class Event() {
 
     val id: UUID
     val time: LocalDateTime
