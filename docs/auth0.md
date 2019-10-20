@@ -84,9 +84,12 @@ let through to the API.
 ### Add permissions to the API.
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
-## Users and Roles
-You can assign permissions to Roles and assign roles to your users.
+### Users and Roles
+Roles is a collection of permissions that are assignable to Users.
 ![The section for RBAC settings in Auth0](screenshots/Roles.png)
+
+
+### Assign permissions to the Roles.
 ![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
 
 ### Require Permissions to access an application in ForwardAuth
