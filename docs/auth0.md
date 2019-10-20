@@ -84,7 +84,7 @@ let through to the API.
 ### Add permissions to the API.
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
-### Users and Roles
+## Users and Roles
 Roles is a collection of permissions that are assignable to Users.
 ![The section for RBAC settings in Auth0](screenshots/Roles.png)
 
