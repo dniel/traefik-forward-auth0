@@ -81,18 +81,17 @@ Any permissions requested by the user that they dont have, will be removed by th
 If you dont enable RBAC for your API, or dont enable "Add permissions to Access Token" everybody will be 
 let through to the API.
 
-### Add permissions to the API.
+# Permissions
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
 ## Users and Roles
 Roles is a collection of permissions that are assignable to Users.
 ![The section for RBAC settings in Auth0](screenshots/Roles.png)
 
-
-### Assign permissions to the Roles.
+## Assign permissions to the Roles.
 ![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
 
-### Require Permissions to access an application in ForwardAuth
+## Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
 will check before letting the user access the application. The permissions is transferred on login from Auth0
 to ForwardAuth using the Access Token when the Access Token is a JWT Token,  i.e, the audience for an API has been
