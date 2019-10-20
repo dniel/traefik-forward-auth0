@@ -38,6 +38,7 @@ The page [Configuration](/docs/configuration.md)  should have a update to date e
 - [Upgrade Notes](/docs/upgrade-notes.md)
 - [Configuration](/docs/configuration.md)
 - [Auth0](/docs/auth0.md)
-- [OAuth and OpenID Connect](/docs/oauth-oidc.md)
+- [OAuth and OpenID Connect](/docs/oauth-oidc.md)\
+- [Receipts](/docs/receipts.md)
 - [FAQ](/docs/faq.md)
 - [Contributing](/docs/contributing.md)
