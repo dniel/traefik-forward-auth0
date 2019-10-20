@@ -39,7 +39,7 @@ be redirected to authorize again with Auth0.
 
 ![the authentication and authorization prosess](sequence.png)
 
-
+## Applications
 ![The page for applications in Auth0](screenshots/Applications.png)
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 > Applications are primarily meant for human interaction, as opposed to APIs, which provide data to applications through 
@@ -50,7 +50,7 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > that executes on a server.
 
 
-![The page for APIs in Auth0](screenshots/APIs.png)
+## API's
 The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
 >An API is an entity that represents an external resource, capable of accepting and responding to protected resource requests 
 >made by applications. At the OAuth2 spec an API maps to the Resource Server.
@@ -58,12 +58,10 @@ The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API 
 >When an application wants to access an API's protected resources it must provide an Access Token. 
 >The same Access Token can be used to access the API's resources without having to authenticate again, until it expires.
 
+![The page for APIs in Auth0](screenshots/APIs.png)
 Register the web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
 permissions to them. You can also [represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)
 so that they doesn't need to re-authenticate when navigating between services.
-
-### Set a unique API identifier for your API.
-![The page for API Settings in Auth0](screenshots/API-Details.png)
 
 ### Enable RBAC for the API on the same page
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
@@ -85,7 +83,7 @@ let through to the API.
 ### Add permissions to the API.
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
-### Assign permissions to Users and Roles
+## Users and Roles
 You can assign permissions to Roles and assign roles to your users.
 ![The section for RBAC settings in Auth0](screenshots/Roles.png)
 ![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
