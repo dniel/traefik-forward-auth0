@@ -24,10 +24,11 @@ See the page [Upgrade Notes](/docs/upgrade-notes.md) for information about compa
 The page [Configuration](/docs/configuration.md)  should have a update to date example for the latest version.
 
 # Features
-- Centralized auth mode for simple config via a shared authorization service.
-- Multiple-domain auth mode for more advanced multiple-domain/services configuration
+- Centralized Auth-host mode for easy configuration when you have lots of applications.
+- Multiple-host auth mode for more advanced SSO per. sub-domain/applications configuration
 - Very flexible configuration
 - Support for Auth0 API permissions natively to block access to services by API permissions.
+- Implement a powerfull BeyondCorp policy control using Auth0 Rules + Auth0 Auth Core with RBAC.
 - Restrict selected HTTP methods, let other methods be unrestricted.
 - Signout and userinfo endpoint for other applications to use.
 
