@@ -14,7 +14,6 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import java.util.stream.Collectors
-import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
 
@@ -25,7 +24,7 @@ import javax.servlet.http.HttpServletResponse
  * redirect other to authenticate at Auth0.
  */
 @RestController
-class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher) {
+class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -104,14 +103,10 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      *
      */
     private fun redirect(authorizeResult: AuthorizeHandler.AuthorizeEvent.NeedRedirect, response: HttpServletResponse): ResponseEntity<Unit> {
-        // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-        val nonceCookie = Cookie("AUTH_NONCE", authorizeResult.nonce.value)
-        nonceCookie.domain = authorizeResult.cookieDomain
-        nonceCookie.maxAge = 60
-        nonceCookie.isHttpOnly = true
-        nonceCookie.path = "/"
-        response.addCookie(nonceCookie)
         LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
+
+        // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
+        addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, 60)
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
     }
 

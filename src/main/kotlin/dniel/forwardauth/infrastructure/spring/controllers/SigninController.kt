@@ -11,14 +11,13 @@ import org.springframework.http.ResponseEntity
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 import java.util.stream.Collectors
-import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
 /**
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
  */
 @RestController
-class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client) {
+class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -66,26 +65,9 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Int
             val idToken = authorizationCodeExchangeResponse.get("id_token") as String
 
-            val accessTokenCookie = Cookie("ACCESS_TOKEN", accessToken)
-            val jwtCookie = Cookie("JWT_TOKEN", idToken)
-            val clearNonceCookie = Cookie("AUTH_NONCE", "delete")
-
-            accessTokenCookie.domain = app.tokenCookieDomain
-            accessTokenCookie.maxAge = expiresIn
-            accessTokenCookie.path = "/"
-            accessTokenCookie.isHttpOnly = true
-            jwtCookie.domain = app.tokenCookieDomain
-            jwtCookie.maxAge = expiresIn
-            jwtCookie.path = "/"
-            jwtCookie.isHttpOnly = true
-            clearNonceCookie.maxAge = 0
-            clearNonceCookie.domain = app.tokenCookieDomain
-            clearNonceCookie.path = "/"
-            clearNonceCookie.isHttpOnly = true
-
-            response.addCookie(accessTokenCookie)
-            response.addCookie(jwtCookie)
-            response.addCookie(clearNonceCookie)
+            addCookie(response, "ACCESS_TOKEN", accessToken, app.tokenCookieDomain, expiresIn)
+            addCookie(response, "JWT_TOKEN", idToken, app.tokenCookieDomain, expiresIn)
+            clearCookie(response, "AUTH_NONCE", app.tokenCookieDomain)
 
             LOGGER.info("SignInSuccessful, redirect to requested originUrl=${decodedState.originUrl}")
             return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(decodedState.originUrl.uri()).build()
