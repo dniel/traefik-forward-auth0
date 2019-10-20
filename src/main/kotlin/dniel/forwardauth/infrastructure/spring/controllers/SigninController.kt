@@ -76,10 +76,4 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
             throw ApplicationException()
         }
     }
-
-    private fun printHeaders(headers: MultiValueMap<String, String>) {
-        if (LOGGER.isTraceEnabled) {
-            headers.forEach { (key, value) -> LOGGER.trace(String.format("Header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))) }
-        }
-    }
 }

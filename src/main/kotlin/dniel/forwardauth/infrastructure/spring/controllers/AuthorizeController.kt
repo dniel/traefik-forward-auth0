@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import java.util.stream.Collectors
 import javax.servlet.http.HttpServletResponse
 
 
@@ -108,14 +107,5 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
         // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
         addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, 60)
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
-    }
-
-    /**
-     * Debug print headers
-     */
-    private fun printHeaders(headers: MultiValueMap<String, String>) {
-        if (LOGGER.isTraceEnabled) {
-            headers.forEach { (key, value) -> LOGGER.trace(String.format("Header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))) }
-        }
     }
 }

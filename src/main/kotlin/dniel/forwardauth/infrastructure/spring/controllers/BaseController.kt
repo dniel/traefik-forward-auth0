@@ -1,6 +1,8 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import org.slf4j.LoggerFactory
+import org.springframework.util.MultiValueMap
+import java.util.stream.Collectors
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 
@@ -35,4 +37,9 @@ abstract class BaseController {
         LOGGER.error(message)
     }
 
+    fun printHeaders(headers: MultiValueMap<String, String>) {
+        if (LOGGER.isTraceEnabled) {
+            headers.forEach { (key, value) -> trace(String.format("Header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))) }
+        }
+    }
 }
