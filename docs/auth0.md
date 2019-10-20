@@ -46,6 +46,8 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > be a native app that executes on a mobile device, a single-page app that executes on a browser, or a regular web app
 > that executes on a server.
 
+![The page for applications in Auth0](screenshots/Applications.png)
+
 ### API
 The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
 >An API is an entity that represents an external resource, capable of accepting and responding to protected resource requests 
@@ -58,11 +60,16 @@ Register the web applications that you want to protect behind Traefik and Forwar
 permissions to them. You can also [represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)
 so that they doesn't need to re-authenticate when navigating between services.
 
-#### Role Based Access Control (RBAC)
+![The page for APIs in Auth0](screenshots/APIs.png)
+
+#### Set a unique API identifier for your API.
+![The page for API Settings in Auth0](screenshots/API-Details.png)
+
+#### Enable RBAC for the API on the same page
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension. 
 
-#### Assign permissions to users
+![The section for RBAC settings in Auth0](screenshots/API-RBAC-settings.png)
 To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch, and also 
 the "Add Permissions to Access Token" so that ForwardAuth can see them in the returned token.
 Then under Permissions in your API's settings create permissions for your API. Then go to Users & Roles
@@ -74,6 +81,14 @@ Any permissions requested by the user that they dont have, will be removed by th
 
 If you dont enable RBAC for your API, or dont enable "Add permissions to Access Token" everybody will be 
 let through to the API.
+
+#### Add permissions to the API.
+![The page for API Settings in Auth0](screenshots/API-permissions.png)
+
+#### Assign permissions to Users and Roles
+You can assign permissions to Roles and assign roles to your users.
+![The section for RBAC settings in Auth0](screenshots/Roles.png)
+![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
 
 #### Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
@@ -95,33 +110,12 @@ apps:
 ```
 
 ### Rules
-#### Example rule for access control with the Auth0 RBAC
-Example rule that check if the audience is https://whoami.dniel.se, and if it is, it will authorize 
-ccess if the user has an assigned admin role. or else throw a UnauthorizedError error to the user. 
+Quoted from [Auth0 page about rules](https://auth0.com/docs/rules)
+> Rules are JavaScript functions that execute when a user authenticates to your application. 
+> They run once the authentication process is complete, and you can use them to customize and extend Auth0's capabilities. 
+> For security reasons, your Rules code executes isolated from the code of other Auth0 tenants in a sandbox.
 
-For some reason I cant find any field in the rule context when running the rules that contains the resulting 
-verified and filtered permissions list. The only info I have found about the RBAC in the context of a running rule is the
-authorization object on the context which contain the assigned roles of the user. See the example rule below.
-
-```javascript
-function (user, context, callback) {
-  var audience, scope = '';
-  const assignedRoles = (context.authorization || {}).roles;
-  audience = audience || (context.request && context.request.query && context.request.query.audience);  
-  scope = scope || (context.request && context.request.query && context.request.query.scope);
-
-  if(audience==='https://whoami.dniel.se' && 
-     !assignedRoles.includes('admin')){
-    return callback(new UnauthorizedError('The whoami app is only available to people in the admin group.'));
-  }
-  callback(null, user, context);
-}
-```
-
-When ForwardAuth received a "Unautorized" error from Auth0 an HTTP 403 Forbidden will be thrown and an 
-error page will be displayed to the user saying 403 Forbidden and the message from the rule will be displayed.
-
-
+See the page [receipts](receipts.md) for examples and inspiration of custom rules that I have written.
 
 ### Reference
 - [Auth0 documentation on APIs](https://auth0.com/docs/apis)
