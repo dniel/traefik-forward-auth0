@@ -37,6 +37,8 @@ in the application config to the forwarded-host to make sure that the applicatio
 audience for the http request. If the Access Token is not intended for the current application audience, the user will
 be redirected to authorize again with Auth0.
 
+![the authentication and authorization prosess](sequence.png)
+
 ### Application
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 > Applications are primarily meant for human interaction, as opposed to APIs, which provide data to applications through 
