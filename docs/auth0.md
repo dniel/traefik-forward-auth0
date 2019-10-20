@@ -16,7 +16,7 @@ ForwardAuth is built on the following central components from Auth0:
 * Users, Roles and Permissions
 * Rules
 
-### Authorization Code OAuth 2.0 grant-flow
+## Authorization Code OAuth 2.0 grant-flow
 ForwardAuth uses the Authorization Code OAuth 2.0 grant-flow to do a redirect exchange of code and retrieve an
 access token and user token. Check the [Auth0 Documentation](https://auth0.com/docs/api-auth/grant/authorization-code)
 on how this flow works.
@@ -39,7 +39,8 @@ be redirected to authorize again with Auth0.
 
 ![the authentication and authorization prosess](sequence.png)
 
-### Application
+
+![The page for applications in Auth0](screenshots/Applications.png)
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 > Applications are primarily meant for human interaction, as opposed to APIs, which provide data to applications through 
 > a standardized messaging system.
@@ -48,9 +49,8 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > be a native app that executes on a mobile device, a single-page app that executes on a browser, or a regular web app
 > that executes on a server.
 
-![The page for applications in Auth0](screenshots/Applications.png)
 
-### API
+![The page for APIs in Auth0](screenshots/APIs.png)
 The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API like this
 >An API is an entity that represents an external resource, capable of accepting and responding to protected resource requests 
 >made by applications. At the OAuth2 spec an API maps to the Resource Server.
@@ -62,12 +62,10 @@ Register the web applications that you want to protect behind Traefik and Forwar
 permissions to them. You can also [represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)
 so that they doesn't need to re-authenticate when navigating between services.
 
-![The page for APIs in Auth0](screenshots/APIs.png)
-
-#### Set a unique API identifier for your API.
+### Set a unique API identifier for your API.
 ![The page for API Settings in Auth0](screenshots/API-Details.png)
 
-#### Enable RBAC for the API on the same page
+### Enable RBAC for the API on the same page
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension. 
 
@@ -84,15 +82,15 @@ Any permissions requested by the user that they dont have, will be removed by th
 If you dont enable RBAC for your API, or dont enable "Add permissions to Access Token" everybody will be 
 let through to the API.
 
-#### Add permissions to the API.
+### Add permissions to the API.
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
-#### Assign permissions to Users and Roles
+### Assign permissions to Users and Roles
 You can assign permissions to Roles and assign roles to your users.
 ![The section for RBAC settings in Auth0](screenshots/Roles.png)
 ![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
 
-#### Require Permissions to access an application in ForwardAuth
+### Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
 will check before letting the user access the application. The permissions is transferred on login from Auth0
 to ForwardAuth using the Access Token when the Access Token is a JWT Token,  i.e, the audience for an API has been
