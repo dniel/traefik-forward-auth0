@@ -40,7 +40,6 @@ be redirected to authorize again with Auth0.
 ![the authentication and authorization prosess](sequence.png)
 
 ## Applications
-![The page for applications in Auth0](screenshots/Applications.png)
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
 > Applications are primarily meant for human interaction, as opposed to APIs, which provide data to applications through 
 > a standardized messaging system.
@@ -48,6 +47,8 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > The term application does not imply any particular implementation characteristics. For example, your application could 
 > be a native app that executes on a mobile device, a single-page app that executes on a browser, or a regular web app
 > that executes on a server.
+
+![The page for applications in Auth0](screenshots/Applications.png)
 
 
 ## API's
