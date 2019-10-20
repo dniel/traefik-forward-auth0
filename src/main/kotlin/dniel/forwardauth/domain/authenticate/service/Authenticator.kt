@@ -1,6 +1,5 @@
 package dniel.forwardauth.domain.authorize.service
 
-import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.domain.shared.InvalidToken
 import dniel.forwardauth.domain.shared.JwtToken
 import dniel.forwardauth.domain.shared.OpaqueToken
@@ -14,14 +13,13 @@ import org.slf4j.LoggerFactory
  *
  */
 class Authenticator private constructor(val accessToken: Token,
-                                        val idToken: Token,
-                                        val app: Application) : AuthenticatorStateMachine.Delegate {
+                                        val idToken: Token) : AuthenticatorStateMachine.Delegate {
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
-        fun create(accessToken: Token, idToken: Token, app: Application):
-                Authenticator = Authenticator(accessToken, idToken, app)
+        fun create(accessToken: Token, idToken: Token):
+                Authenticator = Authenticator(accessToken, idToken)
     }
 
     private var fsm: AuthenticatorStateMachine

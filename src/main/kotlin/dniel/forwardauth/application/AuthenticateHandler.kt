@@ -1,7 +1,6 @@
 package dniel.forwardauth.application
 
 import com.auth0.jwt.interfaces.Claim
-import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
@@ -53,14 +52,14 @@ class AuthenticateHandler(val properties: AuthProperties,
      * This method will parse all input parameters from the command, create a new
      * instance of the Authenticator service to perform the authentication logic.
      * <p/>
-     * The result will be either an Autheniticated user or an Anonymous user.
+     * The result will be either an Authenticated user or an Anonymous user.
      */
     override fun handle(params: AuthenticateHandler.AuthenticateCommand): Event {
         val app = properties.findApplicationOrDefault(params.host)
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
         val idToken = verifyTokenService.verify(params.idToken, app.clientId)
 
-        val authenticator = Authenticator.create(accessToken, idToken, app)
+        val authenticator = Authenticator.create(accessToken, idToken)
         val (state, error) = authenticator.authenticate()
 
         LOGGER.debug("State: ${state}")
@@ -69,7 +68,7 @@ class AuthenticateHandler(val properties: AuthProperties,
         return when (state) {
             AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUserEvent()
             AuthenticatorStateMachine.State.AUTHENTICATED -> {
-                val user = Authenticated(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken as JwtToken))
+                val user = Authenticated(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken))
                 AuthentiationEvent.AuthenticatedEvent(user)
             }
             else -> AuthentiationEvent.Error(error)
