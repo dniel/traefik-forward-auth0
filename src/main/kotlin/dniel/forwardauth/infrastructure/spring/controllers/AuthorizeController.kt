@@ -11,7 +11,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.MultiValueMap
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import javax.servlet.http.HttpServletResponse
 
@@ -31,8 +34,6 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      */
     @RequestMapping("/authorize", method = [RequestMethod.GET])
     fun authorize(@RequestHeader headers: MultiValueMap<String, String>,
-                  @CookieValue("ACCESS_TOKEN", required = false) accessTokenCookie: String?,
-                  @CookieValue("JWT_TOKEN", required = false) userinfoCookie: String?,
                   @RequestHeader("Accept") acceptContent: String?,
                   @RequestHeader("x-requested-with") requestedWithHeader: String?,
                   @RequestHeader("x-forwarded-host") forwardedHostHeader: String,
@@ -41,8 +42,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
                   @RequestHeader("x-forwarded-method") forwardedMethodHeader: String,
                   response: HttpServletResponse): ResponseEntity<Unit> {
         printHeaders(headers)
-        return authenticateToken(acceptContent, requestedWithHeader,
-                accessTokenCookie, userinfoCookie, forwardedMethodHeader,
+        return authenticateToken(acceptContent, requestedWithHeader, forwardedMethodHeader,
                 forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response)
     }
 
@@ -51,11 +51,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      * Authenticate
      *
      */
-    private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, accessToken: String?,
-                                  idToken: String?, method: String, host: String, protocol: String,
+    private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, method: String, host: String, protocol: String,
                                   uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
-
-        val authorizeResult = handleCommand(acceptContent, requestedWithHeader, accessToken, idToken, protocol, host, uri, method)
+        val authorizeResult = handleCommand(acceptContent, requestedWithHeader, protocol, host, uri, method)
         return when (authorizeResult) {
             is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
             is AuthorizeHandler.AuthorizeEvent.Error -> throw AuthorizationException(authorizeResult)
@@ -63,7 +61,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
                 redirect(authorizeResult, response)
             }
             is AuthorizeHandler.AuthorizeEvent.AccessGranted -> {
-                accessGranted(accessToken, authorizeResult)
+                accessGranted(authorizeResult)
             }
         }
     }
@@ -72,12 +70,11 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      * Execute AuthorizeCommand
      *
      */
-    private fun handleCommand(acceptContent: String?, requestedWithHeader: String?, accessToken: String?, idToken: String?,
+    private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
                               protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthorizeEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
         val principal = SecurityContextHolder.getContext().authentication.principal as User
-
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(principal, protocol, host, uri, method, isApi)
         return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
@@ -86,8 +83,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      * Access Granted.
      *
      */
-    private fun accessGranted(accessToken: String?, authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): ResponseEntity<Unit> {
+    private fun accessGranted(authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): ResponseEntity<Unit> {
         val builder = ResponseEntity.noContent()
+        val accessToken = authorizeResult.user.accessToken
         builder.header("Authorization", "Bearer ${accessToken}")
         (authorizeResult.user as Authenticated).userinfo.forEach { k, v ->
             val headerName = "x-forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)
