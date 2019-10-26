@@ -1,11 +1,7 @@
 package dniel.forwardauth.domain.authorize.service
 
-import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.domain.authorize.RequestedUrl
-import dniel.forwardauth.domain.shared.InvalidToken
-import dniel.forwardauth.domain.shared.JwtToken
-import dniel.forwardauth.domain.shared.OpaqueToken
-import dniel.forwardauth.domain.shared.Token
+import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
 
 /**
@@ -57,17 +53,17 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
 
 
     override fun onStartAuthorizing() {
-        trace("onStartAuthorizing")
+        debug("onStartAuthorizing")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_REQUESTED_URL)
     }
 
     override fun onValidateProtectedUrl() {
-        trace("onValidateProtectedUrl")
+        debug("onValidateProtectedUrl")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_WHITELISTED_URL)
     }
 
     override fun onValidateWhitelistedUrl() {
-        trace("onValidateWhitelistedUrl")
+        debug("onValidateWhitelistedUrl")
         fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
                 originUrl.startsWith(app.redirectUri)
 
@@ -79,7 +75,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateRestrictedMethod() {
-        trace("onValidateRestrictedMethod")
+        debug("onValidateRestrictedMethod")
         val method = originUrl.method
         fun isRestrictedMethod(app: Application, method: String) =
                 app.restrictedMethods.any() { t -> t.equals(method, true) }
@@ -91,12 +87,12 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onStartValidateTokens() {
-        trace("onStartValidateTokens")
+        debug("onStartValidateTokens")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_ACCESS_TOKEN)
     }
 
     override fun onValidateAccessToken() {
-        trace("onValidateAccessToken")
+        debug("onValidateAccessToken")
         when {
             accessToken is OpaqueToken -> {
                 lastError = Error("Opaque Access Tokens is not supported.")
@@ -108,7 +104,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateIdToken() {
-        trace("onValidateIdToken")
+        debug("onValidateIdToken")
         when {
             idToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
             else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ID_TOKEN)
@@ -116,11 +112,18 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidatePermissions() {
-        trace("onValidatePermissions")
+        debug("onValidatePermissions")
+        val jwtAccessToken = accessToken as JwtToken
         when {
-            (accessToken as JwtToken).hasPermission(app.requiredPermissions) -> fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
+            app.requiredPermissions.isNotEmpty() && !jwtAccessToken.hasPermissionClaim() -> {
+                LOGGER.warn("# Missing permissions claim in access token. In Auth0, Add Permissions in the Access Token.")
+                LOGGER.warn("# If this setting is enabled, the Permissions claim will be added to the access token.")
+                lastError = Error("Missing permissions claim in access token. In Auth0, Add Permissions in the Access Token.")
+                fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
+            }
+            jwtAccessToken.hasPermission(app.requiredPermissions) -> fsm.post(AuthorizerStateMachine.Event.VALID_PERMISSIONS)
             else -> {
-                val missingPermissions = (accessToken as JwtToken).missingPermissions(app.requiredPermissions)
+                val missingPermissions = jwtAccessToken.missingPermissions(app.requiredPermissions)
                 lastError = Error("Missing permissions '${missingPermissions.joinToString()}'")
                 fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
             }
@@ -128,7 +131,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateSameSubs() {
-        trace("onValidateSameSubs")
+        debug("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
                 accessToken is JwtToken && idToken is JwtToken && idToken.subject()  == accessToken.subject()
 
@@ -142,34 +145,32 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onNeedRedirect() {
-        trace("onNeedRedirect")
+        debug("onNeedRedirect")
     }
 
     override fun onInvalidToken() {
-        trace("onInvalidToken")
+        debug("onInvalidToken")
     }
 
     override fun onError() {
-        trace("onError")
-        trace(lastError!!.message)
+        debug("onError")
+        debug(lastError!!.message)
     }
 
     override fun onAccessGranted() {
-        trace("onAccessGranted")
+        debug("onAccessGranted")
     }
 
     override fun onAccessDenied() {
-        trace("onAccessDenied")
+        debug("onAccessDenied")
     }
 
-    /*
-     */
     fun authorize(): AuthorizerResult {
         return AuthorizerResult(fsm.authorize(), this.lastError)
     }
 
-    fun trace(message: String) {
-        LOGGER.trace(message)
+    fun debug(message: String) {
+        LOGGER.debug(message)
     }
 
 }

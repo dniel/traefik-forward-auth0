@@ -47,9 +47,10 @@ class JwtToken(val value: DecodedJWT) : Token() {
         // if required permissions list is empty any permission is allowed.
         if (requiredPermissions.isEmpty()) return true
 
-        // if access token doesnt have the permissions field set, allow everything.
+        // if access token doesnt have the permissions field set,
+        // and the required permissions is not set, or empty, allow everybody to access.
         val claim = value.getClaim("permissions")
-        if (claim.isNull) return true
+        if (claim.isNull && requiredPermissions.isNullOrEmpty()) return true
 
         return claim.run {
             asArray(String::class.java)
@@ -68,8 +69,12 @@ class JwtToken(val value: DecodedJWT) : Token() {
      */
     fun permisssions(): Array<String> {
         val claim = value.getClaim("permissions")
-        return if (claim.isNull) emptyArray<String>()
+        return if (claim.isNull) emptyArray()
         else claim.asArray(String::class.java)
+    }
+
+    fun hasPermissionClaim(): Boolean {
+        return !value.getClaim("permissions").isNull
     }
 
 

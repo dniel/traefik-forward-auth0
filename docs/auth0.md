@@ -82,6 +82,7 @@ If you dont enable RBAC for your API, or dont enable "Add permissions to Access 
 let through to the API.
 
 # Permissions
+Add permissions to your API.
 ![The page for API Settings in Auth0](screenshots/API-permissions.png)
 
 ## Users and Roles

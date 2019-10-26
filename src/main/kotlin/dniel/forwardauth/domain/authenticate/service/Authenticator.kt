@@ -49,17 +49,17 @@ class Authenticator private constructor(val accessToken: Token,
 
 
     override fun onStartAuthentication() {
-        trace("onStartAuthentication")
+        log("onStartAuthentication")
         fsm.post(AuthenticatorStateMachine.Event.VALIDATE_TOKENS)
     }
 
     override fun onStartValidateTokens() {
-        trace("onStartValidateTokens")
+        log("onStartValidateTokens")
         fsm.post(AuthenticatorStateMachine.Event.VALIDATE_ACCESS_TOKEN)
     }
 
     override fun onValidateAccessToken() {
-        trace("onValidateAccessToken")
+        log("onValidateAccessToken")
         when {
             accessToken is OpaqueToken -> {
                 lastError = Error("Opaque Access Tokens is not supported.")
@@ -74,7 +74,7 @@ class Authenticator private constructor(val accessToken: Token,
     }
 
     override fun onValidateIdToken() {
-        trace("onValidateIdToken")
+        log("onValidateIdToken")
         when {
             idToken is JwtToken -> fsm.post(AuthenticatorStateMachine.Event.VALID_ID_TOKEN)
             idToken is InvalidToken -> {
@@ -85,7 +85,7 @@ class Authenticator private constructor(val accessToken: Token,
     }
 
     override fun onValidateSameSubs() {
-        trace("onValidateSameSubs")
+        log("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
                 accessToken is JwtToken && idToken is JwtToken && idToken.subject()  == accessToken.subject()
 
@@ -99,21 +99,21 @@ class Authenticator private constructor(val accessToken: Token,
     }
 
     override fun onInvalidToken() {
-        trace("onInvalidToken")
-        trace(lastError!!.message)
+        log("onInvalidToken")
+        log(lastError!!.message)
     }
 
     override fun onError() {
-        trace("onError")
-        trace(lastError!!.message)
+        log("onError")
+        log(lastError!!.message)
     }
 
     override fun onAuthenticated() {
-        trace("onAuthenticated")
+        log("onAuthenticated")
     }
 
     override fun onAnonymous() {
-        trace("onAnonymous")
+        log("onAnonymous")
     }
 
 
@@ -123,8 +123,8 @@ class Authenticator private constructor(val accessToken: Token,
         return AuthenticatorResult(fsm.authenticate(), this.lastError)
     }
 
-    fun trace(message: String) {
-        LOGGER.trace(message)
+    fun log(message: String) {
+        LOGGER.debug(message)
     }
 
 }

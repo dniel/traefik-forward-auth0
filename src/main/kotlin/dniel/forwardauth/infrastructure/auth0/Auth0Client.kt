@@ -103,16 +103,21 @@ class Auth0Client(val properties: AuthProperties) {
      * See the Auth0 documentation.
      * @link https://auth0.com/docs/api/user#get-user-info
      */
-    fun userinfo(accesstoken: String): String {
+    fun userinfo(accesstoken: String): Map<String, Any> {
         LOGGER.debug("Get userinfo")
         LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT}")
         val response = Unirest
                 .get(USERINFO_ENDPOINT)
                 .header("Authorization", "Bearer ${accesstoken}")
-                .asString()
+                .asJson()
+
         LOGGER.trace("Response status: ${response.status}")
         LOGGER.trace("Response body: ${response.body}")
-        return response.body
+
+        val jsonObject = response.body.`object`
+        val userinfo = mutableMapOf<String, Any>()
+        jsonObject.keys().forEach { key -> userinfo.put(key, jsonObject.get(key)) }
+        return userinfo
     }
 
     /**
