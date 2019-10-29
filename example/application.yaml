@@ -15,6 +15,11 @@ authorize-url: https://xxxx.xx.auth0.com/authorize
 userinfo-endpoint: https://xxxx.xx.auth0.com/userinfo
 logout-endpoint:  https://xxxx.xx.auth0.com/v2/logout
 
+# By default all logging is directed to STDOUT/CONSOLE
+# But if you need to direct the logs to a file you can comment out the setting below.
+# The logfiles will be rotated daily, and kept for 7 days.
+# logging.file: <path to log file for example /var/log/auth.log
+
 # default application that is hostname of received request does not
 # match any of the applications in the apps list will use, or if
 # properties in the matched application in the apps list is not present
