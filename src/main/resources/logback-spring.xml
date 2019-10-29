@@ -1,35 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true" scanPeriod="30 seconds">
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%X{userId}] %cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n</pattern>
-        </encoder>
-    </appender>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
 
-    <logger name="org.springframework" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-    <logger name="org.thymeleaf" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
-    </logger>
-
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="dniel.forwardauth" level="INFO"/>
 
     <springProfile name="DEV">
-        <logger name="dniel" level="TRACE" additivity="false">
-            <appender-ref ref="STDOUT"/>
-        </logger>
+        <logger name="dniel.forwardauth" level="TRACE"/>
+        <logger name="org.springframework.web.servlet.DispatcherServlet" level="DEBUG"/>
     </springProfile>
     <springProfile name="TEST">
-        <logger name="dniel" level="DEBUG" additivity="false">
-            <appender-ref ref="STDOUT"/>
-        </logger>
+        <logger name="dniel.forwardauth" level="DEBUG"/>
+        <logger name="org.springframework.web.servlet.DispatcherServlet" level="DEBUG"/>
     </springProfile>
     <springProfile name="PRODUCTION">
-        <logger name="dniel" level="INFO" additivity="false">
-            <appender-ref ref="STDOUT"/>
-        </logger>
+        <logger name="dniel.forwardauth" level="WARN"/>
     </springProfile>
-
-
 </configuration>

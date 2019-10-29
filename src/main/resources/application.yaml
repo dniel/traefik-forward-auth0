@@ -2,3 +2,5 @@ spring.profiles.active: ${ENV:DEV}
 server.port: ${PORT:8080}
 server.error.whitelabel.enabled: true
 server.error.include-exception: true
+
+logging.pattern.level: "[%-40.-40(%mdc{userId})]"
