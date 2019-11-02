@@ -57,7 +57,7 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
      */
     sealed class AuthorizeEvent(val user: User, val application: Application) : Event() {
         class NeedRedirect(application: Application, val authorizeUrl: URI, val nonce: AuthorizeNonce, val cookieDomain: String) : AuthorizeEvent(Anonymous, application)
-        class AccessGranted(user: Authenticated, application: Application) : AuthorizeEvent(user, application)
+        class AccessGranted(user: User, application: Application) : AuthorizeEvent(user, application)
         class AccessDenied(user: User, application: Application, error: Authorizer.Error?) : AuthorizeEvent(user, application) {
             val reason: String = error?.message ?: "Unknown error"
         }
@@ -93,7 +93,7 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
         return when (authorizerState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthorizeEvent.NeedRedirect(app, authorizeUrl.toURI(), nonce, cookieDomain)
             AuthorizerStateMachine.State.ACCESS_DENIED -> AuthorizeEvent.AccessDenied(user, app, authorizerError)
-            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthorizeEvent.AccessGranted(user as Authenticated, app)
+            AuthorizerStateMachine.State.ACCESS_GRANTED -> AuthorizeEvent.AccessGranted(user, app)
             else -> AuthorizeEvent.Error(user, app, authorizerError)
         }
     }

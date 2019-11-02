@@ -81,16 +81,23 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
 
     /**
      * Access Granted.
-     *
+     * When user is Authenticated, add userinfo to headers to
+     * forward userinfo from tokens to requested resource server.
+     * When user is Anonymous just and access granted, just say 200 with no userinfo.
      */
     private fun accessGranted(authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): ResponseEntity<Unit> {
+        LOGGER.debug("Access Granted to ${authorizeResult.user}")
         val builder = ResponseEntity.noContent()
-        val accessToken = authorizeResult.user.accessToken
-        builder.header("Authorization", "Bearer ${accessToken}")
-        (authorizeResult.user as Authenticated).userinfo.forEach { k, v ->
-            val headerName = "x-forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)
-            LOGGER.trace("Add header ${headerName} with value ${v}")
-            builder.header(headerName, v)
+        when {
+            authorizeResult.user is Authenticated -> {
+                val accessToken = authorizeResult.user.accessToken
+                builder.header("Authorization", "Bearer ${accessToken}")
+                authorizeResult.user.userinfo.forEach { k, v ->
+                    val headerName = "x-forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)
+                    LOGGER.trace("Add header ${headerName} with value ${v}")
+                    builder.header(headerName, v)
+                }
+            }
         }
         return builder.build()
     }
