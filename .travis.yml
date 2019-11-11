@@ -20,7 +20,19 @@ before_script:
   - export APP_VERSION=$COMMIT_TIME-$TRAVIS_TAG
   - echo "$TRAVIS_TAG $TRAVIS_COMMIT $BRANCH $COMMIT_TIME"
 script:
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$APP_VERSION -Dchangelist=$BRANCH
+  - echo "TRAVIS_SECURE_ENV_VARS=${TRAVIS_SECURE_ENV_VARS}";
+  - >
+    if [ "${TRAVIS_SECURE_ENV_VARS}" == "true" ]; then
+      echo;
+      echo "Running Sonar build";
+      mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$APP_VERSION -Dchangelist=$BRANCH;
+    fi;
+  - >
+    if [ "${TRAVIS_SECURE_ENV_VARS}" == "false" ]; then
+      echo;
+      echo "Running Pull Request build without Sonar";
+      mvn clean install;
+    fi;
 after_success:
   - docker build -t dniel/forwardauth .
 deploy:

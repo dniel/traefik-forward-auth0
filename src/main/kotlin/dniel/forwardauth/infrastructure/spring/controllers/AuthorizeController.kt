@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.AuthorizeHandler
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Authenticated
@@ -26,7 +27,7 @@ import javax.servlet.http.HttpServletResponse
  * redirect other to authenticate at Auth0.
  */
 @RestController
-class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher) : BaseController() {
+class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher, val authProperties: AuthProperties) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -110,7 +111,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
         LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
 
         // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-        addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, 60)
+        addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, authProperties.nonceMaxAge)
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
     }
 }

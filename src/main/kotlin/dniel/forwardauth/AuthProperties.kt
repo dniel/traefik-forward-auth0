@@ -4,6 +4,7 @@ import dniel.forwardauth.domain.shared.Application
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.validation.annotation.Validated
 import java.util.*
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
@@ -24,6 +25,9 @@ class AuthProperties {
 
     @NotEmpty
     lateinit var authorizeUrl: String
+
+    @Min(-1)
+    var nonceMaxAge: Int = 60
 
     @NotNull
     val default = Application()
