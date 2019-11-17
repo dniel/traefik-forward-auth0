@@ -74,6 +74,9 @@ class Auth0Client(val properties: AuthProperties) {
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
+     * @param clientId the application to sign out from.
+     * @param returnTo the url to redirect to after the signout has been completed.
+     * @return url to redirect to if one is requested, or empty if no redirect returned.
      */
     fun signout(clientId: String, returnTo: String): String? {
         LOGGER.debug("Perform Sign Out")
@@ -88,12 +91,12 @@ class Auth0Client(val properties: AuthProperties) {
         }.asString()
         LOGGER.trace("Response status: ${response.status}")
         LOGGER.trace("Response body: ${response.body}")
-        if (response.status == HttpStatus.SC_TEMPORARY_REDIRECT) {
-            val returnToUrl = response.headers.getFirst("Location")
-            LOGGER.trace("Should redirect to: ${returnToUrl}")
-            return returnToUrl
-        } else {
-            return null
+
+        return when (response.status) {
+            HttpStatus.SC_MOVED_TEMPORARILY -> response.headers.getFirst("Location")
+            HttpStatus.SC_BAD_REQUEST -> throw IllegalArgumentException("Illegal arguments to sign out at Auth0, check configuration.")
+            HttpStatus.SC_OK -> return null
+            else -> return null
         }
     }
 
