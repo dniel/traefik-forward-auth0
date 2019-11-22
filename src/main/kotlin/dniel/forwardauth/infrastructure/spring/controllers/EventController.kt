@@ -40,7 +40,7 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
                 .entities(all.map { event -> createEmbeddedRepresentationEvent(event) })
                 .build()
 
-        // TODO: add link
+        // TODO: add links
         /*  "links": [
          *       { "rel": [ "self" ], "href": "http://api.x.io/orders/42" },
          *       { "rel": [ "previous" ], "href": "http://api.x.io/orders/41" },
