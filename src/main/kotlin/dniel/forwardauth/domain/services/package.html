@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Domain Services</title>
+</head>
+<body>
+<h3>Domain Services</h3>
+
+<p>"A SERVICE is an operation offered as an interface that stands alone in the model,
+    without encapsulating state, as ENTITIES and VALUE OBJECTS do" [Evans 2003].
+</p>
+
+<p>
+    The above defines what a Domain Service is. Any behaviour, operation or activity that cannot
+    logically fit into an Object is a good candidate for being exposed as a service.
+    However the important thing to note here is that the Service being exposed should represent a domain concept.
+    This ensures you don't get carried away and create tons of services with very less entities and vo's.
+    Rules to be followed by Domain Services
+</p>
+
+<p>A domain service has to abide by only 2 cardinal principles</p>
+<ul>
+    <li>It has to be stateless</li>
+    <li>It should have some meaning in domain e.g. AccountTransferService, AdjustOrderService etc</li>
+</ul>
+<a href="http://stochastyk.blogspot.com/2008/05/domain-services-in-domain-driven-design.html"/>blogg post reference.</a>
+
+
+<a href="http://devlicio.us/blogs/casey/archive/2009/02/17/ddd-services.aspx">Enda en fin blogg om Domain Services.</a>
+</body>
+</html>
