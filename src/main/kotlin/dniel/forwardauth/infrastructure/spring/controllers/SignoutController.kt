@@ -33,8 +33,6 @@ internal class SignoutController(val signoutHandler: SignoutHandler,
                 @RequestHeader("x-forwarded-host") forwardedHost: String,
                 @CookieValue("ACCESS_TOKEN", required = false) accessToken: String,
                 response: HttpServletResponse): ResponseEntity<Unit> {
-        LOGGER.debug("Sign out from Auth0")
-
         val command: SignoutHandler.SignoutCommand = SignoutHandler.SignoutCommand(forwardedHost, accessToken)
         val signoutEvent = commandDispatcher.dispatch(signoutHandler, command) as SignoutHandler.SignoutEvent
 

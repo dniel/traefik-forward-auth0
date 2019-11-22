@@ -91,7 +91,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
         val builder = ResponseEntity.noContent()
         when {
             authorizeResult.user is Authenticated -> {
-                val accessToken = authorizeResult.user.accessToken
+                val accessToken = authorizeResult.user.accessToken.raw
                 builder.header("Authorization", "Bearer ${accessToken}")
                 authorizeResult.user.userinfo.forEach { k, v ->
                     val headerName = "x-forwardauth-${k.replace('_', '-')}".toLowerCase(Locale.ENGLISH)

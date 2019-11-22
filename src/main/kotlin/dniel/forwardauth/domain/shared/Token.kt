@@ -41,6 +41,8 @@ class JwtToken(val value: DecodedJWT) : Token() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
+    val raw: String = value.token
+
     fun subject(): String = value.subject
 
     fun hasPermission(requiredPermissions: Array<String>): Boolean {
