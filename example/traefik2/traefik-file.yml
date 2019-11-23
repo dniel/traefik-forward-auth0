@@ -26,7 +26,8 @@ http:
     auth:
       loadBalancer:
         servers:
-        - url: http://host.docker.internal:8080
+          - url: http://172.17.0.1:8080
+          # for windows http://host.docker.internal:8080/authorize
 
   middlewares:
     https-redirect:
@@ -35,14 +36,19 @@ http:
 
     forward-auth:
       forwardAuth:
-        address: http://host.docker.internal:8080/authorize
+        # for windows http://host.docker.internal:8080/authorize
+        address: http://172.17.0.1:8080/authorize
         trustForwardHeader: true
         authResponseHeaders:
-          - X-FORWARDAUTH-NAME
-          - X-FORWARDAUTH-SUB
-          - X-FORWARDAUTH-EMAIL
+          - authorization
+          - x-forwardauth-nickname
+          - x-forwardauth-family-name
+          - x-forwardauth-given-name
+          - x-forwardauth-name
+          - x-forwardauth-sub
+          - x-forwardauth-email
 
     secured:
       chain:
         middlewares:
-          - forward-auth
+          - forward-auth@file

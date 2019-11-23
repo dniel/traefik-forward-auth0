@@ -8,7 +8,7 @@
 version: '2.4'
 services:
   traefik:
-    image: traefik:v2.0.2
+    image: traefik:v2.1
     ports:
       - 80:80
       - 443:443
@@ -26,7 +26,7 @@ services:
       # https://docs.traefik.io/v2.0/routing/routers/#tls
       - "traefik.http.routers.dashboard.tls"
       - "traefik.http.routers.dashboard.entrypoints=https"
-      - "traefik.http.routers.dashboard.middlewares=forward-auth@file"
+      - "traefik.http.routers.dashboard.middlewares=secured@file"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)"
       - "traefik.http.services.dashboard.LoadBalancer.server.Port=8080"
 
@@ -36,13 +36,13 @@ services:
       - "traefik.http.routers.whoami.tls"
       - "traefik.http.routers.whoami.rule=Host(`whoami.example.test`)"
       - "traefik.http.routers.whoami.entrypoints=https"
-      - "traefik.http.routers.whoami.middlewares=forward-auth@file"
+      - "traefik.http.routers.whoami.middlewares=secured@file"
 
   www:
     image: dniel/blogr-www
     labels:
       - "traefik.http.routers.www.tls"
-      - "traefik.http.routers.www.middlewares=forward-auth@file"
+      - "traefik.http.routers.www.middlewares=secured@file"
       - "traefik.http.routers.www.entrypoints=https"
       - "traefik.http.routers.www.rule=Host(`www.example.test`)"
 
@@ -52,7 +52,7 @@ services:
       - "traefik.http.routers.graphql.tls"
       - "traefik.http.routers.graphql.rule=Host(`graphql.example.test`)"
       - "traefik.http.routers.graphql.entrypoints=https"
-      - "traefik.http.routers.graphql.middlewares=forward-auth@file"
+      - "traefik.http.routers.graphql.middlewares=secured@file"
 
 #################################################################
 # ForwardAuth service.

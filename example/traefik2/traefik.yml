@@ -7,7 +7,7 @@ api:
 accesslog: {}
 
 log:
-  level: "INFO"
+  level: INFO
 
 entryPoints:
   http:
