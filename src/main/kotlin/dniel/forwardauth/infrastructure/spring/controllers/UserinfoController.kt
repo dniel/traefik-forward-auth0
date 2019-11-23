@@ -1,17 +1,21 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
-import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.infrastructure.auth0.Auth0Client
+import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.application.UserinfoHandler
+import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
+import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 
 @RestController
-internal class UserinfoController(val properties: AuthProperties, val auth0Client: Auth0Client) {
+internal class UserinfoController(val userinfoHandler: UserinfoHandler,
+                                  val commandDispatcher: CommandDispatcher) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
@@ -25,22 +29,20 @@ internal class UserinfoController(val properties: AuthProperties, val auth0Clien
     @RequestMapping("/userinfo", method = [RequestMethod.GET], produces = [APPLICATION_SIREN_JSON])
     fun signout(@RequestHeader headers: MultiValueMap<String, String>,
                 @CookieValue("ACCESS_TOKEN", required = true) accessToken: String): ResponseEntity<Root> {
-        LOGGER.debug("Get userinfo from Auth0")
-        val userinfo = auth0Client.userinfo(accessToken)
-        val root = Root.newBuilder()
-                .title("Userinfo")
-                .properties(userinfo)
-                .clazz("userinfo")
-                .build()
+        val principal = SecurityContextHolder.getContext().authentication.principal as Authenticated
+        val command: UserinfoHandler.UserinfoCommand = UserinfoHandler.UserinfoCommand(principal)
+        val userinfoEvent = commandDispatcher.dispatch(userinfoHandler, command) as UserinfoHandler.UserinfoEvent
 
-        // TODO: add link
-        /*  "links": [
-         *       { "rel": [ "self" ], "href": "http://api.x.io/orders/42" },
-         *       { "rel": [ "previous" ], "href": "http://api.x.io/orders/41" },
-         *       { "rel": [ "next" ], "href": "http://api.x.io/orders/43" }
-         *     ]
-         */
-
-        return ResponseEntity.ok(root)
+        return when (userinfoEvent) {
+            is UserinfoHandler.UserinfoEvent.Userinfo -> {
+                val root = Root.newBuilder()
+                        .title("Userinfo")
+                        .properties(userinfoEvent.properties)
+                        .clazz("userinfo")
+                        .build()
+                ResponseEntity.ok(root)
+            }
+            is UserinfoHandler.UserinfoEvent.Error -> throw ApplicationException(userinfoEvent.reason)
+        }
     }
 }

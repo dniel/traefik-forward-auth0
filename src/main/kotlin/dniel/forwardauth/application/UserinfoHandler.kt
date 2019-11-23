@@ -1,10 +1,10 @@
 package dniel.forwardauth.application
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
+import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component
  *
  */
 @Component
-class UserinfoHandler(val properties: AuthProperties) : CommandHandler<UserinfoHandler.UserinfoCommand> {
+class UserinfoHandler(val properties: AuthProperties,
+                      val auth0Client: Auth0Client) : CommandHandler<UserinfoHandler.UserinfoCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
@@ -21,15 +22,16 @@ class UserinfoHandler(val properties: AuthProperties) : CommandHandler<UserinfoH
      * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
-    data class UserinfoCommand(val something: String) : Command
+    data class UserinfoCommand(val user: Authenticated) : Command
 
 
     /**
      * This command can produce a set of events as response from the handle method.
      */
     sealed class UserinfoEvent(val user: User) : Event() {
-        class Error(error: Authenticator.Error?) : UserinfoEvent(Anonymous) {
-            val reason: String = error?.message ?: "Unknown error"
+        class Userinfo(val properties: Map<String, Any>, user: User) : UserinfoEvent(user)
+        class Error(error: String, user: User) : UserinfoEvent(user) {
+            val reason: String = error
         }
     }
 
@@ -39,7 +41,13 @@ class UserinfoHandler(val properties: AuthProperties) : CommandHandler<UserinfoH
      * @return an userinfo event containing the result status of the userinfo.
      */
     override fun handle(params: UserinfoHandler.UserinfoCommand): Event {
-        TODO("implement command handler.")
+        LOGGER.debug("Sign out from Auth0")
+        try {
+            val userinfo = auth0Client.userinfo(params.user.accessToken.raw)
+            return UserinfoEvent.Userinfo(userinfo, params.user)
+        } catch (e: Exception) {
+            return UserinfoEvent.Error(e.message!!, params.user)
+        }
     }
 
 }
