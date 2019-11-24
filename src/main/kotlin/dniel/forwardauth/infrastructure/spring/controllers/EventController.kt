@@ -31,9 +31,15 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
     fun all(): ResponseEntity<Root> {
         LOGGER.trace("Get all events")
         val all = repo.all()
+        val countTypes = mutableMapOf<String, Int>()
+        countTypes["totalCount"] = all.size
+        all.fold(countTypes) { acc, event ->
+            acc["${event.type}Count"] = acc.getOrDefault("${event.type}Count", 0) + 1
+            acc
+        }
+
         val root = Root.newBuilder()
-                .property("itemCount", all.size)
-                .clazz("events", "collection")
+                .properties(countTypes)
                 .links(Link(rel = listOf("self"), href = URI("/events?page")),
                         Link(rel = listOf("next"), href = URI("/events?page?")),
                         Link(rel = listOf("previous"), href = URI("/events?page=")))
