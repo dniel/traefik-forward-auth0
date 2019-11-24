@@ -1,14 +1,10 @@
 package dniel.forwardauth.domain.shared
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-
 /**
  * A generic user interface with access token and id token
  */
 interface User {
-    @get:JsonIgnore
     val accessToken: Token
-    @get:JsonIgnore
     val idToken: Token
 }
 

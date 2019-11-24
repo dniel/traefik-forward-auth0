@@ -43,8 +43,9 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
                   @RequestHeader("x-forwarded-method") forwardedMethodHeader: String,
                   response: HttpServletResponse): ResponseEntity<Unit> {
         printHeaders(headers)
+        val user = SecurityContextHolder.getContext().authentication.principal as User
         return authenticateToken(acceptContent, requestedWithHeader, forwardedMethodHeader,
-                forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response)
+                forwardedHostHeader, forwardedProtoHeader, forwardedUriHeader, response, user)
     }
 
 
@@ -53,8 +54,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      *
      */
     private fun authenticateToken(acceptContent: String?, requestedWithHeader: String?, method: String, host: String, protocol: String,
-                                  uri: String, response: HttpServletResponse): ResponseEntity<Unit> {
-        val authorizeResult = handleCommand(acceptContent, requestedWithHeader, protocol, host, uri, method)
+                                  uri: String, response: HttpServletResponse, user: User): ResponseEntity<Unit> {
+        val authorizeResult = handleCommand(acceptContent, requestedWithHeader, protocol, host, uri, method, user)
         return when (authorizeResult) {
             is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
             is AuthorizeHandler.AuthorizeEvent.Error -> throw AuthorizationException(authorizeResult)
@@ -72,11 +73,11 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      *
      */
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
-                              protocol: String, host: String, uri: String, method: String): AuthorizeHandler.AuthorizeEvent {
+                              protocol: String, host: String, uri: String, method: String, user: User): AuthorizeHandler.AuthorizeEvent {
         val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
-        val principal = SecurityContextHolder.getContext().authentication.principal as User
-        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(principal, protocol, host, uri, method, isApi)
+
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(user, protocol, host, uri, method, isApi)
         return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
 
