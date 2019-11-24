@@ -1,6 +1,8 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.application.commandhandlers.SigninHandler
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
@@ -10,14 +12,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
-import java.util.stream.Collectors
 import javax.servlet.http.HttpServletResponse
 
 /**
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
  */
 @RestController
-class SigninController(val properties: AuthProperties, val auth0Client: Auth0Client) : BaseController() {
+class SigninController(val properties: AuthProperties,
+                       val auth0Client: Auth0Client,
+                       val signinHandler: SigninHandler,
+                       val commandDispatcher: CommandDispatcher) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -43,6 +47,8 @@ class SigninController(val properties: AuthProperties, val auth0Client: Auth0Cli
                @CookieValue("AUTH_NONCE") nonce: String?,
                response: HttpServletResponse): ResponseEntity<String> {
         printHeaders(headers)
+        val command: SigninHandler.SigninCommand = SigninHandler.SigninCommand(forwardedHost, code, error, errorDescription, state, nonce)
+        val signinEvent = commandDispatcher.dispatch(signinHandler, command) as SigninHandler.SigninEvent
 
         // if error parameter was received something is going on.
         if (!error.isNullOrEmpty()) {

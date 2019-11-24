@@ -5,8 +5,6 @@ import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.shared.Anonymous
-import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -25,14 +23,20 @@ class SigninHandler(val properties: AuthProperties,
      * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
-    data class SigninCommand(val something: String) : Command
+    data class SigninCommand(val forwardedHost: String?,
+                             val code: String?,
+                             val error: String?,
+                             val errorDescription: String?,
+                             val state: String?,
+                             val nonce: String?) : Command
 
 
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class SigninEvent(val user: User) : Event() {
-        class Error(error: Authenticator.Error?) : SigninEvent(Anonymous) {
+    sealed class SigninEvent() : Event() {
+        class SigninDoneEvent : SigninEvent()
+        class Error(error: Authenticator.Error?) : SigninEvent() {
             val reason: String = error?.message ?: "Unknown error"
         }
     }
@@ -46,7 +50,9 @@ class SigninHandler(val properties: AuthProperties,
      * @return an sign in event containing the result status of the sign in.
      */
     override fun handle(params: SigninCommand): Event {
-        TODO("implement command handler.")
+        LOGGER.debug("Sign in from Auth0")
+        val app = properties.findApplicationOrDefault(params.forwardedHost)
+        return SigninEvent.SigninDoneEvent()
     }
 
 }
