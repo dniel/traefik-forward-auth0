@@ -87,9 +87,7 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
 
         val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
         val (authorizerState, authorizerError) = authorizer.authorize()
-
-        LOGGER.debug("State: ${authorizerState}")
-        LOGGER.debug("Error: ${authorizerError}")
+        LOGGER.debug("State: ${authorizerState}, Error: ${authorizerError}")
 
         return when (authorizerState) {
             AuthorizerStateMachine.State.NEED_REDIRECT -> AuthorizeEvent.NeedRedirect(app, authorizeUrl.toURI(), nonce, cookieDomain)

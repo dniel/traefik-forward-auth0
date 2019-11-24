@@ -63,9 +63,7 @@ class AuthenticateHandler(val properties: AuthProperties,
 
         val authenticator = Authenticator.create(accessToken, idToken)
         val (state, error) = authenticator.authenticate()
-
-        LOGGER.debug("State: ${state}")
-        LOGGER.debug("Error: ${error}")
+        LOGGER.debug("State: ${state}, Error: ${error}")
 
         return when (state) {
             AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUser()

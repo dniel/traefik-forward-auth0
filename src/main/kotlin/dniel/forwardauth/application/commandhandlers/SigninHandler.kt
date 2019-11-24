@@ -56,9 +56,7 @@ class SigninHandler(val properties: AuthProperties,
      * @return an sign in event containing the result status of the sign in.
      */
     override fun handle(params: SigninCommand): Event {
-        LOGGER.debug("Sign in from Auth0")
         val app = properties.findApplicationOrDefault(params.forwardedHost)
-
         // if error parameter was received something is going on.
         if (!params.error.isNullOrEmpty()) {
             LOGGER.error("Signing received unknown error from Auth0 on sign in: ${params.errorDescription}")

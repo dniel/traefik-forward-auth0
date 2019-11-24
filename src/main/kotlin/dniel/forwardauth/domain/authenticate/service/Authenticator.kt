@@ -124,7 +124,7 @@ class Authenticator private constructor(val accessToken: Token,
     }
 
     fun log(message: String) {
-        LOGGER.debug(message)
+        LOGGER.trace(message)
     }
 
 }

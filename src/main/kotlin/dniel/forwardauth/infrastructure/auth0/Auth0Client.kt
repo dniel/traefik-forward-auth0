@@ -24,17 +24,14 @@ class Auth0Client(val properties: AuthProperties) {
      * Call Auth0 to exchange received code with a JWT Token to decode.
      */
     fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
-        LOGGER.info("AuthorizationCodeExchange:  code=$code")
+        LOGGER.debug("Perform AuthorizationCodeExchange:  code=$code")
         val tokenRequest = AuthorizationCodeTokenRequest(
                 code = code,
                 clientId = clientId,
                 clientSecret = clientSecret,
                 redirectUrl = redirectUri)
 
-        if (LOGGER.isDebugEnabled) {
-            LOGGER.debug("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
-        }
-
+        LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
         val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
                 .header("content-type", "application/json")
                 .body(JSON.writeValueAsString(tokenRequest))
@@ -57,7 +54,7 @@ class Auth0Client(val properties: AuthProperties) {
      * Call Auth0 to exchange received code with a JWT Token to decode.
      */
     fun clientCredentialsExchange(clientId: String, clientSecret: String, audience: String): JSONObject {
-        LOGGER.info("Entered clientCredentialsExchange")
+        LOGGER.debug("Perform Client Credentials Exchange client-id: ${clientId}")
         val tokenRequest = ClientCredentialsTokenRequest(
                 clientId = clientId,
                 clientSecret = clientSecret,
@@ -68,7 +65,11 @@ class Auth0Client(val properties: AuthProperties) {
                 .body(JSON.writeValueAsString(tokenRequest))
                 .asJson();
 
-        LOGGER.info("response: " + response.toString())
+        val status = response.status
+        val body = response.body
+        LOGGER.trace("Response status: ${status}")
+        LOGGER.trace("Response body: ${body}")
+
         return response.getBody().getObject()
     }
 
@@ -107,7 +108,7 @@ class Auth0Client(val properties: AuthProperties) {
      * @link https://auth0.com/docs/api/user#get-user-info
      */
     fun userinfo(accesstoken: String): Map<String, Any> {
-        LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT}")
+        LOGGER.debug("Perform retrieve Userinfo from endpoint: ${USERINFO_ENDPOINT}")
         val response = Unirest
                 .get(USERINFO_ENDPOINT)
                 .header("Authorization", "Bearer ${accesstoken}")

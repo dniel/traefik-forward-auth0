@@ -53,17 +53,17 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
 
 
     override fun onStartAuthorizing() {
-        debug("onStartAuthorizing")
+        log("onStartAuthorizing")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_REQUESTED_URL)
     }
 
     override fun onValidateProtectedUrl() {
-        debug("onValidateProtectedUrl")
+        log("onValidateProtectedUrl")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_WHITELISTED_URL)
     }
 
     override fun onValidateWhitelistedUrl() {
-        debug("onValidateWhitelistedUrl")
+        log("onValidateWhitelistedUrl")
         fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
                 originUrl.startsWith(app.redirectUri)
 
@@ -75,7 +75,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateRestrictedMethod() {
-        debug("onValidateRestrictedMethod")
+        log("onValidateRestrictedMethod")
         val method = originUrl.method
         fun isRestrictedMethod(app: Application, method: String) =
                 app.restrictedMethods.any() { t -> t.equals(method, true) }
@@ -87,12 +87,12 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onStartValidateTokens() {
-        debug("onStartValidateTokens")
+        log("onStartValidateTokens")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_ACCESS_TOKEN)
     }
 
     override fun onValidateAccessToken() {
-        debug("onValidateAccessToken")
+        log("onValidateAccessToken")
         when {
             accessToken is OpaqueToken -> {
                 lastError = Error("Opaque Access Tokens is not supported.")
@@ -104,7 +104,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateIdToken() {
-        debug("onValidateIdToken")
+        log("onValidateIdToken")
         when {
             idToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
             else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ID_TOKEN)
@@ -112,7 +112,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidatePermissions() {
-        debug("onValidatePermissions")
+        log("onValidatePermissions")
         val jwtAccessToken = accessToken as JwtToken
         when {
             app.requiredPermissions.isNotEmpty() && !jwtAccessToken.hasPermissionClaim() -> {
@@ -131,9 +131,9 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onValidateSameSubs() {
-        debug("onValidateSameSubs")
+        log("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
-                accessToken is JwtToken && idToken is JwtToken && idToken.subject()  == accessToken.subject()
+                accessToken is JwtToken && idToken is JwtToken && idToken.subject() == accessToken.subject()
 
         // check if both tokens have the same subject
         if (hasSameSubs(accessToken, idToken)) {
@@ -145,32 +145,32 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
     }
 
     override fun onNeedRedirect() {
-        debug("onNeedRedirect")
+        log("onNeedRedirect")
     }
 
     override fun onInvalidToken() {
-        debug("onInvalidToken")
+        log("onInvalidToken")
     }
 
     override fun onError() {
-        debug("onError")
-        debug(lastError!!.message)
+        log("onError")
+        log(lastError!!.message)
     }
 
     override fun onAccessGranted() {
-        debug("onAccessGranted")
+        log("onAccessGranted")
     }
 
     override fun onAccessDenied() {
-        debug("onAccessDenied")
+        log("onAccessDenied")
     }
 
     fun authorize(): AuthorizerResult {
         return AuthorizerResult(fsm.authorize(), this.lastError)
     }
 
-    fun debug(message: String) {
-        LOGGER.debug(message)
+    fun log(message: String) {
+        LOGGER.trace(message)
     }
 
 }
