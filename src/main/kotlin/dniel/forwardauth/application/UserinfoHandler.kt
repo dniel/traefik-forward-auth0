@@ -41,7 +41,7 @@ class UserinfoHandler(val properties: AuthProperties,
      * @return an userinfo event containing the result status of the userinfo.
      */
     override fun handle(params: UserinfoHandler.UserinfoCommand): Event {
-        LOGGER.debug("Sign out from Auth0")
+        LOGGER.debug("Get userinfo for user ${params.user.sub}")
         try {
             val userinfo = auth0Client.userinfo(params.user.accessToken.raw)
             return UserinfoEvent.Userinfo(userinfo, params.user)

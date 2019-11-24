@@ -107,7 +107,6 @@ class Auth0Client(val properties: AuthProperties) {
      * @link https://auth0.com/docs/api/user#get-user-info
      */
     fun userinfo(accesstoken: String): Map<String, Any> {
-        LOGGER.debug("Get userinfo")
         LOGGER.trace("Request Userinfo Endpoint: ${USERINFO_ENDPOINT}")
         val response = Unirest
                 .get(USERINFO_ENDPOINT)
