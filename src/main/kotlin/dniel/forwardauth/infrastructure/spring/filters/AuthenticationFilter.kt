@@ -60,12 +60,12 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
                 is AuthenticateHandler.AuthentiationEvent.Error -> {
                     throw AuthenticationException(event)
                 }
-                is AuthenticateHandler.AuthentiationEvent.AuthenticatedEvent -> {
+                is AuthenticateHandler.AuthentiationEvent.AuthenticatedUser -> {
                     val user = event.user as Authenticated
                     val auth = UsernamePasswordAuthenticationToken(user, "", AuthorityUtils.createAuthorityList(*user.permissions))
                     SecurityContextHolder.getContext().authentication = auth
                 }
-                is AuthenticateHandler.AuthentiationEvent.AnonymousUserEvent -> {
+                is AuthenticateHandler.AuthentiationEvent.AnonymousUser -> {
                     val auth = AnonymousAuthenticationToken(
                             "anonymous",
                             Anonymous,

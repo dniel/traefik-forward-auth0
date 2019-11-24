@@ -3,10 +3,8 @@ package dniel.forwardauth.infrastructure.spring.controllers
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SigninHandler
-import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
-import dniel.forwardauth.infrastructure.spring.exceptions.Auth0Exception
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -50,36 +48,15 @@ class SigninController(val properties: AuthProperties,
         val command: SigninHandler.SigninCommand = SigninHandler.SigninCommand(forwardedHost, code, error, errorDescription, state, nonce)
         val signinEvent = commandDispatcher.dispatch(signinHandler, command) as SigninHandler.SigninEvent
 
-        // if error parameter was received something is going on.
-        if (!error.isNullOrEmpty()) {
-            LOGGER.error("Signing received unknown error from Auth0 on sign in: ${errorDescription}")
-            throw Auth0Exception(error, errorDescription ?: "no error description.")
-        }
-
-        LOGGER.debug("Sign in with code=$code")
-        if (!code.isNullOrBlank() && !state.isNullOrBlank()) {
-            val decodedState = AuthorizeState.decode(state)
-            val receivedNonce = decodedState.nonce.value
-            if (receivedNonce != nonce) {
-                LOGGER.error("SignInFailedNonce received=$receivedNonce sent=$nonce")
-                throw ApplicationException("AuthorizeNonce cookie didnt match the nonce in authorizeState.")
+        return when (signinEvent) {
+            is SigninHandler.SigninEvent.SigninComplete -> {
+                addCookie(response, "ACCESS_TOKEN", signinEvent.accessToken, signinEvent.app.tokenCookieDomain, signinEvent.expiresIn)
+                addCookie(response, "JWT_TOKEN", signinEvent.idToken, signinEvent.app.tokenCookieDomain, signinEvent.expiresIn)
+                clearCookie(response, "AUTH_NONCE", signinEvent.app.tokenCookieDomain)
+                LOGGER.info("SignInSuccessful, redirect to '${signinEvent.redirectTo}'")
+                ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(signinEvent.redirectTo).build()
             }
-
-            val app = properties.findApplicationOrDefault(forwardedHost)
-            val authorizationCodeExchangeResponse = auth0Client.authorizationCodeExchange(code, app.clientId, app.clientSecret, app.redirectUri)
-            val accessToken = authorizationCodeExchangeResponse.get("access_token") as String
-            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Int
-            val idToken = authorizationCodeExchangeResponse.get("id_token") as String
-
-            addCookie(response, "ACCESS_TOKEN", accessToken, app.tokenCookieDomain, expiresIn)
-            addCookie(response, "JWT_TOKEN", idToken, app.tokenCookieDomain, expiresIn)
-            clearCookie(response, "AUTH_NONCE", app.tokenCookieDomain)
-
-            LOGGER.info("SignInSuccessful, redirect to requested originUrl=${decodedState.originUrl}")
-            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(decodedState.originUrl.uri()).build()
-        } else {
-            LOGGER.error("Unknown request, login redirect request from Auth0 had no code, authorizeState or error message.")
-            throw ApplicationException()
+            is SigninHandler.SigninEvent.Error -> throw ApplicationException(signinEvent.reason)
         }
     }
 }

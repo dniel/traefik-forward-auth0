@@ -3,11 +3,14 @@ package dniel.forwardauth.application.commandhandlers
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
-import dniel.forwardauth.domain.authorize.service.Authenticator
+import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.shared.service.VerifyTokenService
+import dniel.forwardauth.domain.shared.Application
+import dniel.forwardauth.infrastructure.auth0.Auth0Client
+import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.net.URI
 
 /**
  * Handle Sign in of user redirected from IDP service after giving Authorization to sign in.
@@ -15,7 +18,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class SigninHandler(val properties: AuthProperties,
-                    val verifyTokenService: VerifyTokenService) : CommandHandler<SigninHandler.SigninCommand> {
+                    val auth0Client: Auth0Client) : CommandHandler<SigninHandler.SigninCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
@@ -35,10 +38,13 @@ class SigninHandler(val properties: AuthProperties,
      * This command can produce a set of events as response from the handle method.
      */
     sealed class SigninEvent() : Event() {
-        class SigninDoneEvent : SigninEvent()
-        class Error(error: Authenticator.Error?) : SigninEvent() {
-            val reason: String = error?.message ?: "Unknown error"
-        }
+        class SigninComplete(val accessToken: String,
+                             val idToken: String,
+                             val expiresIn: Int,
+                             val redirectTo: URI,
+                             val app: Application) : SigninEvent()
+
+        class Error(val reason: String, val description: String) : SigninEvent()
     }
 
     /**
@@ -52,7 +58,30 @@ class SigninHandler(val properties: AuthProperties,
     override fun handle(params: SigninCommand): Event {
         LOGGER.debug("Sign in from Auth0")
         val app = properties.findApplicationOrDefault(params.forwardedHost)
-        return SigninEvent.SigninDoneEvent()
+
+        // if error parameter was received something is going on.
+        if (!params.error.isNullOrEmpty()) {
+            LOGGER.error("Signing received unknown error from Auth0 on sign in: ${params.errorDescription}")
+            return SigninEvent.Error(params.error, params.errorDescription ?: "no error description.")
+        }
+
+        LOGGER.debug("Sign in with code=${params.code}")
+        if (!params.code.isNullOrBlank() && !params.state.isNullOrBlank()) {
+            val decodedState = AuthorizeState.decode(params.state)
+            val receivedNonce = decodedState.nonce.value
+            if (receivedNonce != params.nonce) {
+                LOGGER.error("SignInFailedNonce received=$receivedNonce sent=${params.nonce}")
+                throw ApplicationException("AuthorizeNonce cookie didnt match the nonce in authorizeState.")
+            }
+
+            val authorizationCodeExchangeResponse = auth0Client.authorizationCodeExchange(params.code, app.clientId, app.clientSecret, app.redirectUri)
+            val accessToken = authorizationCodeExchangeResponse.get("access_token") as String
+            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Int
+            val idToken = authorizationCodeExchangeResponse.get("id_token") as String
+            return SigninEvent.SigninComplete(accessToken, idToken, expiresIn, decodedState.originUrl.uri(), app)
+        } else {
+            return SigninEvent.Error("Unknown request", "login redirect request from Auth0 had no code, authorizeState or error message.")
+        }
     }
 
 }

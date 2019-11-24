@@ -37,7 +37,7 @@ internal class SignoutController(val signoutHandler: SignoutHandler,
         val signoutEvent = commandDispatcher.dispatch(signoutHandler, command) as SignoutHandler.SignoutEvent
 
         return when (signoutEvent) {
-            is SignoutHandler.SignoutEvent.SignoutDone -> {
+            is SignoutHandler.SignoutEvent.SignoutComplete -> {
                 clearSessionCookies(signoutEvent.app, response)
                 ResponseEntity.noContent().build()
             }

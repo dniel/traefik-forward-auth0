@@ -33,7 +33,7 @@ class SignoutHandler(val properties: AuthProperties,
      * This command can produce a set of events as response from the handle method.
      */
     sealed class SignoutEvent(val app: Application) : Event() {
-        class SignoutDone(app: Application) : SignoutEvent(app)
+        class SignoutComplete(app: Application) : SignoutEvent(app)
         class SignoutRedirect(val redirectUrl: String, app: Application) : SignoutEvent(app)
         class Error(val reason: String = "Unknown error", app: Application) : SignoutEvent(app)
     }
@@ -53,7 +53,7 @@ class SignoutHandler(val properties: AuthProperties,
                 return SignoutEvent.SignoutRedirect(signout, app)
             } else {
                 LOGGER.debug("Signout done.")
-                return SignoutEvent.SignoutDone(app)
+                return SignoutEvent.SignoutComplete(app)
             }
         } catch (e: Exception) {
             return SignoutEvent.Error(e.message!!, app)
