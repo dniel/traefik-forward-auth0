@@ -1,7 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.application.AuthorizeHandler
+import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User

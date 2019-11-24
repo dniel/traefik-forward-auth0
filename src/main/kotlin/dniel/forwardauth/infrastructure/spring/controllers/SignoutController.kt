@@ -1,7 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
-import dniel.forwardauth.application.SignoutHandler
+import dniel.forwardauth.application.commandhandlers.SignoutHandler
 import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import org.slf4j.LoggerFactory

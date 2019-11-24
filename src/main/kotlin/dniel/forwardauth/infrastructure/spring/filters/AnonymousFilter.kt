@@ -1,6 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
-import dniel.forwardauth.application.AuthenticateHandler
+import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Anonymous
 import org.slf4j.MDC

@@ -1,6 +1,8 @@
-package dniel.forwardauth.application
+package dniel.forwardauth.application.commandhandlers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.Command
+import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
@@ -41,7 +43,7 @@ class SignoutHandler(val properties: AuthProperties,
      * <p/>
      * @return an sign out event containing the result status of the sign out.
      */
-    override fun handle(params: SignoutHandler.SignoutCommand): Event {
+    override fun handle(params: SignoutCommand): Event {
         LOGGER.debug("Sign out from Auth0")
         val app = properties.findApplicationOrDefault(params.forwardedHost)
         try {

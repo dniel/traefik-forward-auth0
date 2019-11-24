@@ -1,6 +1,7 @@
 package dniel.forwardauth.application
 
 import dniel.forwardauth.ObjectMother
+import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import spock.lang.Specification
 import spock.lang.Unroll
 

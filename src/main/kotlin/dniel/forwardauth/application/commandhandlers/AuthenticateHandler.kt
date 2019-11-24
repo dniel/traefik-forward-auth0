@@ -1,7 +1,9 @@
-package dniel.forwardauth.application
+package dniel.forwardauth.application.commandhandlers
 
 import com.auth0.jwt.interfaces.Claim
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.Command
+import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.events.Event
@@ -54,7 +56,7 @@ class AuthenticateHandler(val properties: AuthProperties,
      * <p/>
      * The result will be either an Authenticated user or an Anonymous user.
      */
-    override fun handle(params: AuthenticateHandler.AuthenticateCommand): Event {
+    override fun handle(params: AuthenticateCommand): Event {
         val app = properties.findApplicationOrDefault(params.host)
         val accessToken = verifyTokenService.verify(params.accessToken, app.audience)
         val idToken = verifyTokenService.verify(params.idToken, app.clientId)

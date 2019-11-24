@@ -1,6 +1,8 @@
-package dniel.forwardauth.application
+package dniel.forwardauth.application.commandhandlers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.Command
+import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
@@ -40,7 +42,7 @@ class UserinfoHandler(val properties: AuthProperties,
      * <p/>
      * @return an userinfo event containing the result status of the userinfo.
      */
-    override fun handle(params: UserinfoHandler.UserinfoCommand): Event {
+    override fun handle(params: UserinfoCommand): Event {
         LOGGER.debug("Get userinfo for user ${params.user.sub}")
         try {
             val userinfo = auth0Client.userinfo(params.user.accessToken.raw)

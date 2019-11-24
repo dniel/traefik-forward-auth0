@@ -1,6 +1,8 @@
-package dniel.forwardauth.application
+package dniel.forwardauth.application.commandhandlers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.Command
+import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.service.Authenticator
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.Anonymous
@@ -43,7 +45,7 @@ class SigninHandler(val properties: AuthProperties,
      * <p/>
      * @return an sign in event containing the result status of the sign in.
      */
-    override fun handle(params: SigninHandler.SigninCommand): Event {
+    override fun handle(params: SigninCommand): Event {
         TODO("implement command handler.")
     }
 

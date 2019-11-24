@@ -1,6 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.exceptions
 
-import dniel.forwardauth.application.AuthorizeHandler
+import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 

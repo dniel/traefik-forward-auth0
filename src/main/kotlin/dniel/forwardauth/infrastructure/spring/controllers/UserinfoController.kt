@@ -1,7 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
-import dniel.forwardauth.application.UserinfoHandler
+import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON

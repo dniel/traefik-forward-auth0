@@ -1,6 +1,8 @@
-package dniel.forwardauth.application
+package dniel.forwardauth.application.commandhandlers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.application.Command
+import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.AuthorizeNonce
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.authorize.AuthorizeUrl
@@ -10,7 +12,6 @@ import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.Anonymous
 import dniel.forwardauth.domain.shared.Application
-import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
