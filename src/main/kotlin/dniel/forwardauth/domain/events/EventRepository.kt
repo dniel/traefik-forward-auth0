@@ -17,8 +17,8 @@ class EventRepository {
 
     private val cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
 
-    fun all(): Collection<Event> {
-        return cache.asMap().values
+    fun all(): List<Event> {
+        return cache.asMap().values.toList()
     }
 
     fun put(event: Event) {
