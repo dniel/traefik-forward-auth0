@@ -28,15 +28,15 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
      *
      * @param headers
      * @param response
+     * @param page is the offset from where to return events
+     * @param size is the number of events to return per page
      */
     @PreAuthorize("hasAuthority('admin:forwardauth')")
     @RequestMapping("/events",
             method = [RequestMethod.GET],
             produces = [Siren.APPLICATION_SIREN_JSON])
     fun all(@RequestParam("page", defaultValue = "0", required = false) page: Int,
-            @RequestParam("size", defaultValue = "20", required = false) size: Int,
-            uriBuilder: UriComponentsBuilder,
-            response: HttpServletResponse): ResponseEntity<Root> {
+            @RequestParam("size", defaultValue = "20", required = false) size: Int): ResponseEntity<Root> {
         LOGGER.debug("Get all events page=$page, size=$size")
         val all = repo.all()
         val countTypes = mutableMapOf<String, Int>()
