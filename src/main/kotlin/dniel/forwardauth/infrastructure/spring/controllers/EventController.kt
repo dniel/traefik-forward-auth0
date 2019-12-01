@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
-import javax.servlet.http.HttpServletResponse
 
 @RestController()
 internal class EventController(val properties: AuthProperties, val repo: EventRepository) {
@@ -77,8 +75,12 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
                 .property("id", event.id)
                 .property("time", event.time.toString())
                 .property("type", event.type)
-                .links(Link(type = Siren.APPLICATION_SIREN_JSON, clazz = listOf("event"),
-                        title = "${event.type} event ${event.id}", rel = listOf("self"), href = URI("/events/${event.id}")))
+                .links(Link(
+                        type = Siren.APPLICATION_SIREN_JSON,
+                        clazz = listOf("event"),
+                        title = "${event.type} event ${event.id}",
+                        rel = listOf("self"),
+                        href = URI("/events/${event.id}")))
                 .build()
     }
 }
