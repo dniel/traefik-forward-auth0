@@ -37,6 +37,55 @@ spec:
               value: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1          
             - name: ENV
               value: "{{ .Values.logLevel }}"
+            {{ if (.Values.domain) }}
+            - name: DOMAIN
+              value: "{{ .Values.domain }}"
+            {{ end }}
+            {{ if (.Values.tokenEndpoint) }}
+            - name: TOKEN_ENDPOINT
+              value: "{{ .Values.tokenEndpoint }}"
+            {{ end }}
+            {{ if (.Values.authorizeUrl) }}
+            - name: AUTHORIZE_URL
+              value: "{{ .Values.authorizeUrl }}"
+            {{ end }}
+            {{ if (.Values.default) }}
+            {{ if (.Values.default.scope) }}
+            - name: DEFAULT_SCOPE
+              value: "{{ .Values.default.scope }}"
+            {{ end }}
+            {{ if (.Values.default.audience) }}
+            - name: DEFAULT_AUDIENCE 
+              value: {{ .Values.default.audience }}
+            {{ end }}
+            {{ if (.Values.default.redirectToUri) }}
+            - name: DEFAULT_REDIRECT_TO_URI
+              value: {{ .Values.default.redirectToUri }}
+            {{ end }}            
+            {{ if (.Values.default.tokenCookieDomain) }}
+            - name: DEFAULT_TOKEN_COOKIE_DOMAIN
+              value: {{ .Values.default.tokenCookieDomain }}
+            {{ end }}
+            {{ if (.Values.default.name) }}
+            - name: DEFAULT_NAME
+              value: {{ .Values.default.name }}
+            {{ end }}
+            {{ if (.Values.default.clientsecret) }}
+            - name: DEFAULT_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: clientsecret
+                  name: "{{ template "helm.fullname" . }}-default"
+            {{ end }}
+            {{ if (.Values.default.clientid) }}
+            - name: DEFAULT_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: clientid
+                  name: "{{ template "helm.fullname" . }}-default"
+            {{ end }}
+            {{ end }}
+
           livenessProbe:
             httpGet:
               path: /actuator/health

@@ -6,14 +6,61 @@ image:
   pullPolicy: Always
 
 # set logLevel to DEBUG, TEST, or PRODUCTION to control the verbosity of logs
+# the container by default logs to STDOUT
 logLevel: DEBUG
+
+# Base configuration for OAuth2 and OIDC properties.
+# domain, token endpoin, authorize url that needs to be set
+# to enable the OAuth2 and oidc authentication workflows.
+# If they are set here, they are injected as environment properties
+# on the container instead of read from application.yaml
+# It is also possible to set in application.yaml below.
+domain: https://xxxxx.yy.auth0.com/
+tokenEndpoint: https://xxxxx.yy.auth0.com/oauth/token
+authorizeUrl: https://xxxxx.yy.auth0.com/authorize
+
+# set the default application client-id and client-secret
+# as environmentvariables to container and inject values from
+# secrets instead of from application.yaml
+default:
+  name: example.test
+  clientid: <from auth0 config>
+  clientsecret: <from auth0 config>
+  audience: <from auth0 api>
+  scope: "profile openid email"
+  redirectToUri: http://auth.example.test/signin
+  tokenCookieDomain: example.test
+
+# Access ForwardAuth in two different configuration modes.
+mode:
+# Common host mode
+# Forwardauth responds to all requests on a common address like auth.domain.com
+# This is usefull if you have alot of application running and you want
+# make it easy for people to navigate between applications.
+# Will expose ForwardAuth on a subdomain like auth.example.test 
+  host: true
+
+# Path mode
+# Forwardauth responds to all requests on path  yyy.xxx/oauth2
+# on all registered routes/frontends. This is usefull when
+# you want different cookie domains and limit SSO  navigation between different 
+# subdomains and not use a common cookie domina for all applications. 
+# Will expose the ForwardAuth application on a path like www.example.test/oauth2
+  path: false
 
 service:
   type: ClusterIP
   port: 80
 
+ingressroute:
+  enabled: false
+  hostname: auth.example.test
+  path: /oauth2
+  certResolver: default
+
 ingress:
-  enabled: true
+  enabled: false
+  hostname: auth.example.test
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.frontend.rule.type: PathPrefixStrip
