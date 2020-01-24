@@ -52,12 +52,28 @@ service:
   type: ClusterIP
   port: 80
 
+# Traefik2 IngressRoute definition
+# incoming routing to services.
 ingressroute:
   enabled: false
   hostname: auth.example.test
-  path: /oauth2
+  path: /auth
   certResolver: default
 
+# Traefik2 forwardauth Middleware definition
+middleware:
+  enabled: false
+  trustForwardHeader: true
+  authResponseHeaders:
+  - authorization
+  - x-forwardauth-nickname
+  - x-forwardauth-family-name
+  - x-forwardauth-given-name
+  - x-forwardauth-name
+  - x-forwardauth-sub
+  - x-forwardauth-email   
+
+# default standard ingress definition.
 ingress:
   enabled: false
   hostname: auth.example.test
@@ -65,7 +81,7 @@ ingress:
     kubernetes.io/ingress.class: traefik
     traefik.frontend.rule.type: PathPrefixStrip
     traefik.ingress.kubernetes.io/priority: "99999"
-  path: /oauth2
+  path: /auth
 
 ## Uncomment and complete the following section to set the configuration
 # applicationYaml:
