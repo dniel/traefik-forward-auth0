@@ -67,8 +67,8 @@ spec:
               value: {{ .Values.default.audience }}
             {{ end }}
             {{ if (.Values.default.redirectToUri) }}
-            - name: DEFAULT_REDIRECT_TO_URI
-              value: {{ .Values.default.redirectToUri }}
+            - name: DEFAULT_REDIRECT_URI
+              value: {{ .Values.default.redirectUri }}
             {{ end }}            
             {{ if (.Values.default.tokenCookieDomain) }}
             - name: DEFAULT_TOKEN_COOKIE_DOMAIN
