@@ -28,7 +28,7 @@ default:
   clientsecret: <from auth0 config>
   audience: <from auth0 api>
   scope: "profile openid email"
-  redirectToUri: http://auth.example.test/signin
+  redirectUri: http://auth.example.test/signin
   tokenCookieDomain: example.test
 
 # Access ForwardAuth in two different configuration modes.
