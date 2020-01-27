@@ -1,0 +1,26 @@
+{{- if .Values.ingressroute.enabled -}}
+{{- $fullName := include "helm.fullname" . -}}
+{{- $servicePort := .Values.service.port -}}
+
+{{- if .Values.mode.path -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: "{{ $fullName }}-path"
+spec:
+  entryPoints:
+    - websecure
+
+  routes:
+  - match: PathPrefix(`{{ default "/oauth2" .Values.ingressroute.path }}`)
+    kind: Rule
+    services:
+    - name: {{ $fullName }}
+      port: {{ $servicePort }}
+    middlewares:
+    - name: "{{ $fullName }}-strip-prefix"
+  tls:
+    certResolver: {{ default "default" .Values.ingressroute.certResolver | quote }}
+
+{{- end }}
+{{- end }}

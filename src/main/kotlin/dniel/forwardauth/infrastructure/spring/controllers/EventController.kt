@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
-import javax.servlet.http.HttpServletResponse
 
 @RestController()
 internal class EventController(val properties: AuthProperties, val repo: EventRepository) {
@@ -28,15 +26,15 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
      *
      * @param headers
      * @param response
+     * @param page is the offset from where to return events
+     * @param size is the number of events to return per page
      */
     @PreAuthorize("hasAuthority('admin:forwardauth')")
     @RequestMapping("/events",
             method = [RequestMethod.GET],
             produces = [Siren.APPLICATION_SIREN_JSON])
     fun all(@RequestParam("page", defaultValue = "0", required = false) page: Int,
-            @RequestParam("size", defaultValue = "20", required = false) size: Int,
-            uriBuilder: UriComponentsBuilder,
-            response: HttpServletResponse): ResponseEntity<Root> {
+            @RequestParam("size", defaultValue = "20", required = false) size: Int): ResponseEntity<Root> {
         LOGGER.debug("Get all events page=$page, size=$size")
         val all = repo.all()
         val countTypes = mutableMapOf<String, Int>()
@@ -77,8 +75,12 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
                 .property("id", event.id)
                 .property("time", event.time.toString())
                 .property("type", event.type)
-                .links(Link(type = Siren.APPLICATION_SIREN_JSON, clazz = listOf("event"),
-                        title = "${event.type} event ${event.id}", rel = listOf("self"), href = URI("/events/${event.id}")))
+                .links(Link(
+                        type = Siren.APPLICATION_SIREN_JSON,
+                        clazz = listOf("event"),
+                        title = "${event.type} event ${event.id}",
+                        rel = listOf("self"),
+                        href = URI("/events/${event.id}")))
                 .build()
     }
 }

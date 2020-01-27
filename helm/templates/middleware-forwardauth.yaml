@@ -1,0 +1,15 @@
+{{- if .Values.middleware.enabled -}}
+{{- $fullName := include "helm.fullname" . -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "{{ $fullName }}-authorize"
+spec:
+  forwardAuth:
+    address: "http://{{ $fullName }}.{{ .Release.Namespace }}/authorize"
+    trustForwardHeader: true
+    authResponseHeaders:
+    {{- range .Values.middleware.authResponseHeaders }}
+    - {{ . }}
+    {{- end }}            
+{{- end }}

@@ -1,0 +1,15 @@
+{{- if .Values.ingressroute.enabled -}}
+{{- $fullName := include "helm.fullname" . -}}
+{{- $servicePort := .Values.service.port -}}
+{{- if .Values.mode.path -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "{{ $fullName }}-strip-prefix"
+spec:
+  stripPrefix:
+    prefixes:
+      - {{ default "/oauth2" .Values.ingressroute.path | quote }}
+
+{{- end }}
+{{- end }}

@@ -1,8 +1,8 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
-import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.Locale
 import javax.servlet.http.HttpServletResponse
 
 
@@ -74,7 +74,7 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
      */
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
                               protocol: String, host: String, uri: String, method: String, user: User): AuthorizeHandler.AuthorizeEvent {
-        val isApi = (acceptContent != null && acceptContent.contains("application/json")) ||
+        val isApi = (acceptsApiContent(acceptContent)) ||
                 requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
 
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(user, protocol, host, uri, method, isApi)
@@ -115,4 +115,8 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
         addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, authProperties.nonceMaxAge)
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(authorizeResult.authorizeUrl).build()
     }
+
+    private fun acceptsApiContent(acceptContent: String?) =
+            acceptContent != null &&
+                    (acceptContent.contains("application/json") || acceptContent.contains("text/event-stream"))
 }
