@@ -1,4 +1,14 @@
 # Development
+
+
+## Architecture
+Main principles used for the code structure and application logic:
+* Domain Driven Design
+* CQRS
+* Ports And Adapters, Hexagonal Architecture.
+* REST + hypermedia.
+
+
 ## Compile locally
 `mvn clean install`
 
