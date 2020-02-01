@@ -1,7 +1,7 @@
 Configuration
 =============
 
-`@gkoerk`_ has create a good `step-by-step instructions`_ about
+`@gkoerk`_ has written a good `step-by-step instructions`_ about
 installing ForwardAuth and configuring Auth0.
 
 Auth0 Configuration
@@ -44,11 +44,11 @@ in. - `Why is my access token no a JWT?`_
 ForwardAuth example configuration
 ---------------------------------
 
-See the `example configuration file`_ for a complete example of an
-application.yaml file that the FordwardAuth application need to run.
+See :download:`the example configuration file <../example/application.yaml>`.
+for a complete example of an application.yaml file that the FordwardAuth
+application need to run.
 
 .. _step-by-step instructions: https://github.com/gkoerk/QNAP-Docker-Swarm-Setup#forwardauth-setup-steps
 .. _Represent Multiple APIs Using a Single Logical API in Auth0: https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis
 .. _Why is my access token no a JWT?: https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028
-.. _example configuration file: /_static/application.yaml
 .. _@gkoerk: https://github.com/gkoerk
