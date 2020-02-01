@@ -80,7 +80,7 @@ I.e,
 3) Traefik ForwardAuth application shouldn't do anything with the Access Token.
 4) The receiving API can do whatever it wants with the Access Token.
 
-### Reference
+## Reference
 - [OAuth 2 specification](https://tools.ietf.org/html/rfc6749)
 - [Open ID Connect Provider](http://openid.net/certification/)
 - [Open ID Connect specification.](http://openid.net/specs/openid-connect-core-1_0.html)
