@@ -30,18 +30,20 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests()//
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
+                .addFilterBefore(anonymousFilter, AuthenticationFilter::class.java)
+                .addFilterBefore(loggingFilter, AnonymousFilter::class.java)
+                .authorizeRequests()
+                .antMatchers("/").permitAll()
                 .antMatchers("/authorize").permitAll()
                 .antMatchers("/signin").permitAll()
                 .antMatchers("/actuator/info").permitAll()
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/events").hasAuthority("admin:forwardauth")
                 .antMatchers("/ui/**").hasAuthority("admin:forwardauth")
+                .antMatchers("/siren/**").hasAuthority("admin:forwardauth")
                 .anyRequest().authenticated();
-
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
-        http.addFilterBefore(anonymousFilter, AuthenticationFilter::class.java)
-        http.addFilterBefore(loggingFilter, AnonymousFilter::class.java)
     }
 }

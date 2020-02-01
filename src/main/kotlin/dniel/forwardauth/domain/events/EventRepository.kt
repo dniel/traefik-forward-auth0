@@ -15,13 +15,21 @@ import java.util.concurrent.TimeUnit
 @Component()
 class EventRepository {
 
-    private val cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
+    private var cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
 
     fun all(): List<Event> {
         return cache.asMap().values.toList()
     }
 
+    fun get(id: UUID): Event? {
+        return cache.getIfPresent(id)
+    }
+
     fun put(event: Event) {
         cache.put(event.id, event)
+    }
+
+    fun clear() {
+        cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
     }
 }

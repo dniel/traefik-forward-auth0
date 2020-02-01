@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
@@ -36,6 +37,7 @@ data class Action(
      *
      * @return the value of class attribute or an empty list if it is missing
      */
+    @get:JsonProperty("class")
     val clazz: List<String> = emptyList(),
     /**
      * An enumerated attribute mapping to a protocol method. For HTTP, these

@@ -22,7 +22,7 @@ class MvcConfig : WebMvcConfigurer {
                         "classpath:/static/css/",
                         "classpath:/static/js/",
                         "classpath:/static/libs/",
-                        "classpath:/static/ui/");
+                        "classpath:/static/ui/")
     }
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
