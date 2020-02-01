@@ -1,5 +1,17 @@
 # Development
-## Compile locally
+This is a SpringBoot backend application written in Kotlin and Java8 for
+authenticating user with Auth0 in Traefik. Use the forward
+authentication configuration in Traefik and point it to this backend to
+protect frontends with Auth0 login.
+
+The backend application supports multiple Auth0 applications and APIs
+based on the domainname/subdomainname of the application and will save
+the JWT and the Access Token received from Auth0 as a cookie in the
+browser. When visitors access a protected frontend configured in
+Traefik, a http call will be sent to this backend to validate that the
+user is a valid user.
+
+## Compile with Maven
 `mvn clean install`
 
 ## Automated compilation with Travis-CI build system
@@ -14,7 +26,7 @@ Another tool that scan the code is Snyk.io which will
 [check dependencies in pom.xml](https://app.snyk.io/org/dniel/project/d49e200c-e638-4e45-b909-9bedc608c90d) for know vulnerabilities.
 
 
-## Run
+## Run with Maven
 `mvn spring-boot:run` or start the main class `AuthApplication` from IDE
 
 ## Run with Docker
