@@ -37,7 +37,7 @@ in the application config to the forwarded-host to make sure that the applicatio
 audience for the http request. If the Access Token is not intended for the current application audience, the user will
 be redirected to authorize again with Auth0.
 
-![the authentication and authorization prosess](sequence.png)
+![the authentication and authorization prosess](_static/sequence.png)
 
 ## Applications
 From the [Auth0 documentation on Applications](https://auth0.com/docs/applications)
@@ -48,7 +48,7 @@ From the [Auth0 documentation on Applications](https://auth0.com/docs/applicatio
 > be a native app that executes on a mobile device, a single-page app that executes on a browser, or a regular web app
 > that executes on a server.
 
-![The page for applications in Auth0](screenshots/Applications.png)
+![The page for applications in Auth0](_static/Applications.png)
 
 
 ## API's
@@ -59,7 +59,7 @@ The [Auth0 documentation on APIs](https://auth0.com/docs/apis) describes an API 
 >When an application wants to access an API's protected resources it must provide an Access Token. 
 >The same Access Token can be used to access the API's resources without having to authenticate again, until it expires.
 
-![The page for APIs in Auth0](screenshots/APIs.png)
+![The page for APIs in Auth0](_static/APIs.png)
 Register the web applications that you want to protect behind Traefik and ForwardAuth as APIs to be able to add
 permissions to them. You can also [represent Multiple APIs Using a Single Logical API in Auth0](https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis)
 so that they doesn't need to re-authenticate when navigating between services.
@@ -68,11 +68,12 @@ so that they doesn't need to re-authenticate when navigating between services.
 The new system for [Auth0 RBAC](https://auth0.com/docs/authorization) is being released gradually during 2019 to replace 
 the current Authorization Extension. 
 
-![The section for RBAC settings in Auth0](screenshots/API-RBAC-settings.png)
-To use Auth0 RBAC for your API you need to go to the settings of the API and click on the enable switch, and also 
-the "Add Permissions to Access Token" so that ForwardAuth can see them in the returned token.
-Then under Permissions in your API's settings create permissions for your API. Then go to Users & Roles
-and add either directly to a user the permissions you created in your API, or create a role with a set of permissions and
+![The section for RBAC settings in Auth0](_static/API-RBAC-settings.png)
+To use Auth0 RBAC for your API you need to go to the settings of your API.
+
+1. Click on the enable switch, and also the "Add Permissions to Access Token" so that ForwardAuth can see them in the returned token.
+2. Under Permissions in your API's settings create permissions for your API. 
+3. Go to Users & Roles and add either directly to a user the permissions you created in your API, or create a role with a set of permissions and
 assign to your users.
 
 The RBAC system will run when the user log in and match all the scopes you send in to the permissions of the user.
@@ -81,16 +82,16 @@ Any permissions requested by the user that they dont have, will be removed by th
 If you dont enable RBAC for your API, or dont enable "Add permissions to Access Token" everybody will be 
 let through to the API.
 
-# Permissions
+### Create and add permissions to the API
 Add permissions to your API.
-![The page for API Settings in Auth0](screenshots/API-permissions.png)
+![The page for API Settings in Auth0](_static/API-permissions.png)
 
 ## Users and Roles
 Roles is a collection of permissions that are assignable to Users.
-![The section for RBAC settings in Auth0](screenshots/Roles.png)
+![The section for RBAC settings in Auth0](_static/Roles.png)
 
 ## Assign permissions to the Roles.
-![The section for RBAC settings in Auth0](screenshots/Roles-permissions.png)
+![The section for RBAC settings in Auth0](_static/Roles-permissions.png)
 
 ## Require Permissions to access an application in ForwardAuth
 In the application.yaml file for ForwardAuth add a `required-permissions` to assign permissions that ForwardAuth
