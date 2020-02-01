@@ -11,7 +11,15 @@ browser. When visitors access a protected frontend configured in
 Traefik, a http call will be sent to this backend to validate that the
 user is a valid user.
 
+## Architecture
+Main principles used for the code structure and application logic:
+* Domain Driven Design
+* CQRS
+* Ports And Adapters, Hexagonal Architecture.
+* REST + hypermedia.
+
 ## Compile with Maven
+=======
 `mvn clean install`
 
 ## Automated compilation with Travis-CI build system
