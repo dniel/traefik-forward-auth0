@@ -12,6 +12,7 @@ Also read the [configuration section in the docs](/docs/configuration.md) for ho
 
 ## Kubernetes
 Check out the [Helm chart](https://github.com/dniel/traefik-forward-auth0/tree/master/helm)  to create Kubernetes deployment configuration.
+See the [values.yaml](/helm/values.yaml) file in the Helm chart on how to generate the application config as a configmap in kubernetes.
 
 ## Ingress objects
 After deploying the application and its configuration you need to configure all the application that you want to 
