@@ -1,28 +1,32 @@
 Welcome to ForwardAuth for Auth0's documentation!
 =================================================
 
-ForwardAuth for Auth0 is a authentication service that works that authorize and
-authenticate http/https requests connected to a reverse proxy that use forward
-authentication to an external service authorize requests. ForwardAuth is written
-with the modern Traefik reverse proxy mainly and integrated specifically with
-the Auht0 service.
+ForwardAuth for Auth0 is a authorization proxy written specifically
+for use with the `Traefik`_, The Cloud Native Edge Router, and the `Auth0`_
+Identity Management Platform.
+
+`Traefik`_ will act as the gate to your applications, and the ForwardAuth
+application will act as the gatekeeper and authorize requests to your
+applications. The management of users, roles and permissions are handled
+in Auth0.
 
 Features
 ========
 
--  Centralized Auth-host mode for easy configuration when you have lots
-   of applications.
--  Multiple-host auth mode for more advanced SSO per.
-   sub-domain/applications configuration
--  Very flexible configuration
+-  Protect your applications with Authorization and Authentication
+   using `Auth0`_ rich feature set.
+-  Shared-host auth-mode for single sign-on for a whole domain and
+   a whole set of services.
+-  Sub-Path auth-mode for restricting single sign-on per sub-domain
+   configuration to restrict SSO to a sub-domain.
 -  Support for Auth0 API permissions natively to block access to
    services by API permissions.
--  Implement a powerfull BeyondCorp policy control using Auth0 Rules +
+-  Implement a powerful BeyondCorp policy control using Auth0 Rules +
    Auth0 Auth Core with RBAC.
 -  Restrict selected HTTP methods, let other methods be unrestricted.
 -  Signout and userinfo endpoint for other applications to use.
 
-Update Notes
+Upgrade Notes
 ============
 
 There is some important breaking changes in version 2.0 of ForwardAuth.
@@ -79,3 +83,5 @@ Indices and tables
 
 .. _Upgrade Notes: upgrade-notes.html
 .. _Configuration: configuration.html
+.. _Traefik: https://containo.us/traefik/
+.. _Auth0: https://www.auth0.com
