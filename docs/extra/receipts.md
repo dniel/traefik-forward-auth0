@@ -1,5 +1,10 @@
 # Receipts
 
+### Whitelist email addresses that has access
+Go to Users & Roles and Create a user with a real email address. You will use this later so remember it
+* Click on Rules -> Whitelist
+* Enter in your email address into the whitelist field (e.g. Line 8 "const whitelist = [ '<your email here>']; //authorized users")
+
 ### Automatic assign default roles based on conditions in rule with the new [Auth0's Core Authorization](https://auth0.com/docs/authorization/guides/how-to)
 Its nice to be able to give the users default roles on Signup. Its possible by using the management API
 from Auth0 in a Rule to do custom roles logic on signup.

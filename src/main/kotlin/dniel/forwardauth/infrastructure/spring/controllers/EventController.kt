@@ -7,6 +7,14 @@ import dniel.forwardauth.infrastructure.siren.EmbeddedRepresentation
 import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren
+import io.swagger.v3.oas.annotations.ExternalDocumentation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -22,20 +30,48 @@ internal class EventController(val properties: AuthProperties, val repo: EventRe
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
-     * Sign Out endpoint.
+     * Events endpoint.
      *
      * @param headers
      * @param response
      * @param page is the offset from where to return events
      * @param size is the number of events to return per page
      */
+    @Operation(
+            tags = arrayOf("events"),
+            summary = "Get Events",
+            description = "Retrieve application events, contains information about events that has happened and how many of them.",
+            security = arrayOf(SecurityRequirement(
+                    name = "forwardauth",
+                    scopes = arrayOf("admin:forwardauth"))),
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "Successfully retrieved a page of events.",
+                            content = arrayOf(
+                                    Content(
+                                            schema = Schema(
+                                                    externalDocs = ExternalDocumentation(
+                                                            description = "Link to Siren Hypermedia specification",
+                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json")),
+                                            mediaType = Siren.APPLICATION_SIREN_JSON))
+                    ),
+                    ApiResponse(
+                            responseCode = "404",
+                            description = "Page of events does not exist.",
+                            content = arrayOf(Content(mediaType = Siren.APPLICATION_SIREN_JSON))
+                    )
+            )
+    )
     @PreAuthorize("hasAuthority('admin:forwardauth')")
     @RequestMapping("/events",
             method = [RequestMethod.GET],
             produces = [Siren.APPLICATION_SIREN_JSON])
-    fun all(@RequestParam("page", defaultValue = "0", required = false) page: Int,
+    fun all(@Parameter(description = "Page to retrieve, default page 0", required = false, `in` = ParameterIn.QUERY)
+            @RequestParam("page", defaultValue = "0", required = false) page: Int,
+            @Parameter(description = "Size of page, default size 20", required = false, `in` = ParameterIn.QUERY)
             @RequestParam("size", defaultValue = "20", required = false) size: Int): ResponseEntity<Root> {
-        LOGGER.debug("Get all events page=$page, size=$size")
+        LOGGER.debug("Get Event page=$page, size=$size")
         val all = repo.all()
         val countTypes = mutableMapOf<String, Int>()
         countTypes["totalCount"] = all.size

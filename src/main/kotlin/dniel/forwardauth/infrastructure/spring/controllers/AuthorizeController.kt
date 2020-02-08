@@ -7,6 +7,11 @@ import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.spring.exceptions.PermissionDeniedException
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,15 +21,13 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
-import java.util.Locale
+import java.util.*
 import javax.servlet.http.HttpServletResponse
 
 
 /**
  * Authorize Endpoint.
- * This endpoint is used by traefik forward properties to authorize requests.
- * It will return 200 for requests that has a valid JWT_TOKEN and will
- * redirect other to authenticate at Auth0.
+ * This endpoint is used by ForwardAuth to authorize requests.
  */
 @RestController
 class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDispatcher: CommandDispatcher, val authProperties: AuthProperties) : BaseController() {
@@ -33,14 +36,34 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler, val commandDis
     /**
      * Authorize Endpoint
      */
+    @Operation(
+            summary = "Authorize requests.",
+            description = "This endpoint is called by Traefik to check if a request is authorized to access.",
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "Access granted according to configuration in ForwardAuth and Auth0.",
+                            content = arrayOf(Content())
+                    ),
+                    ApiResponse(
+                            responseCode = "401",
+                            description = "Access denied according to configuration in ForwardAuth and Auth0."
+                    ),
+                    ApiResponse(
+                            responseCode = "307",
+                            description = "Redirect for authentication with Auth0",
+                            content = arrayOf(Content())
+                    )
+            )
+    )
     @RequestMapping("/authorize", method = [RequestMethod.GET])
-    fun authorize(@RequestHeader headers: MultiValueMap<String, String>,
-                  @RequestHeader("Accept") acceptContent: String?,
-                  @RequestHeader("x-requested-with") requestedWithHeader: String?,
-                  @RequestHeader("x-forwarded-host") forwardedHostHeader: String,
-                  @RequestHeader("x-forwarded-proto") forwardedProtoHeader: String,
-                  @RequestHeader("x-forwarded-uri") forwardedUriHeader: String,
-                  @RequestHeader("x-forwarded-method") forwardedMethodHeader: String,
+    fun authorize(@Parameter(hidden = true) @RequestHeader headers: MultiValueMap<String, String>,
+                  @Parameter(description = "Requested content type", required = false, `in` = ParameterIn.HEADER) @RequestHeader("Accept", required = false) acceptContent: String?,
+                  @Parameter(description = "Indicating ajax call", required = false, `in` = ParameterIn.HEADER) @RequestHeader("x-requested-with", required = false) requestedWithHeader: String?,
+                  @Parameter(description = "Requested host", required = true, `in` = ParameterIn.HEADER) @RequestHeader("x-forwarded-host", required = true) forwardedHostHeader: String,
+                  @Parameter(description = "Requested protocol", required = true, `in` = ParameterIn.HEADER) @RequestHeader("x-forwarded-proto", required = true) forwardedProtoHeader: String,
+                  @Parameter(description = "Requested uri", required = true, `in` = ParameterIn.HEADER) @RequestHeader("x-forwarded-uri", required = true) forwardedUriHeader: String,
+                  @Parameter(description = "Requested method", required = true, `in` = ParameterIn.HEADER) @RequestHeader("x-forwarded-method", required = true) forwardedMethodHeader: String,
                   response: HttpServletResponse): ResponseEntity<Unit> {
         printHeaders(headers)
         val user = SecurityContextHolder.getContext().authentication.principal as User

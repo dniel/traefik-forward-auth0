@@ -32,6 +32,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
         http.csrf().disable()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests()//
+                .antMatchers("/v3/api-docs/").permitAll()
                 .antMatchers("/authorize").permitAll()
                 .antMatchers("/signin").permitAll()
                 .antMatchers("/actuator/info").permitAll()

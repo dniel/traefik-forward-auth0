@@ -27,7 +27,7 @@ Features
 -  Signout and userinfo endpoint for other applications to use.
 
 Upgrade Notes
-============
+=============
 
 There is some important breaking changes in version 2.0 of ForwardAuth.
 It is now mandatory to set an audience when requesting authorization.
@@ -51,35 +51,38 @@ Documentation
 .. toctree:: :caption: Getting started
    :maxdepth: 2
 
-   installation
-   configuration
-   upgrade-notes
+   start/installation
+   start/upgrade-notes
+   start/live-demo
+
+.. toctree:: :caption: Examples
+   :maxdepth: 2
+
+   examples/forwardauth
+   examples/traefik1
+   examples/traefik2
+   examples/docker
 
 .. toctree:: :caption: Auth0
    :maxdepth: 2
 
-   auth0
-   oauth-oidc
+   auth0/auth0
+   auth0/auth0-config
+   auth0/oauth-oidc
 
 .. toctree:: :caption: Developer guide
    :maxdepth: 2
 
-   development
-   overview
-   contributing
+   dev/development
+   dev/api
+   dev/diagrams
+   dev/contributing
 
 .. toctree:: :caption: Extra information
    :maxdepth: 2
 
-   receipts
-   faq
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   extra/receipts
+   extra/faq
 
 .. _Upgrade Notes: upgrade-notes.html
 .. _Configuration: configuration.html

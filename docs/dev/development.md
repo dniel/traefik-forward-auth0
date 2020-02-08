@@ -19,10 +19,9 @@ Main principles used for the code structure and application logic:
 * REST + hypermedia.
 
 ## Compile with Maven
-=======
 `mvn clean install`
 
-## Automated compilation with Travis-CI build system
+## Continuous integration and deployment
 The project has been comfigure to compile of Git push with [Travis-CI](https://travis-ci.com/dniel/traefik-forward-auth0)
 automatically. When a build has sucessfully been compiled and packaged the resulting
 Docker Image will be pushed to the [ForwardAuth DockerHub repository](https://hub.docker.com/r/dniel/forwardauth/) where it can be downloaded.
@@ -44,11 +43,12 @@ Another tool that scan the code is Snyk.io which will
 `docker-compose up`
 
 ## Configuration
-Put the application.yaml config somewhere where SpringBoot can find it. 
+Put the `application.yaml` config somewhere where SpringBoot can find it. 
 For example in a /config application directory.
 
-Check out the `example` directory for example of an [application.yaml](/example/application.yaml) and a 
-[traefik.toml](/example/traefik.toml) config for this application.
+See also the [Spring Boot documentation of the externalized 
+configurations](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config)
+ Spring Boot features for in depth info about how to add config.
 
 ## Release
 When a new release has been pushed to DockerHub, Spinnaker will find it and start the deployment pipeline.

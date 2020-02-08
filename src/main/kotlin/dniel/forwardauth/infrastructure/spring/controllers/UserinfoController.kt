@@ -6,6 +6,13 @@ import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
+import io.swagger.v3.oas.annotations.ExternalDocumentation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -20,16 +27,38 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
-     * Sign Out endpoint.
+     * Userinfo endpoint.
      *
      * @param headers
      * @param response
      */
+    @Operation(
+            tags = arrayOf("userinfo"),
+            summary = "Get userinfo",
+            description = "Get userinfo of authenticated user.",
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "Userinfo about the currently authenticated user.",
+                            content = arrayOf(
+                                    Content(
+                                            schema = Schema(
+                                                    externalDocs = ExternalDocumentation(
+                                                            description = "Link to Siren Hypermedia specification",
+                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json")),
+                                            mediaType = APPLICATION_SIREN_JSON))
+                    ),
+                    ApiResponse(
+                            responseCode = "401",
+                            description = "If no authenticated user.",
+                            content = arrayOf(Content())
+                    )
+            ))
     @PreAuthorize("isAuthenticated()")
     @RequestMapping("/userinfo", method = [RequestMethod.GET], produces = [APPLICATION_SIREN_JSON])
-    fun signout(@RequestHeader headers: MultiValueMap<String, String>,
-                @CookieValue("ACCESS_TOKEN", required = true) accessToken: String,
-                authentication: Authentication): ResponseEntity<Root> {
+    fun userinfo(@Parameter(hidden = true) @RequestHeader headers: MultiValueMap<String, String>,
+                 @Parameter(description = "Access token for current user session", required = true, `in` = ParameterIn.HEADER) @CookieValue("ACCESS_TOKEN", required = true) accessToken: String,
+                 @Parameter(hidden = true) authentication: Authentication): ResponseEntity<Root> {
         val authenticated = authentication.principal as Authenticated
         val command: UserinfoHandler.UserinfoCommand = UserinfoHandler.UserinfoCommand(authenticated)
         val userinfoEvent = commandDispatcher.dispatch(userinfoHandler, command) as UserinfoHandler.UserinfoEvent

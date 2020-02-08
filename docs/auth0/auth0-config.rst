@@ -1,9 +1,3 @@
-Configuration
-=============
-
-`@gkoerk`_ has written a good `step-by-step instructions`_ about
-installing ForwardAuth and configuring Auth0.
-
 Auth0 Configuration
 -------------------
 
@@ -13,11 +7,10 @@ Suggestions of how to structure Applications, Apis and Permissions
 -  Add a common application, give it a name like for example Traefik.
 -  Add a common Default API and set as Default Audience in your Auth0
    Tenant.
--  For a common set of services that the user should be able to navigate
-   between without logging in again, create a shared Logical Api that
-   span several services.
+-  `Represent Multiple APIs Using a Single Logical API in Auth0`_ that
+   span several services to use a single sign in on multiple APIs.
 -  By default everyone has access that is able to authenticate, i.e,
-   everyone with an account somewhere.
+   everyone with an account in one of the enabled Auth0 Connections.
 
    -  Create permissions in your API.
    -  Enable RBAC and “Add Permissions to Access Token” under the API
@@ -25,7 +18,6 @@ Suggestions of how to structure Applications, Apis and Permissions
    -  Add the permissions directly to users or to roles assigned to
       users.
 
--  `Represent Multiple APIs Using a Single Logical API in Auth0`_
 
 Configure the Access Token to be a verifiable JWT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,18 +29,11 @@ Audience or a Default Audience in the Auth0 Tenant when requesting an
 Access Token to receive a token of JWT Format, or else the user will get
 Access Denied from ForwardAuth because the token could not be verified.
 
-If someone authenticate and the Auth0 is configured to server a opaque
-token, ForwardAuth will display an error page and will not let the user
-in. - `Why is my access token no a JWT?`_
+.. warning::
+    If someone authenticate and the Auth0 is configured to serve a opaque
+    token, ForwardAuth will display an error page and will not let the user
+    enter the requested application. See `Why is my access token no a JWT?`_
+    for more info.
 
-ForwardAuth example configuration
----------------------------------
-
-See :download:`the example configuration file <../example/application.yaml>`.
-for a complete example of an application.yaml file that the FordwardAuth
-application need to run.
-
-.. _step-by-step instructions: https://github.com/gkoerk/QNAP-Docker-Swarm-Setup#forwardauth-setup-steps
-.. _Represent Multiple APIs Using a Single Logical API in Auth0: https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis
 .. _Why is my access token no a JWT?: https://community.auth0.com/t/why-is-my-access-token-not-a-jwt/31028
-.. _@gkoerk: https://github.com/gkoerk
+.. _Represent Multiple APIs Using a Single Logical API in Auth0: https://auth0.com/docs/api-auth/tutorials/represent-multiple-apis

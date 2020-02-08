@@ -1,0 +1,424 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ForwardAuth for Auth0 API",
+    "description": "ForwardAuth for Auth0",
+    "contact": {
+      "name": "Daniel",
+      "url": "http://github.com/dniel",
+      "email": "daniel@engfeldt.net"
+    },
+    "version": "v2"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/authorize": {
+      "get": {
+        "summary": "Authorize requests.",
+        "description": "This endpoint is called by Traefik to check if a request is authorized to access.",
+        "operationId": "authorize",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "Requested content type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-requested-with",
+            "in": "header",
+            "description": "Indicating ajax call",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-forwarded-host",
+            "in": "header",
+            "description": "Requested host",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-forwarded-proto",
+            "in": "header",
+            "description": "Requested protocol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-forwarded-uri",
+            "in": "header",
+            "description": "Requested uri",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-forwarded-method",
+            "in": "header",
+            "description": "Requested method",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access granted according to configuration in ForwardAuth and Auth0.",
+            "content": {}
+          },
+          "401": {
+            "description": "Access denied according to configuration in ForwardAuth and Auth0.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unit"
+                }
+              }
+            }
+          },
+          "307": {
+            "description": "Redirect for authentication with Auth0",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Get Events",
+        "description": "Retrieve application events, contains information about events that has happened and how many of them.",
+        "operationId": "all",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page to retrieve, default page 0",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Size of page, default size 20",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved a page of events.",
+            "content": {
+              "application/vnd.siren+json": {
+                "schema": {
+                  "type": "string",
+                  "externalDocs": {
+                    "description": "Link to Siren Hypermedia specification",
+                    "url": "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Page of events does not exist.",
+            "content": {
+              "application/vnd.siren+json": {}
+            }
+          }
+        },
+        "security": [
+          {
+            "forwardauth": [
+              "admin:forwardauth"
+            ]
+          }
+        ]
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "start"
+        ],
+        "summary": "Starting point of the application",
+        "description": "The starting point of the application with hypermedia links is available to available parts of the application depenedning of the authorization level of the user.",
+        "operationId": "root",
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "application/vnd.siren+json": {
+                "schema": {
+                  "type": "string",
+                  "externalDocs": {
+                    "description": "Link to Siren Hypermedia specification",
+                    "url": "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signin": {
+      "get": {
+        "operationId": "signin",
+        "parameters": [
+          {
+            "name": "headers",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "all": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "writeOnly": true
+                },
+                "empty": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error_description",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-forwarded-host",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signout": {
+      "get": {
+        "operationId": "signout",
+        "parameters": [
+          {
+            "name": "headers",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "all": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "writeOnly": true
+                },
+                "empty": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "name": "x-forwarded-host",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accessToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userinfo": {
+      "get": {
+        "tags": [
+          "userinfo"
+        ],
+        "summary": "Get userinfo",
+        "description": "Get userinfo of authenticated user.",
+        "operationId": "userinfo",
+        "parameters": [
+          {
+            "name": "accessToken",
+            "in": "header",
+            "description": "Access token for current user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Userinfo about the currently authenticated user.",
+            "content": {
+              "application/vnd.siren+json": {
+                "schema": {
+                  "type": "string",
+                  "externalDocs": {
+                    "description": "Link to Siren Hypermedia specification",
+                    "url": "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If no authenticated user.",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Unit": {
+        "type": "object"
+      },
+      "MultiValueMapStringString": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "writeOnly": true
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "forwardauth": {
+        "type": "oauth2",
+        "name": "access_token",
+        "in": "cookie",
+        "bearerFormat": "jwt"
+      }
+    }
+  }
+}

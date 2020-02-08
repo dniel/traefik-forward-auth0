@@ -7,6 +7,11 @@ import dniel.forwardauth.infrastructure.siren.Action
 import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren
+import io.swagger.v3.oas.annotations.ExternalDocumentation
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.GrantedAuthority
@@ -29,6 +34,25 @@ internal class RootController(val properties: AuthProperties) {
      * @param page is the offset from where to return events
      * @param size is the number of events to return per page
      */
+    @Operation(
+            tags = arrayOf("start"),
+            summary = "Starting point of the application",
+            description = "The starting point of the application with hypermedia links is available to available parts " +
+                    "of the application depenedning of the authorization level of the user.",
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "",
+                            content = arrayOf(
+                                    Content(
+                                            schema = Schema(
+                                                    externalDocs = ExternalDocumentation(
+                                                            description = "Link to Siren Hypermedia specification",
+                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json")),
+                                            mediaType = Siren.APPLICATION_SIREN_JSON))
+                    )
+            )
+    )
     @RequestMapping("/",
             method = [RequestMethod.GET],
             produces = [Siren.APPLICATION_SIREN_JSON])
