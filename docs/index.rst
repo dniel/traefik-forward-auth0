@@ -11,7 +11,7 @@ applications. The management of users, roles and permissions are handled
 in Auth0.
 
 Features
-========
+--------
 
 -  Protect your applications with Authorization and Authentication
    using `Auth0`_ rich feature set.
@@ -26,26 +26,27 @@ Features
 -  Restrict selected HTTP methods, let other methods be unrestricted.
 -  Signout and userinfo endpoint for other applications to use.
 
-Upgrade Notes
-=============
 
-There is some important breaking changes in version 2.0 of ForwardAuth.
-It is now mandatory to set an audience when requesting authorization.
-This change is required due to how Auth0 handles two different kinds of
-token formats, opaque tokens and jwt tokens, for access tokens. The only
-token that is possible to validate and verify is the jwt token. Therefor
-its from now on required to set the audience in the application config
-and the application will not work otherwise.
+.. caution::
+    Upgrade Notes
+    -------------
 
-The version 2.0 configuration also has some new fields that need to be
-set for the application to start up. See the page `Upgrade Notes`_ for
-information about compatability and upgrades between versions. The page
-`Configuration`_ should have a update to date example for the latest
-version.
+    There is some important breaking changes in version 2.0 of ForwardAuth.
+    It is now mandatory to set an audience when requesting authorization.
+    This change is required due to how Auth0 handles two different kinds of
+    token formats, opaque tokens and jwt tokens, for access tokens. The only
+    token that is possible to validate and verify is the jwt token. Therefor
+    its from now on required to set the audience in the application config
+    and the application will not work otherwise.
 
+    The version 2.0 configuration also has some new fields that need to be
+    set for the application to start up. See :doc:`Upgrade Notes <start/upgrade-notes>`
+    for information about compatability and upgrades between versions. The page
+    :doc:`Configuration <start/configuration>` should have a update to date
+    example for the latest version.
 
 Documentation
-=============
+-------------
 
 .. toctree:: :caption: Getting started
    :maxdepth: 2
@@ -82,7 +83,5 @@ Documentation
    extra/receipts
    extra/faq
 
-.. _Upgrade Notes: upgrade-notes.html
-.. _Configuration: configuration.html
 .. _Traefik: https://containo.us/traefik/
 .. _Auth0: https://www.auth0.com
