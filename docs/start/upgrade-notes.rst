@@ -33,7 +33,7 @@ New *optional* config fields are available
    :language: yaml
    :lines: 89-92
 
-See the :doc:`example configuration </examples/forwardauth>` for a
+See the :doc:`example configuration <configuration>` for a
 complete example of an application.yaml file that the FordwardAuth
 application need to run.
 

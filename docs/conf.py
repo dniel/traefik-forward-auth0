@@ -42,6 +42,7 @@ extensions = [
     'sphinxcontrib.openapi',
     'sphinx.ext.githubpages',
     'recommonmark',
+    'sphinxcontrib.plantuml',
     'sphinx_markdown_tables',
 ]
 

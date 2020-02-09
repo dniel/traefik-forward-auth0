@@ -47,21 +47,19 @@ version.
 Documentation
 =============
 
-
 .. toctree:: :caption: Getting started
    :maxdepth: 2
 
    start/installation
-   start/upgrade-notes
+   start/configuration
    start/live-demo
+   start/upgrade-notes
 
 .. toctree:: :caption: Examples
    :maxdepth: 2
 
-   examples/forwardauth
-   examples/traefik1
-   examples/traefik2
-   examples/docker
+   examples/traefik1/index
+   examples/traefik2/index
 
 .. toctree:: :caption: Auth0
    :maxdepth: 2

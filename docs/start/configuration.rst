@@ -1,8 +1,12 @@
-ForwardAuth
-===========
+Configuration
+=============
 
-In the simplest form of supplying a configuration file for ForwardAuth its
-enough to put an application.yaml file like described in `Spring Boot Application Property Files examples`_
+Application configuration file
+------------------------------
+
+The ForwardAuth application needs a configuration file called **application.yaml**
+to run. The easiest way is to supply the configuration file like described by
+`Spring Boot Application Property Files examples`_.
 
 Quoted from the Spring Boot documentation
     SpringApplication loads properties from application.properties files in the following locations and adds them to the Spring Environment:
@@ -12,15 +16,14 @@ Quoted from the Spring Boot documentation
     - A classpath /config package
     - The classpath root
 
+.. seealso::
+    ForwardAuth is using the Spring Boot application framework and its
+    built in and very flexible externalized configuration features,
+    read the `Spring Boot documentation of externalized configuration`_ for a
+    complete description of all Spring Boot configuration features.
 
-
-.. seealso:: Spring Boot official documentation
-    ForwardAuth is using the Spring Boot application framework and uses its externalized
-    configuration features. See the `Spring Boot documentation of externalized configuration`_
-    for a complete description of all externalized configuration features.
-
-Complete example of ForwardAuth configuration file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Complete example of configuration file
+--------------------------------------
 
 .. literalinclude:: ../../example/application.yaml
    :language: yaml
