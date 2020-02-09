@@ -17,13 +17,13 @@ Quoted from the Spring Boot documentation
     - The classpath root
 
 .. seealso::
-    ForwardAuth is using the Spring Boot application framework and its
-    built in and very flexible externalized configuration features,
+    ForwardAuth is built using the Spring Boot application framework. It has
+    a built-in and very flexible externalized configuration feature,
     read the `Spring Boot documentation of externalized configuration`_ for a
     complete description of all Spring Boot configuration features.
 
-Complete example of configuration file
---------------------------------------
+Complete configuration file format
+----------------------------------
 
 .. literalinclude:: ../../example/application.yaml
    :language: yaml

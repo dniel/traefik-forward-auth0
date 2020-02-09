@@ -11,5 +11,5 @@ Traefik 1.x
 Docker provider configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../example/traefik1/traefik.toml
+.. literalinclude:: ../../../example/traefik1/traefik.toml
    :language: toml
