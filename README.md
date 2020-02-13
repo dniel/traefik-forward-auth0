@@ -20,8 +20,8 @@ The only token that is possible to validate and verify is the jwt token. Therefo
 required to set the audience in the application config and the application will not work otherwise.  
 
 The version 2.0 configuration also has some new fields that need to be set for the application to start up.
-See the page [Upgrade Notes](/docs/upgrade-notes.md) for information about compatability and upgrades between versions.
-The page [Configuration](/docs/configuration.md)  should have a update to date example for the latest version.
+See the page [Upgrade Notes](https://traefik-forward-auth0.readthedocs.io/en/latest/start/upgrade-notes.html) for information about compatability and upgrades between versions.
+The [Configuration](https://traefik-forward-auth0.readthedocs.io/en/latest/start/configuration.html) page  should have a update to date example for the latest version.
 
 # Features
 - Centralized Auth-host mode for easy configuration when you have lots of applications.
@@ -33,13 +33,4 @@ The page [Configuration](/docs/configuration.md)  should have a update to date e
 - Signout and userinfo endpoint for other applications to use.
 
 # Documentation
-- [Overview](/docs/overview.md)
-- [Development](/docs/development.md)
-- [Installation](/docs/installation.md)
-- [Upgrade Notes](/docs/upgrade-notes.md)
-- [Configuration](/docs/configuration.md)
-- [Auth0](/docs/auth0.md)
-- [OAuth and OpenID Connect](/docs/oauth-oidc.md)
-- [Receipts](/docs/receipts.md)
-- [FAQ](/docs/faq.md)
-- [Contributing](/docs/contributing.md)
+Checkout the documentation at [Read The Docs](https://traefik-forward-auth0.readthedocs.io/en/latest/)
