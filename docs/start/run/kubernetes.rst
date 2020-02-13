@@ -6,16 +6,14 @@ Run in Kubernetes
 Prerequisites
 --------------
 - Auth0 account.
-- Working Traefik in docker-compose.
+- Working Traefik in Kubernetes
+- Traefik 2.X Custom Resource Definitions, CRDs, installed in Kubernetes
+- Traefik 2.X KubernetesCRD-provider enabled in Traefik.
 
 Step by step
 ------------
 
-- Install Traefik in Kubernetes.
-- Install Traefik Kubernetes CRD in kubernetes.
-- Install ForwardAuth in kubernetes with Helm chart.
-- Create Traefik IngressRoutes in Kubernetes and secure them with ForwardAuth.
+- :ref:`install-with-helm`
+- :ref:`configure-crd-ingress-routes`
 
-Examples
---------
 

@@ -1,5 +1,7 @@
-Install using Helm chart
-========================
+.. _install-with-helm:
+
+Install ForwardAuth in Kubernetes with Helm chart
+=================================================
 
 .. note::
 

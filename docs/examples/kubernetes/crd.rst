@@ -1,2 +1,4 @@
-Traefik CRD configuraiton
-=========================
+.. _configure-crd-ingress-routes:
+
+Create Traefik IngressRoutes in Kubernetes
+==========================================
