@@ -6,12 +6,6 @@ Install ForwardAuth in Kubernetes with Helm chart
 .. note::
 
     `Helm`_ is an easy way of deploying application to Kubernetes.
-    Checkout my `example values.yaml`_ for chart to see how to specify values.
-    The example is my running configuration of my internal development site configuration.
-
-    Also see the `ForwardAuth Helm Chart`_ code and documentation for description of
-    what is available to configure.
-
     When deploying the chart, it will do the following:
 
     * Deploy ForwardAuth application
@@ -24,12 +18,27 @@ Install ForwardAuth in Kubernetes with Helm chart
     * Optionally, create Ingress Object for *.example.test/auth0
 
 
+Check out the Helm Chart README
+-------------------------------
+
+Also see the `ForwardAuth Helm Chart`_ code and documentation for description of
+what is configration options that is available.
+
+
+Check out the configuration for the Helm chart
+----------------------------------------------
+
+Checkout my `example values.yaml`_ for chart to see how to specify values.
+The example is from my running configuration of my development site.
+
+
 Add the Helm repo
 -----------------
 
 .. code-block:: shell-session
 
    $ helm repo add dniel https://dniel.github.io/charts/
+
 
 Install chart with
 ------------------
