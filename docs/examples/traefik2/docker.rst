@@ -1,8 +1,10 @@
-Docker provider configuration
-=============================
+.. _traefik2-docker-compose-example:
 
-.. seealso:: Traefik 2.x official documentation about Traefik Docker provider.
-    https://docs.traefik.io/providers/docker/
+Traefik 2.x Docker provider configuration
+=========================================
+
+.. seealso::
+    `Traefik 2.x Docker provider documentation <https://docs.traefik.io/providers/docker>`_
 
 .. literalinclude:: ../../../example/traefik2/docker-compose.yml
    :language: yaml

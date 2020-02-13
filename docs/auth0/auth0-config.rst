@@ -1,8 +1,10 @@
 Auth0 Configuration
 ===================
 
-Step by Step configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _auth0-step-by-step:
+
+Auth0 Step by Step configuration
+--------------------------------
 
 * Go to https://auth0.com
 * Sign in or register an account

@@ -1,8 +1,10 @@
 Configuration
 =============
 
-Application configuration file
-------------------------------
+.. _application.yaml:
+
+Application configuration
+-------------------------
 
 The ForwardAuth application needs a configuration file called **application.yaml**
 to run. The easiest way is to supply the configuration file like described by

@@ -5,10 +5,7 @@ Enable the File provider in Traefik
 -----------------------------------
 
 .. seealso::
-    Documentation.
-
-    Traefik 2.x File provider documentation.
-    https://docs.traefik.io/providers/file/
+    `Traefik 2.x File provider documentation <https://docs.traefik.io/providers/file/>`_
 
 .. literalinclude:: ../../../example/traefik2/traefik.yml
    :language: yaml
@@ -16,8 +13,8 @@ Enable the File provider in Traefik
 
 Configure the forwardauth middleware
 ------------------------------------
-.. seealso:: Traefik 2.x official documentation
-    https://docs.traefik.io/middlewares/forwardauth/
+.. seealso::
+    `Traefik 2.x official documentation <https://docs.traefik.io/middlewares/forwardauth/>`_
 
 .. literalinclude:: ../../../example/traefik2/traefik-file.yml
    :language: yaml

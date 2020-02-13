@@ -5,5 +5,4 @@ Traefik 2.x
    :maxdepth: 1
 
    file
-   kubernetes
    docker

@@ -22,3 +22,12 @@ you re-authenticate again. To force a new session you could do one of the follow
 - remove cookies from current session
 - open a private browser session to start with blank cookies
 - call the https://auth.exmaple.com/signout endpoint to both sign out of auth0 and delete cookies.
+
+## Q: How do I check if the application is running?
+The application has two diagnostics endpoints that should respond if the application has been started
+and are listening for requests.
+
+Depending on how you have configured the access to the application, 
+replace auth.example.test for our own domain.
+- http://auth.example.test/actuator/info
+- http://auth.exmaple.test/actuator/health

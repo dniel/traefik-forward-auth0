@@ -28,9 +28,6 @@ Features
 
 
 .. caution::
-    Upgrade Notes
-    -------------
-
     There is some important breaking changes in version 2.0 of ForwardAuth.
     It is now mandatory to set an audience when requesting authorization.
     This change is required due to how Auth0 handles two different kinds of
@@ -59,6 +56,7 @@ Documentation
 .. toctree:: :caption: Examples
    :maxdepth: 2
 
+   examples/kubernetes/index
    examples/traefik1/index
    examples/traefik2/index
 
