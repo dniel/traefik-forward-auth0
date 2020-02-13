@@ -41,8 +41,8 @@ The following table lists the configurable parameters of the consul chart and th
 | `ImageTag`                       | Container image tag                   | `latest`                                                   |
 | `ImagePullPolicy`                | Container pull policy                 | `Always`                                                   |
 | `logLevel`                       | application loglevel                  | `DEBUG`                                                    |
-| `domain`                         | Auth0 tenant domain                   | ``                                                         |
-| `tokenEndpoint`                  | Auth0 token endpoint                  | `consul`                                                   |
+| `domain`                         | Auth0 tenant domain                   | ` `                                                        |
+| `tokenEndpoint`                  | Auth0 token endpoint                  | ` `                                                        |
 | `default.name`                   | default app name                      | `example.test`                                             |
 | `default.clientid`               | default clientid from Auth0 App       | `<from auth0 config>`                                      |
 | `default.clientsecret`           | default clientsecret from Auth0 App.  | `<from auth0 config>`                                      |
@@ -54,7 +54,7 @@ The following table lists the configurable parameters of the consul chart and th
 | `mode.path`                      | enable/disable path mode              | `false`                                                    |
 | `ingressroute.enabled`           | generate Traefik CRD IngressRoute     | `false`                                                    |
 | `ingressroute.hostname`          | hostname for IngressRoute             | `example.test`                                             |
-| `ingressroute.path`              | path for IngressRoute                 | `/auth0`                                                   |
+| `ingressroute.path`              | path for IngressRoute                 | `/auth`                                                    |
 | `ingressroute.certResolver`      | certificate resolver to use           | `default`                                                  |
 | `middleware.enabled`             | generate Traefik CRD Middleware       | `false`                                                    |
 | `middleware.trustForwardHeader`  | enable/disable trustForwardHeader     | `true`                                                     |
