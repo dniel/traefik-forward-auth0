@@ -1,8 +1,8 @@
-Kubernetes config
-=================
+Traefik 2.0 Kubernetes Customer Resource Definition
+===================================================
 
-.. toctree:: :caption: Kubernetes config
+.. toctree::
    :maxdepth: 1
 
-   crd
-   helm
+   crd-ingressroute
+   crd-middleware

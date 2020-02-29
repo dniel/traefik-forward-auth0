@@ -80,6 +80,7 @@ Documentation
 
    extra/receipts
    extra/faq
+   extra/todos
 
 .. _Traefik: https://containo.us/traefik/
 .. _Auth0: https://www.auth0.com

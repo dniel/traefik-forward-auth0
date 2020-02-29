@@ -1,8 +1,9 @@
 Run in Docker Compose
 =====================
 
-Docker Compose is a quick way of running Traefik and ForwardAuth locally
-for testing of configuration.
+Docker Compose is a nice way of testing the Traefik configuration
+locally before deploying it to Kubernetes for quicker development
+round trips.
 
 .. seealso::
     Read more about how to configure Docker Compose in the
@@ -10,23 +11,21 @@ for testing of configuration.
 
 Prerequisites
 -------------
-- Auth0 account.
-
+- Registered Auth0 account.
+- Docker installed.
 
 Step by Step
 ------------
 
-* Create a Traefik configuration
+* Create :ref:`application.yaml`
+* Create Traefik configuration for ForwardAuth.
+* Create a Docker-Compose configuration file.
 
-  - 1
-  - 2
+.. seealso::
+    I have created two examples of docker-compose configuration,
+    one for Traefik 1.0 and one for Traefik 2.0.
 
-* Configure Traefik forwardauth middleware
+    Check out the examples below
 
-  - 1
-  - 2
-
-* Create a docker-compose file.
-
-  - :ref:`traefik2-docker-compose-example`
-  - :ref:`traefik1-docker-compose-example`
+    - :ref:`traefik2-docker-compose-example`
+    - :ref:`traefik1-docker-compose-example`

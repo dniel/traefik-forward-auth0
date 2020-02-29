@@ -1,4 +1,6 @@
-.. _configure-crd-ingress-routes:
+.. _configure-crd-middleware:
 
-Configure Traefik Middlewares in Kubernetes
-===========================================
+Configure Traefik Middlewares
+=============================
+
+.. todo:: add example of of to register the ForwardAuth middleware

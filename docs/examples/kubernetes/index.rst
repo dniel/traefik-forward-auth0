@@ -1,8 +1,8 @@
-Kubernetes config
-=================
+Kubernetes
+==========
 
-.. toctree:: :caption: Kubernetes config
-   :maxdepth: 1
+.. toctree::
+   :maxdepth: 2
 
-   crd
    helm
+   crd/index

@@ -2,6 +2,8 @@
 /config/
 !.mvn/wrapper/maven-wrapper.jar
 
+/docs/build
+
 ### STS ###
 .apt_generated
 .classpath
