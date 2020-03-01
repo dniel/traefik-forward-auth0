@@ -10,16 +10,9 @@ import dniel.forwardauth.domain.shared.service.JwtDecoder
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
 import spock.lang.Specification
 
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 
-import static java.time.temporal.ChronoUnit.*
-import static java.time.temporal.TemporalUnit.*
-import static java.time.temporal.TemporalUnit.*
-import static java.time.temporal.TemporalUnit.*
+import static java.time.temporal.ChronoUnit.HOURS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
