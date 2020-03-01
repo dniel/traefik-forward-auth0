@@ -95,11 +95,12 @@ spec:
             {{ end }}
 
           livenessProbe:
+            initialDelaySeconds: 45
             httpGet:
               path: /actuator/health
               port: http
           readinessProbe:
-            initialDelaySeconds: 30
+            initialDelaySeconds: 45
             httpGet:
               path: /actuator/health
               port: http
