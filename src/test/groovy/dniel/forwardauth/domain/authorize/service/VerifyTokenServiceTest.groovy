@@ -25,10 +25,6 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class VerifyTokenServiceTest extends Specification {
 
-    /**
-     * {"typ":"JWT","alg":"HS256"}{"iss":"Online JWT Builder","iat":1550503393,"exp":1582039393,"aud":"www.example.com","sub":"daniel@example.com","email":"jrocket@example.com"}
-     *
-     */
     def "should accept valid token"() {
         given: "a valid JWT token with example values"
         def exampleAudience = ObjectMother.exampleAudience
