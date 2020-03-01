@@ -16,7 +16,6 @@ class ObjectMother {
     static def userinfo = [sub: "daniel@example.com", email: "jrocket@example.com", uknown: "123"]
     static def authenticatedUser = new Authenticated(validJwtToken, validJwtToken, userinfo)
     static def anonymousUser = new Anonymous()
-    static def opaqueToken = "fzkhwzqgmjrfpdzyzvcaidhiqsjoeyja"
     static def properties = new AuthProperties()
 
     static {
