@@ -93,15 +93,22 @@ spec:
                   name: "{{ template "helm.fullname" . }}-default"
             {{ end }}
             {{ end }}
-
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: http
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: http
+              port: 8080
+            initialDelaySeconds: 40
+            timeoutSeconds: 2
+            periodSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 100
+            timeoutSeconds: 2
+            periodSeconds: 15
+            failureThreshold: 1
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
