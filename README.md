@@ -23,6 +23,10 @@ The version 2.0 configuration also has some new fields that need to be set for t
 See the page [Upgrade Notes](https://traefik-forward-auth0.readthedocs.io/en/latest/start/upgrade-notes.html) for information about compatability and upgrades between versions.
 The [Configuration](https://traefik-forward-auth0.readthedocs.io/en/latest/start/configuration.html) page  should have a update to date example for the latest version.
 
+For those that want to delay upgrade from 1.0 to 2.0 version, there is a docker image that has been tagged 1.0
+that you can continue to use, but it will not get any further updates and I encourage you to upgrade to 2.0 as
+soon as possible. 
+
 # Features
 - Centralized Auth-host mode for easy configuration when you have lots of applications.
 - Multiple-host auth mode for more advanced SSO per. sub-domain/applications configuration

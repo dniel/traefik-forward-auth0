@@ -42,6 +42,11 @@ Features
     :doc:`Configuration <start/configuration>` should have a update to date
     example for the latest version.
 
+    For those that want to delay upgrade from 1.0 to 2.0 version, there is
+    a docker image that has been tagged 1.0 that you can continue to use, but
+    it will not get any further updates and I encourage you to upgrade to 2.0 as
+    soon as possible.
+
 Documentation
 -------------
 
