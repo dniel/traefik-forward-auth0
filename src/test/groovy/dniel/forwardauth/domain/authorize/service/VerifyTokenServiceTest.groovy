@@ -16,6 +16,9 @@ import static java.time.temporal.ChronoUnit.HOURS
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 
+/**
+ * test verify tokens
+ */
 class VerifyTokenServiceTest extends Specification {
 
     def "should accept valid token"() {
