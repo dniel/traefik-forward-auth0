@@ -4,7 +4,7 @@
 version: '2.4'
 services:
   traefik:
-    image: traefik:1.7.22-alpine
+    image: traefik:1.7.24-alpine
     ports:
       - 80:80
     volumes:
