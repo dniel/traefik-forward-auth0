@@ -7,6 +7,15 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: "{{ $fullName }}-path"
+  labels:
+    app: {{ template "helm.name" . }}
+    chart: {{ template "helm.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.ingressroute.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   entryPoints:
     - websecure
