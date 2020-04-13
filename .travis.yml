@@ -1,6 +1,6 @@
 if: tag IS blank
 jdk:
-  - oraclejdk12
+  - oraclejdk13
 language: java
 install: true
 cache:
