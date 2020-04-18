@@ -55,17 +55,17 @@ class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
 
             // execute command and get result event.
             val command: AuthenticateHandler.AuthenticateCommand = AuthenticateHandler.AuthenticateCommand(accessToken, idToken, host)
-            val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthentiationEvent
+            val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthenticationEvent
             when (event) {
-                is AuthenticateHandler.AuthentiationEvent.Error -> {
+                is AuthenticateHandler.AuthenticationEvent.Error -> {
                     throw AuthenticationException(event)
                 }
-                is AuthenticateHandler.AuthentiationEvent.AuthenticatedUser -> {
+                is AuthenticateHandler.AuthenticationEvent.AuthenticatedUser -> {
                     val user = event.user as Authenticated
                     val auth = UsernamePasswordAuthenticationToken(user, "", AuthorityUtils.createAuthorityList(*user.permissions))
                     SecurityContextHolder.getContext().authentication = auth
                 }
-                is AuthenticateHandler.AuthentiationEvent.AnonymousUser -> {
+                is AuthenticateHandler.AuthenticationEvent.AnonymousUser -> {
                     val auth = AnonymousAuthenticationToken(
                             "anonymous",
                             Anonymous,

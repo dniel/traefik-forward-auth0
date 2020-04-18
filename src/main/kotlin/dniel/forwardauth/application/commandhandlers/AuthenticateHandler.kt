@@ -41,10 +41,10 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthentiationEvent(val user: User) : Event() {
-        class AuthenticatedUser(user: User) : AuthentiationEvent(user)
-        class AnonymousUser() : AuthentiationEvent(Anonymous)
-        class Error(error: Authenticator.Error?) : AuthentiationEvent(Anonymous) {
+    sealed class AuthenticationEvent(val user: User) : Event() {
+        class AuthenticatedUser(user: User) : AuthenticationEvent(user)
+        class AnonymousUser() : AuthenticationEvent(Anonymous)
+        class Error(error: Authenticator.Error?) : AuthenticationEvent(Anonymous) {
             val reason: String = error?.message ?: "Unknown error"
         }
     }
@@ -66,12 +66,12 @@ class AuthenticateHandler(val properties: AuthProperties,
         LOGGER.debug("State: ${state}, Error: ${error}")
 
         return when (state) {
-            AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUser()
+            AuthenticatorStateMachine.State.ANONYMOUS -> AuthenticationEvent.AnonymousUser()
             AuthenticatorStateMachine.State.AUTHENTICATED -> {
                 val user = Authenticated(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken))
-                AuthentiationEvent.AuthenticatedUser(user)
+                AuthenticationEvent.AuthenticatedUser(user)
             }
-            else -> AuthentiationEvent.Error(error)
+            else -> AuthenticationEvent.Error(error)
         }
     }
 

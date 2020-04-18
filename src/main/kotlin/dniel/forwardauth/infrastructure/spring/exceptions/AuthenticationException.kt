@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.ResponseStatus
  */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 open class AuthenticationException : ApplicationException {
-    constructor(error: AuthenticateHandler.AuthentiationEvent.Error) : super(error.reason)
+    constructor(error: AuthenticateHandler.AuthenticationEvent.Error) : super(error.reason)
 }
