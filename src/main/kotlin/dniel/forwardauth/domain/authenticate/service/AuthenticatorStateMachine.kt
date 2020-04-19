@@ -67,6 +67,7 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
         INVALID_SUBS,
         VALID_SUBS,
 
+        EMPTY_ID_TOKEN,
         VALID_ID_TOKEN,
         INVALID_ID_TOKEN,
         ERROR,
@@ -105,6 +106,7 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
 
         config.configure(State.VALIDATING_ID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
+                .permitIf(Event.EMPTY_ID_TOKEN, State.VALID_TOKENS) { !delegate.hasError }
                 .permitIf(Event.VALID_ID_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
                 .permitIf(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
                 .onEntry(delegate::onValidateIdToken)
@@ -122,6 +124,7 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
 
         config.configure(State.VALID_TOKENS)
                 .substateOf(State.VALIDATING_TOKENS)
+
                 .permit(Event.NEXT_STATE, State.AUTHENTICATED)
                 .onEntry(this::nextState)
 

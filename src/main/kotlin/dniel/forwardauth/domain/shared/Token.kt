@@ -13,9 +13,15 @@ import org.slf4j.LoggerFactory
 sealed class Token
 
 /**
+ * An empty string was provided for Token.
+ * Not necessarily an error situation.
+ */
+class EmptyToken() : InvalidToken("No Token was provided.")
+
+/**
  * A JWT token that was parsed and found invalid.
  */
-class InvalidToken(val reason: String) : Token()
+open class InvalidToken(val reason: String) : Token()
 
 /**
  * An OpaqueToken is a token that didnt follow the format of a JWT token
@@ -67,9 +73,17 @@ class JwtToken(val value: DecodedJWT) : Token() {
     }
 
     /**
+     * Return if token is of type Client Credentials.
+     */
+    fun isClientCredentials(): Boolean {
+        val claim = value.getClaim("gty")
+        return claim.asString() == "client-credentials"
+    }
+
+    /**
      * read permissions claim from token and convert to array
      */
-    fun permisssions(): Array<String> {
+    fun permissions(): Array<String> {
         val claim = value.getClaim("permissions")
         return if (claim.isNull) emptyArray()
         else claim.asArray(String::class.java)
