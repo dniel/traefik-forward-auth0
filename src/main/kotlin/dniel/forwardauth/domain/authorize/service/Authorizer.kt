@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Authorizer.
- * This service is responseble for authorizing access for a requested url.
+ * This service is responsible for authorizing access for a requested url.
  * To handle all the logic involved to authorize the request a state machine is
  * created and all inputs from this class is used as context to find out if
  * the request can be authorized.
