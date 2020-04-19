@@ -45,7 +45,6 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         fun onValidateAccessToken()
         fun onValidateIdToken()
         fun onValidatePermissions()
-        fun onValidateSameSubs()
         fun onValidateProtectedUrl()
         fun onValidateWhitelistedUrl()
         fun onValidateRestrictedMethod()
@@ -64,7 +63,6 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         VALIDATING_ID_TOKEN,
         VALIDATING_ACCESS_TOKEN,
         VALIDATING_PERMISSIONS,
-        VALIDATING_SAME_SUBS,
 
         VALIDATING_REQUESTED_URL,
         VALIDATING_WHITELISTED_URL,
@@ -151,18 +149,12 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
         config.configure(State.VALIDATING_ACCESS_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
+                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
                 .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
                 .onEntry(delegate::onValidateAccessToken)
 
-        config.configure(State.VALIDATING_SAME_SUBS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
-                .permitIf(Event.VALID_SAME_SUBS, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
-                .permit(Event.INVALID_SAME_SUBS, State.INVALID_TOKEN)
-                .onEntry(delegate::onValidateSameSubs)
-
         config.configure(State.VALIDATING_PERMISSIONS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
+                .substateOf(State.VALIDATING_TOKENS)
                 .permitIf(Event.VALID_PERMISSIONS, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
                 .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
                 .onEntry(delegate::onValidatePermissions)

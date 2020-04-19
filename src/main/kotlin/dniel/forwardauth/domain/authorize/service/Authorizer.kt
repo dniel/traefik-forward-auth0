@@ -128,11 +128,6 @@ class Authorizer private constructor(private val accessToken: Token,
         }
     }
 
-    override fun onValidateSameSubs() {
-        log("onValidateSameSubs")
-        fsm.post(AuthorizerStateMachine.Event.VALID_SAME_SUBS)
-    }
-
     override fun onNeedRedirect() {
         log("onNeedRedirect")
     }
