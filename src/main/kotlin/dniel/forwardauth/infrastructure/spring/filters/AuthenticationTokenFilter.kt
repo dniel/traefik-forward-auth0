@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletResponse
  * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
-class AuthenticationFilter(val authenticateHandler: AuthenticateHandler,
-                           val commandDispatcher: CommandDispatcher) : BaseFilter() {
+class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
+                                val commandDispatcher: CommandDispatcher) : BaseFilter() {
 
     /**
      * Perform filtering.
