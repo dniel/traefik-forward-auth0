@@ -1,9 +1,10 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
-import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
 import dniel.forwardauth.domain.shared.Authenticated
+import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthenticationException
 import org.slf4j.MDC
 import org.springframework.security.authentication.AnonymousAuthenticationToken
@@ -35,7 +36,8 @@ import javax.servlet.http.HttpServletResponse
  */
 @Component
 class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
-                                val commandDispatcher: CommandDispatcher) : BaseFilter() {
+                                val commandDispatcher: CommandDispatcher,
+                                val auth0Client: Auth0Client) : BaseFilter() {
 
     /**
      * Perform filtering.
@@ -43,12 +45,19 @@ class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AuthenticationFilter start")
+        if (req.getHeader("x-forwarded-host") == null) {
+            trace("Missing x-forwarded-host header to authenticate, skip cookie authentication..")
+            return chain.doFilter(req, resp)
+        }
 
         // to authenticate we need to have some cookies to search for, and also
         // the x-forwarded-host must be set to know which application configuration
         // to use for authentication properties.
-        if (req.cookies != null && req.getHeader("x-forwarded-host") != null) {
-            trace("Validate authentication tokens.")
+        //
+        // if already authenticaed, just skip check of cookies because that means
+        // that the previous filter using Basic Auth has authenticated the user.
+        if (SecurityContextHolder.getContext().authentication.principal is Anonymous) {
+            trace("Authenticate using Tokens from Cookies.")
             val accessToken = readCookie(req, "ACCESS_TOKEN")
             val idToken = readCookie(req, "JWT_TOKEN")
             val host = req.getHeader("x-forwarded-host")
@@ -74,15 +83,15 @@ class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
                 }
             }
             MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
-
         } else {
-            trace("Missing cookies or x-forwarded-host header to authenticate,  skip token validation.. anonymous session.")
+            trace("Already authenticated, skip cookie authentication.")
         }
         chain.doFilter(req, resp)
         trace("AuthenticationFilter filter done")
     }
 
     fun readCookie(req: HttpServletRequest, key: String): String? {
+        if (req.cookies == null) return null
         return req.cookies.filter { c -> key.equals(c.getName()) }.map { cookie -> cookie.value }.firstOrNull()
     }
 }

@@ -1,7 +1,5 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
-import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
-import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.domain.shared.Anonymous
 import org.slf4j.MDC
 import org.springframework.security.authentication.AnonymousAuthenticationToken
@@ -21,8 +19,7 @@ import javax.servlet.http.HttpServletResponse
  * to be an anonymous user.
  */
 @Component
-class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
-                      val commandDispatcher: CommandDispatcher) : BaseFilter() {
+class AnonymousFilter : BaseFilter() {
 
     /**
      * Anonymous user filter.
@@ -31,15 +28,11 @@ class AnonymousFilter(val authenticateHandler: AuthenticateHandler,
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AnonymousFilter start")
-        if (!hasCookie(req, "ACCESS_TOKEN") || !hasCookie(req, "ID_TOKEN")) {
-            SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
-                    "anonymous",
-                    Anonymous,
-                    AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
-            MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
-
-            trace("Either ACCESS_TOKEN or ID_TOKEN was missing, Anonymous authentication set.")
-        }
+        SecurityContextHolder.getContext().authentication = AnonymousAuthenticationToken(
+                "anonymous",
+                Anonymous,
+                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
+        MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
 
         chain.doFilter(req, resp)
         trace("AnonymousFilter filter done")

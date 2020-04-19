@@ -1,6 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.config
 
 import dniel.forwardauth.infrastructure.spring.filters.AnonymousFilter
+import dniel.forwardauth.infrastructure.spring.filters.AuthenticationBasicFilter
 import dniel.forwardauth.infrastructure.spring.filters.AuthenticationTokenFilter
 import dniel.forwardauth.infrastructure.spring.filters.LoggingUserFilter
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +20,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Autowired
-    private val jwtFilter: AuthenticationTokenFilter? = null
+    private val jwtAuthFilter: AuthenticationTokenFilter? = null
+
+    @Autowired
+    private val basicAuthFilter: AuthenticationBasicFilter? = null
 
     @Autowired
     private val anonymousFilter: AnonymousFilter? = null
@@ -41,8 +45,9 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .antMatchers("/ui/**").hasAuthority("admin:forwardauth")
                 .anyRequest().authenticated();
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
-        http.addFilterBefore(anonymousFilter, AuthenticationTokenFilter::class.java)
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(basicAuthFilter, AuthenticationTokenFilter::class.java)
+        http.addFilterBefore(anonymousFilter, AuthenticationBasicFilter::class.java)
         http.addFilterBefore(loggingFilter, AnonymousFilter::class.java)
     }
 }
