@@ -104,11 +104,6 @@ class Authorizer private constructor(private val accessToken: Token,
         }
     }
 
-    override fun onValidateIdToken() {
-        log("onValidateIdToken")
-        fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
-    }
-
     override fun onValidatePermissions() {
         log("onValidatePermissions")
         val jwtAccessToken = accessToken as JwtToken
