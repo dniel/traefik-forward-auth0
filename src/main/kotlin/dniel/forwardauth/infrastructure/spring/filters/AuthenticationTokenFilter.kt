@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
@@ -30,8 +31,9 @@ import javax.servlet.http.HttpServletResponse
  * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
-class AuthenticationTokenFilter(authenticateHandler: AuthenticateHandler,
-                                commandDispatcher: CommandDispatcher) : BaseFilter(authenticateHandler, commandDispatcher) {
+class AuthenticationTokenFilter(properties: AuthProperties,
+                                authenticateHandler: AuthenticateHandler,
+                                commandDispatcher: CommandDispatcher) : BaseFilter(properties, authenticateHandler, commandDispatcher) {
 
     /**
      * Perform filtering.

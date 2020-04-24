@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
@@ -32,9 +33,10 @@ import javax.servlet.http.HttpServletResponse
  * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
-class AuthenticationBasicFilter(authenticateHandler: AuthenticateHandler,
+class AuthenticationBasicFilter(properties: AuthProperties,
+                                authenticateHandler: AuthenticateHandler,
                                 commandDispatcher: CommandDispatcher,
-                                val auth0Client: Auth0Client) : BaseFilter(authenticateHandler, commandDispatcher) {
+                                val auth0Client: Auth0Client) : BaseFilter(properties, authenticateHandler, commandDispatcher) {
 
     /**
      * Perform filtering.
@@ -59,7 +61,9 @@ class AuthenticationBasicFilter(authenticateHandler: AuthenticateHandler,
                 val host = req.getHeader("x-forwarded-host")
 
                 // call Auth0 and retrieve access token.
-                val jsonObject = auth0Client.clientCredentialsExchange(username, password, "https://example.com")
+                trace("Request access token by client credentials.")
+                val applicationOrDefault = properties.findApplicationOrDefault(host)
+                val jsonObject = auth0Client.clientCredentialsExchange(username, password, applicationOrDefault.audience)
                 val accessToken = jsonObject.getString("access_token")
 
                 // authorize user, put resulting user in SecurityContextHolder

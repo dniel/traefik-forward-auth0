@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
@@ -16,7 +17,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 /**
  * Base filter class with common filter features.
  */
-abstract class BaseFilter(val authenticateHandler: AuthenticateHandler,
+abstract class BaseFilter(val properties: AuthProperties,
+                          val authenticateHandler: AuthenticateHandler,
                           val commandDispatcher: CommandDispatcher) : OncePerRequestFilter() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)

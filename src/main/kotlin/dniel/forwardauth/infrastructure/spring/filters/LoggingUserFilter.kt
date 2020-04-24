@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
+import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import org.slf4j.MDC
@@ -14,8 +15,9 @@ import javax.servlet.http.HttpServletResponse
  * User details can be found in the Auth0 Dashboard: https://manage.auth0.com/#/users -> Search the "user_id" by Lucene Syntax
  */
 @Component
-class LoggingUserFilter(authenticateHandler: AuthenticateHandler,
-                        commandDispatcher: CommandDispatcher) : BaseFilter(authenticateHandler, commandDispatcher) {
+class LoggingUserFilter(properties: AuthProperties,
+                        authenticateHandler: AuthenticateHandler,
+                        commandDispatcher: CommandDispatcher) : BaseFilter(properties, authenticateHandler, commandDispatcher) {
 
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("LoggingUserFilter start")
