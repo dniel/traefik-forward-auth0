@@ -3,13 +3,8 @@ package dniel.forwardauth.infrastructure.spring.filters
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
-import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.spring.exceptions.AuthenticationException
 import org.slf4j.MDC
-import org.springframework.security.authentication.AnonymousAuthenticationToken
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
@@ -37,9 +32,9 @@ import javax.servlet.http.HttpServletResponse
  * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
-class AuthenticationBasicFilter(val authenticateHandler: AuthenticateHandler,
-                                val commandDispatcher: CommandDispatcher,
-                                val auth0Client: Auth0Client) : BaseFilter() {
+class AuthenticationBasicFilter(authenticateHandler: AuthenticateHandler,
+                                commandDispatcher: CommandDispatcher,
+                                val auth0Client: Auth0Client) : BaseFilter(authenticateHandler, commandDispatcher) {
 
     /**
      * Perform filtering.
@@ -67,26 +62,8 @@ class AuthenticationBasicFilter(val authenticateHandler: AuthenticateHandler,
                 val jsonObject = auth0Client.clientCredentialsExchange(username, password, "https://example.com")
                 val accessToken = jsonObject.getString("access_token")
 
-                // execute command and get result event.
-                val command: AuthenticateHandler.AuthenticateCommand = AuthenticateHandler.AuthenticateCommand(accessToken, "", host)
-                val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthenticationEvent
-                when (event) {
-                    is AuthenticateHandler.AuthenticationEvent.Error -> {
-                        throw AuthenticationException(event)
-                    }
-                    is AuthenticateHandler.AuthenticationEvent.AuthenticatedUser -> {
-                        val user = event.user as Authenticated
-                        val auth = UsernamePasswordAuthenticationToken(user, "", AuthorityUtils.createAuthorityList(*user.permissions))
-                        SecurityContextHolder.getContext().authentication = auth
-                    }
-                    is AuthenticateHandler.AuthenticationEvent.AnonymousUser -> {
-                        val auth = AnonymousAuthenticationToken(
-                                "anonymous",
-                                Anonymous,
-                                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
-                        SecurityContextHolder.getContext().authentication = auth
-                    }
-                }
+                // authorize user, put resulting user in SecurityContextHolder
+                authorize(accessToken, null, host)
                 MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
             } else {
                 trace("No authentication headers found to basic auth.")

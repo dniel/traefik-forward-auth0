@@ -144,9 +144,7 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
         // print dotfile to stdout
-        if(LOGGER.isTraceEnabled) {
-            config.generateDotFileInto(System.err)
-        }
+        // config.generateDotFileInto(System.err)
     }
 
     private fun nextState() {

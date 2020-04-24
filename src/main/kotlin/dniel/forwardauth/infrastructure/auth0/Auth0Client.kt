@@ -12,6 +12,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 
+/**
+ * Auth0 Client.
+ * Creates HTTP calls to the Auth0 HTTP API and handles the results.
+ *
+ */
 @Component
 class Auth0Client(val properties: AuthProperties) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
@@ -22,6 +27,13 @@ class Auth0Client(val properties: AuthProperties) {
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
+     *
+     * @param code from Auth0
+     * @param clientId from Auth0 Application
+     * @param clientSecret from Auth0 Application
+     * @param redirectUri from Auth0 Application.
+     * @return JSON object with access_token and id_token.
+     * @throws IllegalStateException if error was found in response from API call.
      */
     fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
         LOGGER.debug("Perform AuthorizationCodeExchange:  code=$code")
@@ -51,7 +63,10 @@ class Auth0Client(val properties: AuthProperties) {
     }
 
     /**
-     * Call Auth0 to exchange received code with a JWT Token to decode.
+     * Call Auth0 with clientid and clientsecret to get Access Token in return.
+     * @param clientId from Auth0 Application
+     * @param clientSecret from Auth0 Application
+     * @return json object that contains a key "access_token"
      */
     fun clientCredentialsExchange(clientId: String, clientSecret: String, audience: String): JSONObject {
         LOGGER.debug("Perform Client Credentials Exchange client-id: ${clientId}")

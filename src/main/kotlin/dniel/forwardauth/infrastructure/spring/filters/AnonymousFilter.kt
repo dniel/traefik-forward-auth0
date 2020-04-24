@@ -1,6 +1,9 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
+import dniel.forwardauth.application.CommandDispatcher
+import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
+import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import org.slf4j.MDC
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.authority.AuthorityUtils
@@ -19,7 +22,8 @@ import javax.servlet.http.HttpServletResponse
  * to be an anonymous user.
  */
 @Component
-class AnonymousFilter : BaseFilter() {
+class AnonymousFilter(authenticateHandler: AuthenticateHandler,
+                      commandDispatcher: CommandDispatcher) : BaseFilter(authenticateHandler, commandDispatcher) {
 
     /**
      * Anonymous user filter.

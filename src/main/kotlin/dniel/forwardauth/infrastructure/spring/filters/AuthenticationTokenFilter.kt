@@ -3,13 +3,8 @@ package dniel.forwardauth.infrastructure.spring.filters
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
-import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.spring.exceptions.AuthenticationException
 import org.slf4j.MDC
-import org.springframework.security.authentication.AnonymousAuthenticationToken
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import javax.servlet.FilterChain
@@ -35,9 +30,8 @@ import javax.servlet.http.HttpServletResponse
  * @see dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
  */
 @Component
-class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
-                                val commandDispatcher: CommandDispatcher,
-                                val auth0Client: Auth0Client) : BaseFilter() {
+class AuthenticationTokenFilter(authenticateHandler: AuthenticateHandler,
+                                commandDispatcher: CommandDispatcher) : BaseFilter(authenticateHandler, commandDispatcher) {
 
     /**
      * Perform filtering.
@@ -45,16 +39,13 @@ class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AuthenticationFilter start")
+
         if (req.getHeader("x-forwarded-host") == null) {
             trace("Missing x-forwarded-host header to authenticate, skip cookie authentication..")
             return chain.doFilter(req, resp)
         }
 
-        // to authenticate we need to have some cookies to search for, and also
-        // the x-forwarded-host must be set to know which application configuration
-        // to use for authentication properties.
-        //
-        // if already authenticaed, just skip check of cookies because that means
+        // if already authenticated, just skip check of cookies because that means
         // that the previous filter using Basic Auth has authenticated the user.
         if (SecurityContextHolder.getContext().authentication.principal is Anonymous) {
             trace("Authenticate using Tokens from Cookies.")
@@ -62,26 +53,8 @@ class AuthenticationTokenFilter(val authenticateHandler: AuthenticateHandler,
             val idToken = readCookie(req, "JWT_TOKEN")
             val host = req.getHeader("x-forwarded-host")
 
-            // execute command and get result event.
-            val command: AuthenticateHandler.AuthenticateCommand = AuthenticateHandler.AuthenticateCommand(accessToken, idToken, host)
-            val event = commandDispatcher.dispatch(authenticateHandler, command) as AuthenticateHandler.AuthenticationEvent
-            when (event) {
-                is AuthenticateHandler.AuthenticationEvent.Error -> {
-                    throw AuthenticationException(event)
-                }
-                is AuthenticateHandler.AuthenticationEvent.AuthenticatedUser -> {
-                    val user = event.user as Authenticated
-                    val auth = UsernamePasswordAuthenticationToken(user, "", AuthorityUtils.createAuthorityList(*user.permissions))
-                    SecurityContextHolder.getContext().authentication = auth
-                }
-                is AuthenticateHandler.AuthenticationEvent.AnonymousUser -> {
-                    val auth = AnonymousAuthenticationToken(
-                            "anonymous",
-                            Anonymous,
-                            AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
-                    SecurityContextHolder.getContext().authentication = auth
-                }
-            }
+            // authorize user, put resulting user in SecurityContextHolder
+            authorize(accessToken, idToken, host)
             MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
         } else {
             trace("Already authenticated, skip cookie authentication.")

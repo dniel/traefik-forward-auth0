@@ -178,10 +178,7 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         fsm = StateMachine(State.AWAIT_AUTHORIZING, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
-        if(LOGGER.isTraceEnabled) {
-            // print dotfile to stdout
-            config.generateDotFileInto(System.err)
-        }
+//        config.generateDotFileInto(System.err)
     }
 
     private fun nextTransition() {
