@@ -27,8 +27,6 @@ class AnonymousFilter(authenticateHandler: AuthenticateHandler,
 
     /**
      * Anonymous user filter.
-     * dummy change
-     *
      */
     override fun doFilterInternal(req: HttpServletRequest, resp: HttpServletResponse, chain: FilterChain) {
         trace("AnonymousFilter start")
