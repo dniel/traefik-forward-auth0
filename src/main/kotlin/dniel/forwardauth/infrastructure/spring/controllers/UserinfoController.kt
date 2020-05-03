@@ -3,6 +3,7 @@ package dniel.forwardauth.infrastructure.spring.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.shared.Authenticated
+import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
@@ -56,10 +57,10 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
             ))
     @PreAuthorize("isAuthenticated()")
     @RequestMapping("/userinfo", method = [RequestMethod.GET], produces = [APPLICATION_SIREN_JSON])
-    fun userinfo(@Parameter(hidden = true) @RequestHeader headers: MultiValueMap<String, String>,
-                 @Parameter(description = "Access token for current user session", required = true, `in` = ParameterIn.HEADER) @CookieValue("ACCESS_TOKEN", required = true) accessToken: String,
+    fun userinfo(@Parameter(description = "Access token for current user in Cookie", required = false, `in` = ParameterIn.COOKIE) @CookieValue("ACCESS_TOKEN", required = false) accessTokenCookie: String?,
+                 @Parameter(description = "Access token for current user in Header", required = false, `in` = ParameterIn.HEADER) @RequestHeader("Authorization", required = false) accessTokenHeader: String?,
                  @Parameter(hidden = true) authentication: Authentication): ResponseEntity<Root> {
-        val authenticated = authentication.principal as Authenticated
+        val authenticated = authentication.principal as User
         val command: UserinfoHandler.UserinfoCommand = UserinfoHandler.UserinfoCommand(authenticated)
         val userinfoEvent = commandDispatcher.dispatch(userinfoHandler, command) as UserinfoHandler.UserinfoEvent
 
