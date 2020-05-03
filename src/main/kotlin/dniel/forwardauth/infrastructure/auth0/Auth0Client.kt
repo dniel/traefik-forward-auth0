@@ -119,6 +119,11 @@ class Auth0Client(val properties: AuthProperties) {
     /**
      * Call auth0 and retrieve Userinfo
      *
+     * From the Auth0 documentation:
+     * This endpoint will work only if openid was granted as a scope for the Access Token.
+     * The user profile information included in the response depends on the scopes requested.
+     * For example, a scope of just openid may return less information than a a scope of openid profile email
+     *
      * See the Auth0 documentation.
      * @link https://auth0.com/docs/api/user#get-user-info
      */
