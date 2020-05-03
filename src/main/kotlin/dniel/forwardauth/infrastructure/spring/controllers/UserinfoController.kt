@@ -57,9 +57,7 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
             ))
     @PreAuthorize("isAuthenticated()")
     @RequestMapping("/userinfo", method = [RequestMethod.GET], produces = [APPLICATION_SIREN_JSON])
-    fun userinfo(@Parameter(description = "Access token for current user in Cookie", required = false, `in` = ParameterIn.COOKIE) @CookieValue("ACCESS_TOKEN", required = false) accessTokenCookie: String?,
-                 @Parameter(description = "Access token for current user in Header", required = false, `in` = ParameterIn.HEADER) @RequestHeader("Authorization", required = false) accessTokenHeader: String?,
-                 @Parameter(hidden = true) authentication: Authentication): ResponseEntity<Root> {
+    fun userinfo(@Parameter(hidden = true) authentication: Authentication): ResponseEntity<Root> {
         val authenticated = authentication.principal as User
         val command: UserinfoHandler.UserinfoCommand = UserinfoHandler.UserinfoCommand(authenticated)
         val userinfoEvent = commandDispatcher.dispatch(userinfoHandler, command) as UserinfoHandler.UserinfoEvent
