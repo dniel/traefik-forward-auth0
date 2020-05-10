@@ -48,22 +48,34 @@ class Auth0Client(val properties: AuthProperties) {
                 .header("content-type", "application/json")
                 .body(JSON.writeValueAsString(tokenRequest))
                 .asJson();
-        val status = response.status
-        val body = response.body
-        LOGGER.trace("Response status: ${status}")
-        LOGGER.trace("Response body: ${body}")
 
-        if (body.`object`.has("error")) {
-            val error = body.`object`.getString("error")
-            val errorDesc = body.`object`.getString("error_description")
-            throw IllegalStateException("Received error in Code Exchange response from Auth0: $error, $errorDesc")
-        }
-
-        return response.getBody().getObject()
+        return handleResponse(response)
     }
 
     /**
      * Call Auth0 with clientid and clientsecret to get Access Token in return.
+     *
+     * <p>
+     *     Example of a successful response with access_token
+     *     <pre>{@code
+     *       {
+     *         "access_token":"eyJz93a...k4laUWw",
+     *         "token_type":"Bearer",
+     *         "expires_in":86400
+     *       }
+     *    }</pre>
+     * </p>
+     *
+     * <p>
+     *     Example of an error message from Auth0.
+     *     <pre>{@code
+     *       {
+     *       "error_description": "Client is not authorized to access \"https://example.com\". ...",
+     *       "error": "access_denied"
+     *       }
+     *     }</pre>
+     * </p>
+     *
      * @param clientId from Auth0 Application
      * @param clientSecret from Auth0 Application
      * @return json object that contains a key "access_token"
@@ -75,17 +87,13 @@ class Auth0Client(val properties: AuthProperties) {
                 clientSecret = clientSecret,
                 audience = audience)
 
+        LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
         val response = Unirest.post(TOKEN_ENDPOINT)
                 .header("content-type", "application/json")
                 .body(JSON.writeValueAsString(tokenRequest))
                 .asJson();
 
-        val status = response.status
-        val body = response.body
-        LOGGER.trace("Response status: ${status}")
-        LOGGER.trace("Response body: ${body}")
-
-        return response.getBody().getObject()
+        return handleResponse(response)
     }
 
     /**
@@ -134,13 +142,30 @@ class Auth0Client(val properties: AuthProperties) {
                 .header("Authorization", "Bearer ${accesstoken}")
                 .asJson()
 
-        LOGGER.trace("Response status: ${response.status}")
-        LOGGER.trace("Response body: ${response.body}")
-
-        val jsonObject = response.body.`object`
+        val jsonObject = handleResponse(response)
         val userinfo = mutableMapOf<String, Any>()
         jsonObject.keys().forEach { key -> userinfo.put(key, jsonObject.get(key)) }
         return userinfo
+    }
+
+    /**
+     * Handle response payload from Auth0.
+     *
+     * @throws IllegalStateException if error was found in payload.
+     * @return JSONObject with payload if no error found.
+     */
+    private fun handleResponse(response: HttpResponse<JsonNode>): JSONObject {
+        val status = response.status
+        val body = response.body
+        LOGGER.trace("Response status: ${status}")
+        LOGGER.trace("Response body: ${body}")
+
+        if (body.`object`.has("error")) {
+            val error = body.`object`.getString("error")
+            val errorDesc = body.`object`.getString("error_description")
+            throw IllegalStateException("Received error in response from Auth0: $error, $errorDesc")
+        }
+        return body.`object`
     }
 
     /**

@@ -82,6 +82,8 @@ class AuthenticationBasicFilter(properties: AuthProperties,
                     trace("Token has expired in cache, invalidate and request a new one from Auth0.")
                     cache.invalidate(cachedToken)
                     cachedToken = retrieveToken(credentials, host, username, password)
+                }else{
+                    trace("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
                 }
 
                 // authorize user, put resulting user in SecurityContextHolder
