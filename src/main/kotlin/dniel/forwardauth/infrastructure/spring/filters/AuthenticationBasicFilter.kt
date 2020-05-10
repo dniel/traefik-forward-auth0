@@ -1,6 +1,5 @@
 package dniel.forwardauth.infrastructure.spring.filters
 
-import com.google.common.cache.CacheBuilder
 import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
@@ -11,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -40,17 +38,6 @@ class AuthenticationBasicFilter(properties: AuthProperties,
                                 commandDispatcher: CommandDispatcher,
                                 val auth0Client: Auth0Client) : BaseFilter(properties, authenticateHandler, commandDispatcher) {
 
-    // Hold already retrived tokens in cache for client_credentials to avoid excessive api calls to Auth0.
-    val cache = CacheBuilder.newBuilder().expireAfterAccess(24, TimeUnit.HOURS).build<Int, CachedToken>()
-
-    /**
-     * Object to cache, contains both the received token and when it expires for refresh.
-     * @param accessToken is the token that is cached
-     * @param expires is milliseconds since epoch for when the token expires.
-     */
-    data class CachedToken(val accessToken: String, val expires: Long) {
-        fun hasExpired(): Boolean = System.currentTimeMillis() > expires
-    }
 
     /**
      * Perform filtering.
@@ -74,22 +61,15 @@ class AuthenticationBasicFilter(properties: AuthProperties,
                 val (username, password) = credentials.split(":".toRegex(), 2).toTypedArray()
                 val host = req.getHeader("x-forwarded-host")
 
-                // retrieve token from cache, or if not found request one from Auth0.
-                var cachedToken = retrieveToken(credentials, host, username, password)
-
-                // if cached token has expired, invalidate it and reload from Auth0.
-                if (cachedToken.hasExpired()) {
-                    trace("Token has expired in cache, invalidate and request a new one from Auth0.")
-                    cache.invalidate(cachedToken)
-                    cachedToken = retrieveToken(credentials, host, username, password)
-                }else{
-                    trace("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
-                }
+                // Request access_token by client credentials from Auth0.
+                val audience = properties.findApplicationOrDefault(host).audience
+                val cachedToken = auth0Client.clientCredentialsExchange(username, password, audience)
+                val accessToken = cachedToken.getString("access_token")
 
                 // authorize user, put resulting user in SecurityContextHolder
                 // when using client_credentials you dont have any id token
                 // so just send null as token.
-                authorize(cachedToken.accessToken, null, host)
+                authorize(accessToken, null, host)
                 MDC.put("userId", SecurityContextHolder.getContext().authentication.name)
             } else {
                 trace("No authentication headers found to basic auth.")
@@ -97,20 +77,6 @@ class AuthenticationBasicFilter(properties: AuthProperties,
         }
         chain.doFilter(req, resp)
         trace("AuthenticationBasicFilter filter done")
-    }
-
-    private fun retrieveToken(credentials: String, host: String?, username: String, password: String): CachedToken {
-        val cachedToken = cache.get(credentials.hashCode()) {
-            // call Auth0 and retrieve access token.
-            trace("Request access token by client credentials from Auth0.")
-            val applicationOrDefault = properties.findApplicationOrDefault(host)
-            val jsonObject = auth0Client.clientCredentialsExchange(username, password, applicationOrDefault.audience)
-            val accessToken = jsonObject.getString("access_token")
-            val expiresIn = jsonObject.getInt("expires_in")
-
-            CachedToken(accessToken, System.currentTimeMillis() + (expiresIn * 1000))
-        }
-        return cachedToken
     }
 
 }

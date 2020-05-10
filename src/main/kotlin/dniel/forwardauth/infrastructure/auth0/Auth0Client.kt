@@ -2,6 +2,7 @@ package dniel.forwardauth.infrastructure.auth0
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.common.cache.CacheBuilder
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
@@ -10,6 +11,8 @@ import org.apache.http.HttpStatus
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -24,6 +27,18 @@ class Auth0Client(val properties: AuthProperties) {
     val USERINFO_ENDPOINT = properties.userinfoEndpoint
     val TOKEN_ENDPOINT = properties.tokenEndpoint
     val JSON = jacksonObjectMapper()
+
+    /**
+     * Object to cache, contains both the received token and when it expires for refresh.
+     * @param accessToken is the token that is cached
+     * @param expires is milliseconds since epoch for when the token expires.
+     */
+    data class CachedToken(val accessToken: JSONObject, val expires: Long) {
+        fun hasExpired(): Boolean = System.currentTimeMillis() > expires
+    }
+
+    // Hold already retrived tokens in cache for client_credentials to avoid excessive api calls to Auth0.
+    val cache = CacheBuilder.newBuilder().expireAfterAccess(24, TimeUnit.HOURS).build<String, CachedToken>()
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
@@ -54,6 +69,8 @@ class Auth0Client(val properties: AuthProperties) {
 
     /**
      * Call Auth0 with clientid and clientsecret to get Access Token in return.
+     * Will cache the resulting access_token per clientid for 24hours to reduce
+     * number if API calls to Auth0.
      *
      * <p>
      *     Example of a successful response with access_token
@@ -82,19 +99,41 @@ class Auth0Client(val properties: AuthProperties) {
      */
     fun clientCredentialsExchange(clientId: String, clientSecret: String, audience: String): JSONObject {
         LOGGER.debug("Perform Client Credentials Exchange client-id: ${clientId}")
-        val tokenRequest = ClientCredentialsTokenRequest(
-                clientId = clientId,
-                clientSecret = clientSecret,
-                audience = audience)
+        var cachedToken = requestClientCredentialsToken(clientId, clientSecret, audience)
 
-        LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
-        val response = Unirest.post(TOKEN_ENDPOINT)
-                .header("content-type", "application/json")
-                .body(JSON.writeValueAsString(tokenRequest))
-                .asJson();
+        // if cached token has expired, invalidate it and reload from Auth0.
+        if (cachedToken.hasExpired()) {
+            LOGGER.trace("Token has expired in cache, invalidate and re-request a new one from Auth0.")
+            cache.invalidate(cachedToken)
+            cachedToken = requestClientCredentialsToken(clientId, clientSecret, audience)
+        } else {
+            LOGGER.trace("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
+        }
 
-        return handleResponse(response)
+        return cachedToken.accessToken
     }
+
+    /**
+     * Request access token by client credentials HTTP API call.
+     */
+    private fun requestClientCredentialsToken(clientId: String, clientSecret: String, audience: String) =
+            cache.get(clientId) {
+                val tokenRequest = ClientCredentialsTokenRequest(
+                        clientId = clientId,
+                        clientSecret = clientSecret,
+                        audience = audience)
+
+                LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
+                val response = Unirest.post(TOKEN_ENDPOINT)
+                        .header("content-type", "application/json")
+                        .body(JSON.writeValueAsString(tokenRequest))
+                        .asJson();
+
+                val jsonObject = handleResponse(response)
+                val expiresIn = jsonObject.getInt("expires_in")
+
+                CachedToken(jsonObject, System.currentTimeMillis() + (expiresIn * 1000))
+            }
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
