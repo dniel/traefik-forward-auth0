@@ -120,6 +120,7 @@ class Auth0Client(val properties: AuthProperties) {
      */
     private fun requestClientCredentialsToken(clientId: String, clientSecret: String, audience: String) =
             cache.get((clientId+clientSecret+audience).hashCode()) {
+                LOGGER.trace("Request Access Token by Client Credentials from Auth0.")
                 val tokenRequest = ClientCredentialsTokenRequest(
                         clientId = clientId,
                         clientSecret = clientSecret,
