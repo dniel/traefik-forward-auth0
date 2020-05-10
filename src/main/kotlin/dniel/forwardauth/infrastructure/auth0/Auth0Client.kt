@@ -38,7 +38,7 @@ class Auth0Client(val properties: AuthProperties) {
     }
 
     // Hold already retrived tokens in cache for client_credentials to avoid excessive api calls to Auth0.
-    val cache = CacheBuilder.newBuilder().expireAfterAccess(24, TimeUnit.HOURS).build<String, CachedToken>()
+    val cache = CacheBuilder.newBuilder().expireAfterAccess(24, TimeUnit.HOURS).build<Int, CachedToken>()
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
@@ -115,9 +115,11 @@ class Auth0Client(val properties: AuthProperties) {
 
     /**
      * Request access token by client credentials HTTP API call.
+     * Result is cached for 24 hours using the hashcode of
+     * the combination of clientid, clientsect and audience.
      */
     private fun requestClientCredentialsToken(clientId: String, clientSecret: String, audience: String) =
-            cache.get(clientId) {
+            cache.get((clientId+clientSecret+audience).hashCode()) {
                 val tokenRequest = ClientCredentialsTokenRequest(
                         clientId = clientId,
                         clientSecret = clientSecret,
