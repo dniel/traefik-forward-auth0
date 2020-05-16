@@ -103,11 +103,11 @@ class Auth0Client(val properties: AuthProperties) {
 
         // if cached token has expired, invalidate it and reload from Auth0.
         if (cachedToken.hasExpired()) {
-            LOGGER.trace("Token has expired in cache, invalidate and re-request a new one from Auth0.")
+            LOGGER.debug("Token has expired in cache, invalidate and re-request a new one from Auth0.")
             cache.invalidate(cachedToken)
             cachedToken = requestClientCredentialsToken(clientId, clientSecret, audience)
         } else {
-            LOGGER.trace("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
+            LOGGER.debug("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
         }
 
         return cachedToken.accessToken
