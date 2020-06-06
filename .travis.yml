@@ -35,6 +35,7 @@ script:
     fi;
 after_success:
   - docker build -t dniel/forwardauth .
+
 deploy:
   - provider: script
     skip_cleanup: true
@@ -47,6 +48,9 @@ deploy:
     on:
       all_branches: true
       if: $BRANCH != "master"
+
 notifications:
   slack:
-    secure: SxY9EHGh26cBKXwImOcaz6pNOH2dFzAcvStop9MJpk/ihVKKHe3cTfpam3V0PxmisYmWw+7ZNHlj/gwQEpaQfvBme+YyZUrqDufC/PL0QMdwKbtqMxFjq4LeVby7Vr5DX8E9luHwQKDo7dwLqgeIWisExYMLDfdhPgCJguBA8/yFaa58VxwE5NIWtCFjJHPNeXBTN28Ju+D43PqZJ9OzusEc61ElSaN07oipynyh8SbXlk/CgZu7TTyJOQdUSsrP8sLiKMtP7PKasib6/eeQV0n3l+4H1K62zsXm7iwhpnXxEYGvtKv/bV2eVr5Gxe1ftd5bUZVkeexN/upTLHqwBS74iCfK5qZWOwJD3JG9aYYfrJLpinKTt2vy4jhhe6LCZRWu+yYu0mOZhQ73Bju30PmaSoYzDUuGCbVVaZJRGx/u6Qk8+4+HpCaYuoyZG3Wza9K/z01k2eQI2fx2IyJ6cyF+cqi8d7EjtBrYpDIutID38tIhhgWNVRagLkgOU0/qg+UqUDSlcAQ8byUQN9aHv/XqBkm27HM7Ydgc6BrmOAb4hZHgh9HGSwu5qh2NiVr8T7BB/CDEc2u0t4aj9ufElJUsjLoDD2m/j3Er8UluiR5qTvjgGlephr8XQ1ZuGrfiAPgZR2xsKZ0Xgni+moJLl91RF8wyYduUAdiDyDQ9uBw=
+    rooms:
+    - dniel:7Efn86xOzM4GvPdWaGoiNC99#general
+    - dniel:7Efn86xOzM4GvPdWaGoiNC99#random
