@@ -52,5 +52,4 @@ deploy:
 notifications:
   slack:
     rooms:
-    - dniel:7Efn86xOzM4GvPdWaGoiNC99#general
-    - dniel:7Efn86xOzM4GvPdWaGoiNC99#random
+    - dniel:7Efn86xOzM4GvPdWaGoiNC99
