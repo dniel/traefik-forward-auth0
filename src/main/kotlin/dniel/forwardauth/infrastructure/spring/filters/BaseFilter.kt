@@ -5,7 +5,6 @@ import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
 import dniel.forwardauth.domain.shared.Authenticated
-import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.spring.exceptions.AuthenticationException
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AnonymousAuthenticationToken

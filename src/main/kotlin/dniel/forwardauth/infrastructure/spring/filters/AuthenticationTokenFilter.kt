@@ -4,7 +4,6 @@ import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import dniel.forwardauth.domain.shared.Anonymous
-import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import org.slf4j.MDC
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component

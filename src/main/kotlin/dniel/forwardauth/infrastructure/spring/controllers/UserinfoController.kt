@@ -2,7 +2,6 @@ package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
-import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
@@ -10,7 +9,6 @@ import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
 import io.swagger.v3.oas.annotations.ExternalDocumentation
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
-import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.*
 
 @RestController
