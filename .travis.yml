@@ -49,7 +49,15 @@ deploy:
       if: $BRANCH != "master"
 notifications:
   slack:
-    secure: mGv697puKfRijvVrzts4/R7sZQJiW1uGN+iFpMFnyqArJ8LYjr6UZzYLyl1wQl4RQwDPbNQ1tqNRFbfYbw2cTOdN1soVkQO9RnULCqK7IolEznoUXgQZjTmhNUBxNgc/5ur4hLma/cYkRQA8K5Y7vbUjmWS5+yxD6pxY2O503CK78GqYQFQaoWNupcqPl1fIl/V5iai7Za3lUfLBoRFQYzsKqVbiI7XYL/PsJZy0sPb0dabW5MbXDhYDln+9cjwuxtpTNSGAkFJPqcgw9gpK39qOLckS/Z1/WMBPcjPr7EKxyzWqB69xW9HlP19PJZkt/UUHuzKQtyLkYw3PfeTs292bbetdBMSgTLN4xLcOw1EKqoaS3WanhOF0Abn4YJrEuhLhvdbHyU2kYk9R1nadRjSA7ynPOdBGHmF6FnnJ4yBeldAh8QDmIVLYMYHWeSRBW6xnqd2lDk6jS198KQR4aCAkv9NPxIiiQ7MncWnAGC6s/iVDQg3nPZo2MbJGbE7ArqbqvG6nHRZJ/cb4ii/u+dnwTOpBvoA/CpzpZnNs2+K9vpDP8ICfsEzktYbZkOMQT6hyYpqhIhtSSquW2q0l4zbHdeQY8rLAVnBL5CH4jDUHEAdM0tU/bWuw2KIqoC/KeMaQ2MVK0LCh7qWrGM4O11vfvAyBnWFrP6kYALdXSSg=
+    rooms:
+      - secure: mGv697puKfRijvVrzts4/R7sZQJiW1uGN+iFpMFnyqArJ8LYjr6UZzYLyl1wQl4RQwDPbNQ1tqNRFbfYbw2cTOdN1soVkQO9RnULCqK7IolEznoUXgQZjTmhNUBxNgc/5ur4hLma/cYkRQA8K5Y7vbUjmWS5+yxD6pxY2O503CK78GqYQFQaoWNupcqPl1fIl/V5iai7Za3lUfLBoRFQYzsKqVbiI7XYL/PsJZy0sPb0dabW5MbXDhYDln+9cjwuxtpTNSGAkFJPqcgw9gpK39qOLckS/Z1/WMBPcjPr7EKxyzWqB69xW9HlP19PJZkt/UUHuzKQtyLkYw3PfeTs292bbetdBMSgTLN4xLcOw1EKqoaS3WanhOF0Abn4YJrEuhLhvdbHyU2kYk9R1nadRjSA7ynPOdBGHmF6FnnJ4yBeldAh8QDmIVLYMYHWeSRBW6xnqd2lDk6jS198KQR4aCAkv9NPxIiiQ7MncWnAGC6s/iVDQg3nPZo2MbJGbE7ArqbqvG6nHRZJ/cb4ii/u+dnwTOpBvoA/CpzpZnNs2+K9vpDP8ICfsEzktYbZkOMQT6hyYpqhIhtSSquW2q0l4zbHdeQY8rLAVnBL5CH4jDUHEAdM0tU/bWuw2KIqoC/KeMaQ2MVK0LCh7qWrGM4O11vfvAyBnWFrP6kYALdXSSg=
+    on_success: always
+    on_failure: always
+    template:
+      - Repo `%{repository_slug}` *%{result}* build (<%{build_url}|#%{build_number}>)
+        for commit (<%{compare_url}|%{commit}>) on branch `%{branch}`.
+      - 'Execution time: *%{duration}*'
+      - 'Message: %{message}'
 env:
   global:
     - secure: JQ0LbHXNiC89/QOGcWY7JJAUFGtkOz+j51Hw9hKxaqIfr3OQlb7SyB7zW3kWrk5D6wA899enbb43D4Q3qk8CmWfFwpj9OcKGz7FeX8sLoHTUeaRmwG/tP6cc3UdRFrtksGjR1xiWi6PKBx45yoq6cOgWjXJydzxm4p9PSOwzWGXSvqgcgNTzXRo0EW4f7BtfuqBhm/n8NTsE49vmKmh1FEt0miYBZSEgsIrE7IMnUcEkwkme42tVwEnSSHZYmqIxEnYd0v+SxCUCbUjLcQYqKg1POnHMnlmjrAqoyfrsh6RFENI1UigXRzw0/0jwll9aiztlvyb65DyJQN0ExvsXRxcDg9K3W1jR8aN5uB94HRPD76cYS+xOlc0QOxra+mSBifa1tZM5q2DryZIngVGttpK1FJvCTseqcWO72WH46RaiOraEYw2ErWrfJY2H4JPuNKHacqd8MC4nh26mrx2Ju52xyBr7XenctIInshCP0I4OdwMZUZRGLXc0s2KCCzED7SkgmkiOWGU0kqEVGqUgoE1HEeBonLnuuP8ukyBuCL/Ckg0lk98IJr7DuOhqLtlLVxDWvCTJZG9HDvMzh6npSqAdHQe/jIu9qxA/mu1WK//KiojmhX234f2wC7v0+v/nuZZXC7XVNz3VVU/hkwjM8fmLikNGIKzl6w88uWb39EQ=
