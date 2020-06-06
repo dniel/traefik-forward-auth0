@@ -1,6 +1,6 @@
 package dniel.forwardauth.domain.shared
 
-import dniel.forwardauth.domain.stereotypes.Repository
+import dniel.forwardauth.domain.shared.stereotypes.Repository
 
 /**
  * Repository for Tokens.
