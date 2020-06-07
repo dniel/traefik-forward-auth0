@@ -24,7 +24,7 @@ class UserinfoHandler(val properties: AuthProperties,
      * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
-    data class UserinfoCommand(val user: Authenticated) : Command
+    data class UserinfoCommand(val user: User) : Command
 
 
     /**
@@ -43,13 +43,17 @@ class UserinfoHandler(val properties: AuthProperties,
      * @return an userinfo event containing the result status of the userinfo.
      */
     override fun handle(params: UserinfoCommand): Event {
-        LOGGER.debug("Get userinfo for user ${params.user.sub}")
-        try {
-            val userinfo = auth0Client.userinfo(params.user.accessToken.raw)
-            return UserinfoEvent.Userinfo(userinfo, params.user)
-        } catch (e: Exception) {
-            return UserinfoEvent.Error(e.message!!, params.user)
+        return when (params.user) {
+            is Authenticated -> {
+                try {
+                    LOGGER.debug("Get userinfo for user ${params.user.sub}")
+                    val userinfo = auth0Client.userinfo(params.user.accessToken.raw)
+                    UserinfoEvent.Userinfo(userinfo, params.user)
+                } catch (e: Exception) {
+                    UserinfoEvent.Error(e.message!!, params.user)
+                }
+            }
+            else -> UserinfoEvent.Error("Unable to retrieve userinfo.", params.user)
         }
     }
-
 }

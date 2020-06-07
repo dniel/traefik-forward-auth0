@@ -1,9 +1,6 @@
 package dniel.forwardauth.domain.authorize.service
 
-import dniel.forwardauth.domain.shared.InvalidToken
-import dniel.forwardauth.domain.shared.JwtToken
-import dniel.forwardauth.domain.shared.OpaqueToken
-import dniel.forwardauth.domain.shared.Token
+import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
 
 /**
@@ -75,10 +72,27 @@ class Authenticator private constructor(val accessToken: Token,
 
     override fun onValidateIdToken() {
         log("onValidateIdToken")
-        when {
-            idToken is JwtToken -> fsm.post(AuthenticatorStateMachine.Event.VALID_ID_TOKEN)
-            idToken is InvalidToken -> {
+        when (idToken) {
+            /**
+             * Handling the case when ID Token is empty because
+             * authenticating using client credentials where you
+             * dont get an id token as response, only access token.
+             */
+            is EmptyToken -> {
+                if(accessToken is JwtToken && accessToken.isClientCredentials()){
+                    fsm.post(AuthenticatorStateMachine.Event.EMPTY_ID_TOKEN)
+                }else{
+                    lastError = Error("An ID Token cant be empty unless using client credentials authentication flow.")
+                    fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
+                }
+            }
+            is JwtToken -> fsm.post(AuthenticatorStateMachine.Event.VALID_ID_TOKEN)
+            is InvalidToken -> {
                 lastError = Error(idToken.reason)
+                fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
+            }
+            is OpaqueToken -> {
+                lastError = Error("An ID Token can't be an opaque token.")
                 fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
             }
         }
@@ -87,7 +101,7 @@ class Authenticator private constructor(val accessToken: Token,
     override fun onValidateSameSubs() {
         log("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
-                accessToken is JwtToken && idToken is JwtToken && idToken.subject()  == accessToken.subject()
+                accessToken is JwtToken && idToken is JwtToken && idToken.subject() == accessToken.subject()
 
         // check if both tokens have the same subject
         if (hasSameSubs(accessToken, idToken)) {
@@ -115,7 +129,6 @@ class Authenticator private constructor(val accessToken: Token,
     override fun onAnonymous() {
         log("onAnonymous")
     }
-
 
     /*
      */

@@ -24,6 +24,10 @@ import java.net.URI
  * As a result of all evaluations in the authorization logic the result will be a set
  * of AuthEvents that will be returned as the result from the handle method.
  * <p/>
+ * The authorization logic operates and make decissions on the content of the
+ * Access Token claims to evalurate with the state machine if current user has
+ * access to the url requested.
+ * <p/>
  * The handle-method will take all the input and verify according to a set of rules
  * if the user has access the requested url.
  *
@@ -83,9 +87,8 @@ class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<Authoriz
 
         val user = params.user
         val accessToken = user.accessToken
-        val idToken = user.idToken
 
-        val authorizer = Authorizer.create(accessToken, idToken, app, originUrl, isApi)
+        val authorizer = Authorizer.create(accessToken, app, originUrl, isApi)
         val (authorizerState, authorizerError) = authorizer.authorize()
         LOGGER.debug("State: ${authorizerState}, Error: ${authorizerError}")
 

@@ -10,8 +10,8 @@ class Application {
 
     @get:JsonIgnore
     var clientId: String = ""
-    @get:JsonIgnore
 
+    @get:JsonIgnore
     var clientSecret: String = ""
     var audience: String = ""
     var scope: String = "profile openid email"

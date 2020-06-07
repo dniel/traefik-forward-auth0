@@ -2,14 +2,10 @@ package dniel.forwardauth.domain.shared.service
 
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.cache.CacheBuilder
-import dniel.forwardauth.domain.shared.InvalidToken
-import dniel.forwardauth.domain.shared.JwtToken
-import dniel.forwardauth.domain.shared.OpaqueToken
-import dniel.forwardauth.domain.shared.Token
+import dniel.forwardauth.domain.shared.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*
-import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 
 /**
@@ -32,16 +28,16 @@ class VerifyTokenService(val decoder: JwtDecoder) {
     fun verify(token: String?, expectedAudience: String): Token {
         return when {
             // if its a null or empty string just fail fast.
-            token.isNullOrEmpty() -> InvalidToken("Missing token")
+            token.isNullOrEmpty() -> EmptyToken()
 
             // verify that the token has JWT format, eg. three parts separated by .
             isOpaqueToken(token) -> OpaqueToken(token)
 
             else -> {
                 try {
-                    val decodedJWT = cache.get(token, Callable<DecodedJWT> {
+                    val decodedJWT = cache.get(token) {
                         decodeToken(token)
-                    })
+                    }
                     when {
                         hasIllegalAudience(decodedJWT, expectedAudience) -> throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
                         hasExpired(decodedJWT) -> throw IllegalStateException("Token has expired ${decodedJWT.expiresAt}")

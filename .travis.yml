@@ -21,13 +21,13 @@ before_script:
   - echo "$TRAVIS_TAG $TRAVIS_COMMIT $BRANCH $COMMIT_TIME"
 script:
   - echo "TRAVIS_SECURE_ENV_VARS=${TRAVIS_SECURE_ENV_VARS}";
-  - >
+  - |
     if [ "${TRAVIS_SECURE_ENV_VARS}" == "true" ]; then
       echo;
       echo "Running Sonar build";
       mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsha1=$APP_VERSION -Dchangelist=$BRANCH;
     fi;
-  - >
+  - |
     if [ "${TRAVIS_SECURE_ENV_VARS}" == "false" ]; then
       echo;
       echo "Running Pull Request build without Sonar";
@@ -35,6 +35,7 @@ script:
     fi;
 after_success:
   - docker build -t dniel/forwardauth .
+
 deploy:
   - provider: script
     skip_cleanup: true
@@ -47,17 +48,8 @@ deploy:
     on:
       all_branches: true
       if: $BRANCH != "master"
+
 notifications:
   slack:
-    rooms:
-      secure: cNyWxVxmQCu+yJr+o4fFiVVMUaPgMqm6YujcX3R1lVjtQyEgtzvz5g9dCZY+473EQC8AKFz5HYrZQoReBDq3icMIGAZ9vJp/Q/zryNhpKV95WyuQY1rSrD+WMv/fNLv8yf5VrYY8tqPGUnUm2K0F8aAZgG6O3u+f7+5hl/+GlUO3JyC36BX725J9wKaLJJfEoyYvHK9AVP9BJQs2SlwHxUQOd2nOYl7bVqW1BjXTXHYbo1IlnN7iN+GZ35v16LnlkgiB2hcads0/tR19AtXsFjaRH7eJklqcSEeVfMfF01Zp/2UbJI4pSyLi1zjf5xa8v6/E029jVS7Ho4/0WnVBi/hKGaKA472T/I5ueVxlvNFjc/GxVB+dI87esWrbYXQ0Leiia3h1ovmIx9+OR/VEsh9GTh6H7kzWwjm4MrqGg0NOxBeccWjUsOLaTS3LVxyPcU7l07MrKe+Y6B/Igsls4xCvIRr9Bf6E0GZ/k1iKX6FK8AvXFMqzi8McKb7Sfv6QcpgnlhePmFvCKuHGWr77ZSnGmh18cZY3IYR/v32DzKmHLijL5KA9PVNdkFrcEn8RLTZqI3uxMNCXq37NlMW2ZEcxhyF+JL38HWIWOjh2rzpLHUls2vxixfbTvYaAEhB4en01OGX6+N46uQTU3/nvSJgm7f4UQo3orCcdFJ/Ql7U=
-    on_success: always
-    on_failure: always
-    template:
-      - Repo `%{repository_slug}` *%{result}* build (<%{build_url}|#%{build_number}>)
-        for commit (<%{compare_url}|%{commit}>) on branch `%{branch}`.
-      - 'Execution time: *%{duration}*'
-      - 'Message: %{message}'
-env:
-  global:
-    secure: iHN7Ig4AZkNk/nNMSlpGoMFDCGNQJ74rbEzWT1p+AKQLQnxeadXDG6SMIaOcZtcM74C6lHg8R26j1dMVf1hHfazEThUhFpV6QIewGMHVzUHNov/pwpjEV9nObBD/0c6jgi0eKim5ImWZwiUpIrp9Gd7KhnQz9o75nT+cRAf/Gt/K6WJGZ3Uo5o3Ltld/3csfBv/eUtIO9VAgPwdkxSrgkZr2SwdplpspuApGlqNtHfHK3rCdhtGyS+HRfslgIG+DRYwheAEfXwXlcksAKDzL4A5aRNg5/hrMQ8hP94vJCMzu8f7ZpiJLnYtzbh8v4AG9d1GzFg1lCBG7z5hbhXfjevqQ1VkaMISlakUQCfa5vWNiG4ydEplipn4ca9DTbagmKqi6yaOZGw51ipA7BiNo7g2zJRYTPPlWjei0REj8ijqicmiQrrvnIcLRjqGh+WJZ5Yne5wOCs6gR//xW+a8WWz8tbTqd/UoGfYeHIEe33XPitKiAbvhxdQzKMNu61sGbllKUC7Of7GKP+Mx8W5s+4QQZHR8H0GJqwr0LGHx4t5qUATHhAGdJQZLivFOXOxbnSmqgG3dhRbnEMHYEWixHH+QU5dqn1BCNWS7Lv8m1/C+1ZA6HFmScNzQwcqu7EWBpxnOoMWx292Sbj8jG8S1QEuAOSVR8H8yrK5RgV5XRr1c=
+    secure: "A0lnSoFq8Rm15jHJS+yNt1MqAoWG7jpu0Nj1VjfMRxkaLDJ4sj+wufRZqH9E04rpdjVnNp3W8HSj6p9a0Qd98OVC2clhv99H26c5SdxXGteF7/WwC7FU5W59pQg/bYi3F/WDljXyvXnVPs9CrKWFrlwEowFSsrZJ8zMs8rmibsw7ye+GQVdLRxI8FKRNl2Rrwg5M354glxtyaXu9R/HbI5XdRSdfOVBCfVTTseuaNGSKNnBRKqTMHGf7eEIuoABtps8LsHsZnI5dmEqJ3pW9mrniZHHbgf2u4Nmjojg9Foe98n4GwNzmcGi2u4hprxNGqDBxw6GjoY1ww3CAOZRHdd0LzaL1o2r/7mEJlMtw6awLmbceYq588Yt79nlu45RgEnxJoarG3e77LBb+D5PN2lFjbFBXBITGSCQ0dt3WbDRiGlxL9ipJEAl4h8F1CDbV3zxblteANYns7YS8wEb3W8NDhdIaUuLA95eyP/l5n+1ReOMXjkvIgiTeU1G8yZ/+mVm5sDS2+ayfJtHezzeC+3fnttwCoUjw/DnyCG8qJBK5prQ8lC6ORiIL7t24TKMUWiqQvZ6ngCzfaCZab27JpxjqFgJNa/eivOfTtwQAPoeA+FUlCuj5bXkLJ1LZzGsDsWOY2/Xj0Rjado5VToadL2V4fX7alL86v15Z8v2iDaw="
+#    - dniel:7Efn86xOzM4GvPdWaGoiNC99

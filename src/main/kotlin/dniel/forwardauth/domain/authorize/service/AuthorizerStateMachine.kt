@@ -43,9 +43,7 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         fun onStartValidateTokens()
         fun onError()
         fun onValidateAccessToken()
-        fun onValidateIdToken()
         fun onValidatePermissions()
-        fun onValidateSameSubs()
         fun onValidateProtectedUrl()
         fun onValidateWhitelistedUrl()
         fun onValidateRestrictedMethod()
@@ -61,10 +59,8 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
         VALIDATING_TOKENS,
 
-        VALIDATING_ID_TOKEN,
         VALIDATING_ACCESS_TOKEN,
         VALIDATING_PERMISSIONS,
-        VALIDATING_SAME_SUBS,
 
         VALIDATING_REQUESTED_URL,
         VALIDATING_WHITELISTED_URL,
@@ -81,6 +77,7 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
     enum class Event {
         AUTHORIZE,
 
+        // verify url and http method
         VALIDATE_REQUESTED_URL,
         VALIDATE_WHITELISTED_URL,
 
@@ -91,16 +88,11 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
         // verify access token and its content
         VALIDATE_ACCESS_TOKEN,
+
         VALID_ACCESS_TOKEN,
         INVALID_ACCESS_TOKEN,
         VALID_PERMISSIONS,
         INVALID_PERMISSIONS,
-        INVALID_SAME_SUBS,
-        VALID_SAME_SUBS,
-
-        // verify ID token and its content
-        VALID_ID_TOKEN,
-        INVALID_ID_TOKEN,
 
         // generic error event
         ERROR,
@@ -146,32 +138,20 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
 
         config.configure(State.VALIDATING_TOKENS)
                 .substateOf(State.AUTHORIZING)
-                .permit(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN)
+                .permitIf(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN) { !delegate.hasError }
                 .onEntry(delegate::onStartValidateTokens)
 
         config.configure(State.VALIDATING_ACCESS_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
+                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
                 .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
                 .onEntry(delegate::onValidateAccessToken)
 
-        config.configure(State.VALIDATING_SAME_SUBS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
-                .permitIf(Event.VALID_SAME_SUBS, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
-                .permit(Event.INVALID_SAME_SUBS, State.INVALID_TOKEN)
-                .onEntry(delegate::onValidateSameSubs)
-
         config.configure(State.VALIDATING_PERMISSIONS)
-                .substateOf(State.VALIDATING_ACCESS_TOKEN)
-                .permitIf(Event.VALID_PERMISSIONS, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
+                .substateOf(State.VALIDATING_TOKENS)
+                .permitIf(Event.VALID_PERMISSIONS, State.ACCESS_GRANTED) { !delegate.hasError }
                 .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
                 .onEntry(delegate::onValidatePermissions)
-
-        config.configure(State.VALIDATING_ID_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ID_TOKEN, State.ACCESS_GRANTED) { !delegate.hasError }
-                .permit(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN)
-                .onEntry(delegate::onValidateIdToken)
 
         config.configure(State.INVALID_TOKEN)
                 .substateOf(State.VALIDATING_TOKENS)
@@ -198,8 +178,7 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         fsm = StateMachine(State.AWAIT_AUTHORIZING, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }
 
-        // print dotfile to stdout
-        // config.generateDotFileInto(System.err)
+//        config.generateDotFileInto(System.err)
     }
 
     private fun nextTransition() {

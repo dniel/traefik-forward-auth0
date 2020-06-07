@@ -41,10 +41,10 @@ class AuthenticateHandler(val properties: AuthProperties,
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthentiationEvent(val user: User) : Event() {
-        class AuthenticatedUser(user: User) : AuthentiationEvent(user)
-        class AnonymousUser() : AuthentiationEvent(Anonymous)
-        class Error(error: Authenticator.Error?) : AuthentiationEvent(Anonymous) {
+    sealed class AuthenticationEvent(val user: User) : Event() {
+        class AuthenticatedUser(user: User) : AuthenticationEvent(user)
+        class AnonymousUser : AuthenticationEvent(Anonymous)
+        class Error(error: Authenticator.Error?) : AuthenticationEvent(Anonymous) {
             val reason: String = error?.message ?: "Unknown error"
         }
     }
@@ -66,26 +66,35 @@ class AuthenticateHandler(val properties: AuthProperties,
         LOGGER.debug("State: ${state}, Error: ${error}")
 
         return when (state) {
-            AuthenticatorStateMachine.State.ANONYMOUS -> AuthentiationEvent.AnonymousUser()
+            AuthenticatorStateMachine.State.ANONYMOUS -> AuthenticationEvent.AnonymousUser()
             AuthenticatorStateMachine.State.AUTHENTICATED -> {
-                val user = Authenticated(accessToken as JwtToken, idToken as JwtToken, getUserinfoFromToken(app, idToken))
-                AuthentiationEvent.AuthenticatedUser(user)
+                val userinfoFromToken = getUserinfoFromToken(app, idToken, accessToken)
+                val user = Authenticated(accessToken as JwtToken, idToken, userinfoFromToken)
+                AuthenticationEvent.AuthenticatedUser(user)
             }
-            else -> AuthentiationEvent.Error(error)
+            else -> AuthenticationEvent.Error(error)
         }
     }
 
     /**
      * Get selected userinfo from token claims.
      */
-    private fun getUserinfoFromToken(app: Application, token: JwtToken): Map<String, String> {
+    private fun getUserinfoFromToken(app: Application, idToken: Token, accessToken: Token): Map<String, String> {
         app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: ${s}") }
-        return token.value.claims
-                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
-                .filterKeys { app.claims.contains(it) }
-                .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
-                .mapValues { getClaimValue(it.value) }
-                .filterValues { it != null } as Map<String, String>
+        val userinfo = mutableMapOf<String,String>()
+        // use sub claim from access token.
+        userinfo["sub"] = (accessToken as JwtToken).subject()
+
+        // add rest of claims from id token.
+        if(idToken is JwtToken) {
+            userinfo.putAll(idToken.value.claims
+                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Token Claim ${entry.key}=${getClaimValue(entry.value)}") }
+                    .filterKeys { app.claims.contains(it) }
+                    .onEach { entry: Map.Entry<String, Claim> -> LOGGER.trace("Filtered claim ${entry.key}=${getClaimValue(entry.value)}") }
+                    .mapValues { getClaimValue(it.value) }
+                    .filterValues { it != null } as Map<String, String>)
+        }
+        return userinfo
     }
 
     private fun getClaimValue(claim: Claim): String? {

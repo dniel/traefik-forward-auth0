@@ -5,9 +5,9 @@ image:
   tag: latest
   pullPolicy: Always
 
-# set logLevel to DEBUG, TEST, or PRODUCTION to control the verbosity of logs
+# set logLevel to DEV, TEST, or PRODUCTION to control the verbosity of logs
 # the container by default logs to STDOUT
-logLevel: DEBUG
+logLevel: DEV
 
 # Base configuration for OAuth2 and OIDC properties.
 # domain, token endpoin, authorize url that needs to be set

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Authorizer.
- * This service is responseble for authorizing access for a requested url.
+ * This service is responsible for authorizing access for a requested url.
  * To handle all the logic involved to authorize the request a state machine is
  * created and all inputs from this class is used as context to find out if
  * the request can be authorized.
@@ -14,16 +14,17 @@ import org.slf4j.LoggerFactory
  * @see AuthorizerStateMachine for configuration of state machine.
  *
  */
-class Authorizer private constructor(val accessToken: Token, val idToken: Token,
-                                     val app: Application, val originUrl: RequestedUrl,
+class Authorizer private constructor(private val accessToken: Token,
+                                     private val app: Application,
+                                     private val originUrl: RequestedUrl,
                                      override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
-        fun create(accessToken: Token, idToken: Token, app: Application,
+        fun create(accessToken: Token, app: Application,
                    originUrl: RequestedUrl, isApi: Boolean):
-                Authorizer = Authorizer(accessToken, idToken, app, originUrl, isApi)
+                Authorizer = Authorizer(accessToken, app, originUrl, isApi)
     }
 
     private var fsm: AuthorizerStateMachine
@@ -78,7 +79,7 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         log("onValidateRestrictedMethod")
         val method = originUrl.method
         fun isRestrictedMethod(app: Application, method: String) =
-                app.restrictedMethods.any() { t -> t.equals(method, true) }
+                app.restrictedMethods.any { t -> t.equals(method, true) }
 
         when {
             isRestrictedMethod(app, method) -> fsm.post(AuthorizerStateMachine.Event.RESTRICTED_METHOD)
@@ -103,14 +104,6 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
         }
     }
 
-    override fun onValidateIdToken() {
-        log("onValidateIdToken")
-        when {
-            idToken is JwtToken -> fsm.post(AuthorizerStateMachine.Event.VALID_ID_TOKEN)
-            else -> fsm.post(AuthorizerStateMachine.Event.INVALID_ID_TOKEN)
-        }
-    }
-
     override fun onValidatePermissions() {
         log("onValidatePermissions")
         val jwtAccessToken = accessToken as JwtToken
@@ -127,20 +120,6 @@ class Authorizer private constructor(val accessToken: Token, val idToken: Token,
                 lastError = Error("Missing permissions '${missingPermissions.joinToString()}'")
                 fsm.post(AuthorizerStateMachine.Event.INVALID_PERMISSIONS)
             }
-        }
-    }
-
-    override fun onValidateSameSubs() {
-        log("onValidateSameSubs")
-        fun hasSameSubs(accessToken: Token, idToken: Token) =
-                accessToken is JwtToken && idToken is JwtToken && idToken.subject() == accessToken.subject()
-
-        // check if both tokens have the same subject
-        if (hasSameSubs(accessToken, idToken)) {
-            fsm.post(AuthorizerStateMachine.Event.VALID_SAME_SUBS)
-        } else {
-            lastError = Error("Access Token and Id Token had different value in SUB-claim.")
-            fsm.post(AuthorizerStateMachine.Event.INVALID_SAME_SUBS)
         }
     }
 
