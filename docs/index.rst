@@ -14,7 +14,7 @@ in Auth0.
     There is some important breaking changes in version 2.0 of ForwardAuth.
 
     **For those that want to delay upgrade from 1.0 to 2.0 version, there is
-    a docker image that has been tagged 1.0 that you can continue to use, but
+    a docker image with tag 1.0 that you can continue to use, but
     it will not get any further updates and I encourage you to upgrade to 2.0 as
     soon as possible.**
 
