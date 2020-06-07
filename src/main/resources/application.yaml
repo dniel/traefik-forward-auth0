@@ -5,9 +5,9 @@ spring:
 server:
   port: ${PORT:8080}
   error:
-    include-exception: true
+    include-exception: false
     include-message: always
-    include-stacktrace: always
+    include-stacktrace: never
     whitelabel:
       enabled: true
 
