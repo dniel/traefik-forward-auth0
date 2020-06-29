@@ -17,8 +17,8 @@ import java.net.URI
  *
  */
 @Component
-class SigninHandler(val properties: AuthProperties,
-                    val auth0Client: Auth0Client) : CommandHandler<SigninHandler.SigninCommand> {
+class CallbackHandler(val properties: AuthProperties,
+                      val auth0Client: Auth0Client) : CommandHandler<CallbackHandler.SigninCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 

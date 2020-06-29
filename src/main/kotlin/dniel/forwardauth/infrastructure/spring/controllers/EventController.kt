@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
-@RestController()
+@RestController
 internal class EventController(val properties: AuthProperties, val repo: EventRepository) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)

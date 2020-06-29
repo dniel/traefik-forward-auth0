@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
-@RestController()
+@RestController
 internal class RootController(val properties: AuthProperties) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
@@ -68,13 +68,13 @@ internal class RootController(val properties: AuthProperties) {
         // links available for authenticated users.
         if (user is Authenticated) {
             // add action to signout
-            actions += Action(name = "signout", method = "GET", href = URI("/signout"), title = "Signout current user")
+            actions += Action(name = "logout", method = "GET", href = URI("/logout"), title = "Logout current user")
 
             // add link to userinfo
             links += Link(
                     type = Siren.APPLICATION_SIREN_JSON,
                     clazz = listOf("userinfo"),
-                    title = "Userinfo for current user",
+                    title = "Userinfo",
                     rel = listOf("userinfo"),
                     href = URI("/userinfo"))
 
@@ -83,10 +83,12 @@ internal class RootController(val properties: AuthProperties) {
                 links += Link(
                         type = Siren.APPLICATION_SIREN_JSON,
                         clazz = listOf("event", "collection"),
-                        title = "Application events",
+                        title = "Events",
                         rel = listOf("events"),
                         href = URI("/events"))
             }
+        }else{
+            actions += Action(name = "login", method = "GET", href = URI("/login"), title = "Login")
         }
 
         val root = Root.newBuilder()

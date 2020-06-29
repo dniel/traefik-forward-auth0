@@ -144,7 +144,7 @@ class Auth0Client(val properties: AuthProperties) {
      * @param returnTo the url to redirect to after the signout has been completed.
      * @return url to redirect to if one is requested, or empty if no redirect returned.
      */
-    fun signout(clientId: String, returnTo: String): String? {
+    fun logout(clientId: String, returnTo: String): String? {
         LOGGER.debug("Perform Sign Out")
         Unirest.setHttpClient(org.apache.http.impl.client.HttpClients.custom()
                 .disableRedirectHandling()

@@ -34,16 +34,20 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.httpBasic().disable();
+        http.logout().disable()
         http.authorizeRequests()//
                 .antMatchers("/v3/api-docs/").permitAll()
                 .antMatchers("/authorize").permitAll()
                 .antMatchers("/signin").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/actuator/info").permitAll()
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/events").hasAuthority("admin:forwardauth")
                 .antMatchers("/ui/**").hasAuthority("admin:forwardauth")
                 .anyRequest().authenticated();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         http.addFilterBefore(basicAuthFilter, AuthenticationTokenFilter::class.java)

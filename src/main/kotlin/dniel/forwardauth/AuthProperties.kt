@@ -47,7 +47,8 @@ class AuthProperties {
 
         val application = apps.find() { it.name.equals(name, ignoreCase = true) }
         if (application !== null) {
-            application.returnTo = if (application.returnTo.isNotEmpty()) application.returnTo else default.returnTo
+            application.logoutUri = if (application.logoutUri.isNotEmpty()) application.logoutUri else default.logoutUri
+            application.loginUri = if (application.loginUri.isNotEmpty()) application.loginUri else default.loginUri
             application.redirectUri = if (application.redirectUri.isNotEmpty()) application.redirectUri else default.redirectUri
             application.audience = if (application.audience.isNotEmpty()) application.audience else default.audience
             application.scope = if (application.scope.isNotEmpty()) application.scope else default.scope
