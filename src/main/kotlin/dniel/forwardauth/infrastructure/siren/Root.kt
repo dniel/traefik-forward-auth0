@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.Root.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.asList
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
@@ -33,6 +34,7 @@ data class Root(
          *
          * @return the value of class attribute or an empty list if it is missing
          */
+        @get:JsonProperty("class")
         val clazz: List<String> = emptyList(),
         /**
          * Descriptive text about the entity.

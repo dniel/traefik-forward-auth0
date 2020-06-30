@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.util.Collections.emptyList
 import java.util.LinkedHashMap
@@ -31,6 +32,7 @@ data class Field(
      *
      * @return the value of class attribute or an empty list if it is missing
      */
+    @get:JsonProperty("class")
     val clazz: List<String> = emptyList(),
     /**
      * The input type of the field. This is a subset of the input types

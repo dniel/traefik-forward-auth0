@@ -1,6 +1,7 @@
 package dniel.forwardauth.infrastructure.spring.controllers
 
 import dniel.forwardauth.AuthProperties
+import dniel.forwardauth.domain.shared.Anonymous
 import dniel.forwardauth.domain.shared.Authenticated
 import dniel.forwardauth.domain.shared.User
 import dniel.forwardauth.infrastructure.siren.Action
@@ -69,6 +70,10 @@ internal class RootController(val properties: AuthProperties) {
         if (user is Authenticated) {
             // add action to signout
             actions += Action(name = "logout", method = "GET", href = URI("/logout"), title = "Logout current user")
+        when (user) {
+            is Authenticated -> {
+                // add action to signout
+                actions += Action(name = "signout", method = "GET", href = URI("/signout"), title = "Signout")
 
             // add link to userinfo
             links += Link(
@@ -77,6 +82,13 @@ internal class RootController(val properties: AuthProperties) {
                     title = "Userinfo",
                     rel = listOf("userinfo"),
                     href = URI("/userinfo"))
+                // add link to userinfo
+                links += Link(
+                        type = Siren.APPLICATION_SIREN_JSON,
+                        clazz = listOf("userinfo"),
+                        title = "Userinfo for current user",
+                        rel = listOf("userinfo"),
+                        href = URI("/userinfo"))
 
             // add link to retrieve application events.
             if (isAdministrator(authorities)) {
@@ -89,6 +101,22 @@ internal class RootController(val properties: AuthProperties) {
             }
         }else{
             actions += Action(name = "login", method = "GET", href = URI("/login"), title = "Login")
+        }
+                // add link to retrieve application events.
+                if (isAdministrator(authorities)) {
+                    links += Link(
+                            type = Siren.APPLICATION_SIREN_JSON,
+                            clazz = listOf("event", "collection"),
+                            title = "Application events",
+                            rel = listOf("events"),
+                            href = URI("/events"))
+                }
+            }
+
+            is Anonymous -> {
+                // add action to signout
+                actions += Action(name = "signin", method = "GET", href = URI("/signin"), title = "Sign in")
+            }
         }
 
         val root = Root.newBuilder()

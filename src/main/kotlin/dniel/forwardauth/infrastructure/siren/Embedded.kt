@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
@@ -16,7 +17,9 @@ import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
  * **See also:** [Sub-entity specification](https://github.com/kevinswiber/siren.sub-entities)
  */
 abstract class Embedded : Serializable {
+    @get:JsonProperty("class")
     abstract val clazz: List<String>
+
     abstract val rel: List<String>
 
     internal abstract fun toRaw(): Map<String, Any>

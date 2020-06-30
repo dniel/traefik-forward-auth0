@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
@@ -29,6 +30,7 @@ data class Link(
      *
      * @return the value of class attribute
      */
+    @get:JsonProperty("class")
     val clazz: List<String> = emptyList(),
     /**
      * Text describing the nature of a link.

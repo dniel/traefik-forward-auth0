@@ -1,5 +1,6 @@
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections
@@ -26,6 +27,7 @@ data class EmbeddedLink(
      *
      * @return the value of class attribute or an empty list if it is missing
      */
+    @get:JsonProperty("class")
     override val clazz: List<String> = Collections.emptyList(),
     /**
      * Defines the relationship of the sub-entity to its parent, per Web
