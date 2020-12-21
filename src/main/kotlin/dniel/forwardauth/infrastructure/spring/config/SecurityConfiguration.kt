@@ -33,7 +33,9 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
-        http.csrf().disable()
+        http
+                .csrf().disable()
+                .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
@@ -43,6 +45,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
                 .antMatchers("/signin").permitAll()
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/logout").permitAll()
                 .antMatchers("/actuator/info").permitAll()
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/events").hasAuthority("admin:forwardauth")

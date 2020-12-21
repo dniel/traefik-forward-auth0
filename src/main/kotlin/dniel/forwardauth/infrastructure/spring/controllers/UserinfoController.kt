@@ -3,6 +3,7 @@ package dniel.forwardauth.infrastructure.spring.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.shared.User
+import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 @RestController
 internal class UserinfoController(val userinfoHandler: UserinfoHandler,
@@ -64,6 +66,7 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
                 val root = Root.newBuilder()
                         .title("Userinfo for ${authentication.name}")
                         .properties(userinfoEvent.properties)
+                        .links(Link(type = APPLICATION_SIREN_JSON, clazz = listOf("root"), title = "Start", rel = listOf("start"), href = URI("/")))
                         .clazz("userinfo")
                         .build()
                 ResponseEntity.ok(root)

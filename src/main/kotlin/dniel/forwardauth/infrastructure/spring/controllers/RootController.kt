@@ -67,21 +67,11 @@ internal class RootController(val properties: AuthProperties) {
 
         // when user is already logged in and authenticated, show
         // links available for authenticated users.
-        if (user is Authenticated) {
-            // add action to signout
-            actions += Action(name = "logout", method = "GET", href = URI("/logout"), title = "Logout current user")
         when (user) {
             is Authenticated -> {
                 // add action to signout
-                actions += Action(name = "signout", method = "GET", href = URI("/signout"), title = "Signout")
+                actions += Action(name = "logout", method = "GET", href = URI("/logout"), title = "Logout")
 
-            // add link to userinfo
-            links += Link(
-                    type = Siren.APPLICATION_SIREN_JSON,
-                    clazz = listOf("userinfo"),
-                    title = "Userinfo",
-                    rel = listOf("userinfo"),
-                    href = URI("/userinfo"))
                 // add link to userinfo
                 links += Link(
                         type = Siren.APPLICATION_SIREN_JSON,
@@ -90,36 +80,24 @@ internal class RootController(val properties: AuthProperties) {
                         rel = listOf("userinfo"),
                         href = URI("/userinfo"))
 
-            // add link to retrieve application events.
-            if (isAdministrator(authorities)) {
-                links += Link(
-                        type = Siren.APPLICATION_SIREN_JSON,
-                        clazz = listOf("event", "collection"),
-                        title = "Events",
-                        rel = listOf("events"),
-                        href = URI("/events"))
-            }
-        }else{
-            actions += Action(name = "login", method = "GET", href = URI("/login"), title = "Login")
-        }
                 // add link to retrieve application events.
                 if (isAdministrator(authorities)) {
                     links += Link(
                             type = Siren.APPLICATION_SIREN_JSON,
                             clazz = listOf("event", "collection"),
-                            title = "Application events",
+                            title = "Events",
                             rel = listOf("events"),
                             href = URI("/events"))
                 }
             }
-
             is Anonymous -> {
                 // add action to signout
-                actions += Action(name = "signin", method = "GET", href = URI("/signin"), title = "Sign in")
+                actions += Action(name = "login", method = "GET", href = URI("/login"), title = "Login")
             }
         }
 
         val root = Root.newBuilder()
+                .clazz("root")
                 .title("ForwardAuth")
                 .links(links)
                 .actions(actions)
