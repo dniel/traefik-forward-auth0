@@ -38,13 +38,21 @@ services:
       - "traefik.http.routers.whoami.entrypoints=https"
       - "traefik.http.routers.whoami.middlewares=secured@file"
 
-  #spademo:
-  #  image: dniel/forwardauth-spademo
-  #  labels:
-  #    - "traefik.http.routers.spademo.tls"
-  #    - "traefik.http.routers.spademo.rule=Host(`spa-demo.example.test`)"
-  #    - "traefik.http.routers.spademo.entrypoints=https"
-  #    - "traefik.http.routers.spademo.middlewares=secured@file"
+  www:
+    image: dniel/blogr-www
+    labels:
+      - "traefik.http.routers.www.tls"
+      - "traefik.http.routers.www.middlewares=secured@file"
+      - "traefik.http.routers.www.entrypoints=https"
+      - "traefik.http.routers.www.rule=Host(`www.example.test`)"
+
+  graphql:
+    image: dniel/api-graphql
+    labels:
+      - "traefik.http.routers.graphql.tls"
+      - "traefik.http.routers.graphql.rule=Host(`graphql.example.test`)"
+      - "traefik.http.routers.graphql.entrypoints=https"
+      - "traefik.http.routers.graphql.middlewares=secured@file"
 
 #################################################################
 # ForwardAuth service.
