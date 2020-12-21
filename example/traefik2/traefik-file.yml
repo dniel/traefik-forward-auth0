@@ -17,17 +17,28 @@
 http:
   routers:
     routerAuth:
-      rule: "Host(`auth.example.test`)"
+      rule: "Host(`auth.example.test`) || PathPrefix(`/auth`)"
+      middlewares:
+        - authStripPrefix
       service: auth
       entrypoints: "https"
       tls: {}
-  
+    spademo:
+      rule: "Host(`demo.example.test`)"
+      service: spademo
+      entrypoints: "https"
+      tls: {}
+
   services:
     auth:
       loadBalancer:
         servers:
           - url: http://172.17.0.1:8080
           # for windows http://host.docker.internal:8080/authorize
+    spademo:
+      loadBalancer:
+        servers:
+          - url: http://172.17.0.1:3000
 
   middlewares:
     https-redirect:
@@ -47,7 +58,11 @@ http:
           - x-forwardauth-name
           - x-forwardauth-sub
           - x-forwardauth-email
-
+    authStripPrefix:
+      stripPrefix:
+        prefixes:
+          - "/auth"
+        forceSlash: false
     secured:
       chain:
         middlewares:

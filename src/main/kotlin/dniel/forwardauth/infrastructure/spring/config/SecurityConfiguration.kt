@@ -35,6 +35,8 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
                 .csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
                 .logout().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
