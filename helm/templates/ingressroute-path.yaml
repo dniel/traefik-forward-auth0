@@ -26,6 +26,7 @@ spec:
     services:
     - name: {{ $fullName }}
       port: {{ $servicePort }}
+    priority: .Values.ingressroute.pathPriority
     middlewares:
     - name: "{{ $fullName }}-strip-prefix"
   tls:

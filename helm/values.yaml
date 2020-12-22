@@ -58,6 +58,7 @@ ingressroute:
   enabled: false
   hostname: auth.example.test
   path: /auth
+  pathPriority: "99999"
   certResolver: default
 
 # Traefik2 forwardauth Middleware definition
