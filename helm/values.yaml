@@ -79,6 +79,7 @@ ingress:
     traefik.frontend.rule.type: PathPrefixStrip
     traefik.ingress.kubernetes.io/priority: "99999"
   path: /auth
+  tls: []
 
 ## Uncomment and complete the following section to set the configuration
 # applicationYaml:
