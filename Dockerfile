@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-alpine:8
+FROM azul/zulu-openjdk-alpine:16
 
 ADD /target/forwardauth.jar forwardauth.jar
 
