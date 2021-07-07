@@ -81,6 +81,11 @@ ingress:
   path: /auth
   tls: []
 
+# rather than constructing applicationYaml below, it may be desirable to simply mount
+# an existing configmap into the deployment as application.yaml. Specify the name
+# of this existing configmap below to ignore applicationYaml:
+existingConfigMap: null
+
 ## Uncomment and complete the following section to set the configuration
 # applicationYaml:
 #   domain: https://xxxxx.xx.auth0.com/

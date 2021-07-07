@@ -114,8 +114,11 @@ spec:
       volumes:
         - name: config-volume
           configMap:
+          {{- if .Values.existingConfigMap }}
+            name: {{ .Values.existingConfigMap }}
+          {{- else }}
             name: {{ template "helm.fullname" . }}-config
-
+          {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
