@@ -21,7 +21,7 @@ import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
  *
  */
 @Singleton
-class SignoutHandler(val properties: AuthProperties,
+class SignoutHandler(val properties: ApplicationConfig,
                      val auth0Client: Auth0Client) : CommandHandler<SignoutHandler.SignoutCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)

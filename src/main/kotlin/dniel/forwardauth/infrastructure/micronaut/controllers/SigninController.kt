@@ -18,7 +18,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SigninHandler
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import dniel.forwardauth.domain.exceptions.ApplicationException
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
  */
 @Controller
-class SigninController(val properties: AuthProperties,
+class SigninController(val properties: ApplicationConfig,
                        val signinHandler: SigninHandler,
                        val commandDispatcher: CommandDispatcher) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)

@@ -28,7 +28,7 @@ import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Application
 import dniel.forwardauth.domain.User
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import java.net.URI
 import org.slf4j.LoggerFactory
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory
  * https://github.com/stateless4j
  */
 @Singleton
-class AuthorizeHandler(val properties: AuthProperties) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
+class AuthorizeHandler(val properties: ApplicationConfig) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 

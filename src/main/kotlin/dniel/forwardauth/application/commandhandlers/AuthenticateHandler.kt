@@ -25,7 +25,7 @@ import dniel.forwardauth.domain.authenticate.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.*
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory
  *
  */
 @Singleton
-class AuthenticateHandler(val properties: AuthProperties,
+class AuthenticateHandler(val properties: ApplicationConfig,
                           val verifyTokenService: VerifyTokenService) : CommandHandler<AuthenticateHandler.AuthenticateCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)

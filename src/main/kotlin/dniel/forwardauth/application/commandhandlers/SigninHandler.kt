@@ -22,7 +22,7 @@ import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import dniel.forwardauth.domain.exceptions.ApplicationException
 import jakarta.inject.Singleton
 import java.net.URI
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
  *
  */
 @Singleton
-class SigninHandler(val properties: AuthProperties,
+class SigninHandler(val properties: ApplicationConfig,
                     val auth0Client: Auth0Client) : CommandHandler<SigninHandler.SigninCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)

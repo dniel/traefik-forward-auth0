@@ -24,7 +24,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.RSAKeyProvider
 import dniel.forwardauth.domain.shared.service.JwtDecoder
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory
 
 
 @Singleton
-class Auth0JwtDecoder(val properties: AuthProperties) : JwtDecoder {
+class Auth0JwtDecoder(val properties: ApplicationConfig) : JwtDecoder {
     val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val AUTH_DOMAIN = properties.domain
     val provider = GuavaCachedJwkProvider(UrlJwkProvider(AUTH_DOMAIN))

@@ -22,7 +22,7 @@ import com.google.common.cache.CacheBuilder
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory
  *
  */
 @Singleton
-class Auth0Client(val properties: AuthProperties) {
+class Auth0Client(val properties: ApplicationConfig) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val LOGOUT_ENDPOINT = properties.logoutEndpoint
     val USERINFO_ENDPOINT = properties.userinfoEndpoint

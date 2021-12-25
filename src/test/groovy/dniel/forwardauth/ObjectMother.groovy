@@ -5,7 +5,7 @@ import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Application
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 
 class ObjectMother {
 
@@ -17,7 +17,7 @@ class ObjectMother {
     static def userinfo = [sub: "daniel@example.com", email: "jrocket@example.com", uknown: "123"]
     static def authenticatedUser = new Authenticated(validJwtToken, validJwtToken, userinfo)
     static def anonymousUser = new Anonymous()
-    static def properties = new AuthProperties()
+    static def properties = new ApplicationConfig()
 
     static {
         properties.domain = domain

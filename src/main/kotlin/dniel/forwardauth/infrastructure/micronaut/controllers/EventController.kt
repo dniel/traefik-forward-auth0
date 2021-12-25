@@ -18,7 +18,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.events.EventRepository
-import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import dniel.forwardauth.infrastructure.siren.EmbeddedRepresentation
 import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
@@ -42,7 +42,7 @@ import java.net.URI
 import org.slf4j.LoggerFactory
 
 @Controller
-internal class EventController(val properties: AuthProperties, val repo: EventRepository) {
+internal class EventController(val properties: ApplicationConfig, val repo: EventRepository) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 

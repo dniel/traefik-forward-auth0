@@ -17,11 +17,16 @@
 package dniel.forwardauth.infrastructure.micronaut.config
 
 import dniel.forwardauth.domain.Application
+import io.micronaut.context.annotation.Value
+import jakarta.inject.Singleton
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
-class AuthProperties {
+@Singleton
+class ApplicationConfig {
+
+    @Value("\${domain}")
     @NotEmpty
     lateinit var domain: String
 
