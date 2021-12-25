@@ -21,7 +21,7 @@ import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
+import dniel.forwardauth.domain.exceptions.ApplicationException
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get

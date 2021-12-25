@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.infrastructure.spring.exceptions
+package dniel.forwardauth.domain.exceptions
 
 import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
+
 class PermissionDeniedException : ApplicationException {
     constructor(error: AuthorizeHandler.AuthorizeEvent.AccessDenied) : super(error.reason)
 }

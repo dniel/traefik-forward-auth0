@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.infrastructure.spring.exceptions
+package dniel.forwardauth.domain.exceptions
 
 /**
  * Generic error, but should stop execution and not give access to be sure

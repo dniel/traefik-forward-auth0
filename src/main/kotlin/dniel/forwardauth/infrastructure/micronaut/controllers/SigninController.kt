@@ -19,7 +19,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SigninHandler
 import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
+import dniel.forwardauth.domain.exceptions.ApplicationException
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse

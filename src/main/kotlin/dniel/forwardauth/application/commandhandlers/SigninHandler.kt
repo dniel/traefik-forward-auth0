@@ -23,7 +23,7 @@ import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
 import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
-import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
+import dniel.forwardauth.domain.exceptions.ApplicationException
 import jakarta.inject.Singleton
 import java.net.URI
 import org.slf4j.LoggerFactory
