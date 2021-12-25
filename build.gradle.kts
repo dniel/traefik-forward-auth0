@@ -94,20 +94,17 @@ dependencies {
     /**
      * Third-party dependencies.
      */
-    // https://mvnrepository.com/artifact/com.auth0/java-jwt
     implementation("com.auth0:java-jwt:3.18.2")
-
-    // https://mvnrepository.com/artifact/com.auth0/jwks-rsa
     implementation("com.auth0:jwks-rsa:0.20.0")
-
-    // https://mvnrepository.com/artifact/com.github.stateless4j/stateless4j
     implementation("com.github.stateless4j:stateless4j:2.6.0")
-
-    // https://mvnrepository.com/artifact/com.mashape.unirest/unirest-java
     implementation("com.mashape.unirest:unirest-java:1.4.9")
-
-    // https://mvnrepository.com/artifact/com.google.guava/guava
     implementation("com.google.guava:guava:31.0.1-jre")
+
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.6")
+    runtimeOnly("net.logstash.logback:logstash-logback-encoder:6.6")
+    runtimeOnly("org.slf4j:jcl-over-slf4j:1.7.32")
+    runtimeOnly("org.slf4j:jul-to-slf4j:1.7.32")
+    runtimeOnly("org.slf4j:log4j-over-slf4j:1.7.32")
 
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
