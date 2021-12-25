@@ -16,12 +16,19 @@
 
 package dniel.forwardauth.domain.exceptions
 
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.HttpStatus.INTERNAL_SERVER_ERROR
+
 /**
  * Generic error, but should stop execution and not give access to be sure
- * that we dont give access to someone that shouldnt be allowed.
+ * that we don't give access to someone that shouldn't be allowed.
  */
-open class ApplicationException : Exception {
-    constructor() : super("Unknown state, dont know what to do, better block access.")
-    constructor(message: String) : super(message)
+open class ApplicationException : io.micronaut.http.exceptions.HttpStatusException {
+    constructor() : super(
+            INTERNAL_SERVER_ERROR,
+            "Unknown state, dont know what to do, better block access.")
+
+    constructor(message: String) : super(INTERNAL_SERVER_ERROR, message)
+    constructor(message: String, status: HttpStatus) : super(status, message)
 
 }

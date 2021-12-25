@@ -17,11 +17,13 @@
 package dniel.forwardauth.domain.exceptions
 
 import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
+import io.micronaut.http.HttpStatus
 
 /**
  * Generic Authorization Error.
  * Should stop execution and not give access to be sure that we dont give access to someone that shouldnt be allowed.
  */
 open class AuthorizationException : ApplicationException {
-    constructor(error: AuthorizeHandler.AuthorizeEvent.Error) : super(error.reason)
+    constructor(error: AuthorizeHandler.AuthorizeEvent.Error)
+            : super(error.reason, HttpStatus.UNAUTHORIZED)
 }
