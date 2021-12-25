@@ -1,22 +1,38 @@
+/*
+ * Copyright (c)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dniel.forwardauth.application.commandhandlers
 
-import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.shared.Application
+import dniel.forwardauth.domain.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
+import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
 import dniel.forwardauth.infrastructure.spring.exceptions.ApplicationException
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+import jakarta.inject.Singleton
 import java.net.URI
+import org.slf4j.LoggerFactory
 
 /**
  * Handle Sign in of user redirected from IDP service after giving Authorization to sign in.
  *
  */
-@Component
+@Singleton
 class SigninHandler(val properties: AuthProperties,
                     val auth0Client: Auth0Client) : CommandHandler<SigninHandler.SigninCommand> {
 
@@ -40,7 +56,7 @@ class SigninHandler(val properties: AuthProperties,
     sealed class SigninEvent() : Event() {
         class SigninComplete(val accessToken: String,
                              val idToken: String,
-                             val expiresIn: Int,
+                             val expiresIn: Long,
                              val redirectTo: URI,
                              val app: Application) : SigninEvent()
 
@@ -74,7 +90,7 @@ class SigninHandler(val properties: AuthProperties,
 
             val authorizationCodeExchangeResponse = auth0Client.authorizationCodeExchange(params.code, app.clientId, app.clientSecret, app.redirectUri)
             val accessToken = authorizationCodeExchangeResponse.get("access_token") as String
-            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Int
+            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Long
             val idToken = authorizationCodeExchangeResponse.get("id_token") as String
             return SigninEvent.SigninComplete(accessToken, idToken, expiresIn, decodedState.originUrl.uri(), app)
         } else {

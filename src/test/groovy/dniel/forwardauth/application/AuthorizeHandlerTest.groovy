@@ -5,8 +5,6 @@ import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static dniel.forwardauth.ObjectMother.getAnonymousUser
-import static dniel.forwardauth.ObjectMother.getAuthenticatedUser
 import static org.hamcrest.Matchers.*
 import static spock.util.matcher.HamcrestSupport.that
 

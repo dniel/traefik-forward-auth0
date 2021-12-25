@@ -1,10 +1,11 @@
 package dniel.forwardauth
 
 import com.auth0.jwt.JWT
-import dniel.forwardauth.domain.shared.Anonymous
-import dniel.forwardauth.domain.shared.Application
-import dniel.forwardauth.domain.shared.Authenticated
-import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.Anonymous
+import dniel.forwardauth.domain.Application
+import dniel.forwardauth.domain.Authenticated
+import dniel.forwardauth.domain.JwtToken
+import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
 
 class ObjectMother {
 

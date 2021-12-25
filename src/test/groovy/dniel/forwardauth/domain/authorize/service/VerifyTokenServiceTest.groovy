@@ -4,8 +4,8 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import dniel.forwardauth.ObjectMother
-import dniel.forwardauth.domain.shared.InvalidToken
-import dniel.forwardauth.domain.shared.JwtToken
+import dniel.forwardauth.domain.InvalidToken
+import dniel.forwardauth.domain.JwtToken
 import dniel.forwardauth.domain.shared.service.JwtDecoder
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
 import spock.lang.Specification

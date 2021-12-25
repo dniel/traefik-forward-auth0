@@ -12,3 +12,44 @@ server:
       enabled: true
 
 logging.pattern.level: "[%-40.-40(%mdc{userId})]"
+
+# for micronaut
+endpoints:
+  prometheus:
+    sensitive: false
+
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
+    disk-space:
+      enabled: false
+    discovery-client:
+      enabled: false
+
+micronaut:
+  application:
+    name: forwardauth
+
+  security:
+    enabled: true
+
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+
+credentials:
+  users:
+    smith: smith123
+    scott: scott123
+    piomin: piomin123
+    test: test123
+  roles:
+    smith: ADMIN
+    scott: VIEW
+    piomin: VIEW
+    test: ADMIN

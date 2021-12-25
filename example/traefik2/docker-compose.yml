@@ -12,6 +12,7 @@ services:
     ports:
       - 80:80
       - 443:443
+      - 8888:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/etc/traefik
@@ -28,7 +29,8 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=https"
       - "traefik.http.routers.dashboard.middlewares=secured@file"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)"
-      - "traefik.http.services.dashboard.LoadBalancer.server.Port=8080"
+      - "traefik.http.routers.dashboard.service=api@internal"      
+      #- "traefik.http.services.dashboard.LoadBalancer.server.Port=8080"
 
   whoami:
     image: containous/whoami

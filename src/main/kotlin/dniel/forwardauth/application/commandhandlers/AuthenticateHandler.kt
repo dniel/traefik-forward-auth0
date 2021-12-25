@@ -1,16 +1,33 @@
+/*
+ * Copyright (c)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package dniel.forwardauth.application.commandhandlers
 
 import com.auth0.jwt.interfaces.Claim
-import dniel.forwardauth.AuthProperties
 import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
-import dniel.forwardauth.domain.authorize.service.Authenticator
-import dniel.forwardauth.domain.authorize.service.AuthenticatorStateMachine
+import dniel.forwardauth.domain.*
+import dniel.forwardauth.domain.authenticate.service.Authenticator
+import dniel.forwardauth.domain.authenticate.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.*
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
+import dniel.forwardauth.infrastructure.micronaut.config.AuthProperties
+import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 
 /**
  * Handle Authentication.
@@ -22,7 +39,7 @@ import org.springframework.stereotype.Component
  * @see dniel.forwardauth.domain.authorize.service.Authenticator
  *
  */
-@Component
+@Singleton
 class AuthenticateHandler(val properties: AuthProperties,
                           val verifyTokenService: VerifyTokenService) : CommandHandler<AuthenticateHandler.AuthenticateCommand> {
 

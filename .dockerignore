@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+
+# allowed files in the docker build context
+!Docker/runapp.sh
+!build/docker/layers/
