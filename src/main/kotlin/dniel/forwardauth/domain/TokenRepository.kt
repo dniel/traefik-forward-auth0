@@ -23,6 +23,4 @@ import dniel.forwardauth.domain.stereotypes.Repository
  * This will store verified tokens so that an already verified
  * token is reused for next request to increase performance.
  */
-interface TokenRepository : Repository {
-
-}
+interface TokenRepository : Repository

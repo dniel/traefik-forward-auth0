@@ -109,7 +109,6 @@ class JwtToken(val value: DecodedJWT) : Token() {
         return !value.getClaim("permissions").isNull
     }
 
-
     fun missingPermissions(requiredPermissions: Array<String>): Array<String> {
         val claim = value.getClaim("permissions")
         if (claim.isNull) return emptyArray()
@@ -117,5 +116,4 @@ class JwtToken(val value: DecodedJWT) : Token() {
         val permissions = claim.asList(String::class.java)
         return requiredPermissions.asList().minus(permissions).toTypedArray()
     }
-
 }

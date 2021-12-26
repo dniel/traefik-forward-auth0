@@ -41,62 +41,62 @@ import java.util.Collections.emptyMap
  * only be used when deserializing an existing representation.
  */
 data class Root(
-        /**
-         * Describes the nature of an entity's content based on the current
-         * representation. Possible values are implementation-dependent and should
-         * be documented.
-         *
-         * @return the value of class attribute or an empty list if it is missing
-         */
-        val clazz: List<String> = emptyList(),
-        /**
-         * Descriptive text about the entity.
-         *
-         * @return the value of title attribute
-         */
-        val title: String? = null,
-        /**
-         * A set of key-value pairs that describe the state of an entity.
-         *
-         * @return the value of properties attribute or an empty map if it is
-         * missing
-         */
-        val properties: Map<String, Any?> = emptyMap(),
-        /**
-         * A collection of items that describe navigational links, distinct from
-         * entity relationships. Link items should contain a `rel` attribute to
-         * describe the relationship and an `href` attribute to point to the target
-         * URI. Entities should include a link `rel` to `self`.
-         *
-         * @return the value of links attribute or an empty list if it is missing
-         */
-        val links: List<Link> = emptyList(),
-        /**
-         * A collection of related sub-entities.
-         *
-         * @return the value of entities attribute or an empty list if it is
-         * missing
-         */
-        val entities: List<Embedded> = emptyList(),
-        /**
-         * A collection of actions; actions show available behaviors an entity
-         * exposes.
-         *
-         * @return the value of actions attribute or an empty list if it is missing
-         */
-        val actions: List<Action> = emptyList()
+    /**
+     * Describes the nature of an entity's content based on the current
+     * representation. Possible values are implementation-dependent and should
+     * be documented.
+     *
+     * @return the value of class attribute or an empty list if it is missing
+     */
+    val clazz: List<String> = emptyList(),
+    /**
+     * Descriptive text about the entity.
+     *
+     * @return the value of title attribute
+     */
+    val title: String? = null,
+    /**
+     * A set of key-value pairs that describe the state of an entity.
+     *
+     * @return the value of properties attribute or an empty map if it is
+     * missing
+     */
+    val properties: Map<String, Any?> = emptyMap(),
+    /**
+     * A collection of items that describe navigational links, distinct from
+     * entity relationships. Link items should contain a `rel` attribute to
+     * describe the relationship and an `href` attribute to point to the target
+     * URI. Entities should include a link `rel` to `self`.
+     *
+     * @return the value of links attribute or an empty list if it is missing
+     */
+    val links: List<Link> = emptyList(),
+    /**
+     * A collection of related sub-entities.
+     *
+     * @return the value of entities attribute or an empty list if it is
+     * missing
+     */
+    val entities: List<Embedded> = emptyList(),
+    /**
+     * A collection of actions; actions show available behaviors an entity
+     * exposes.
+     *
+     * @return the value of actions attribute or an empty list if it is missing
+     */
+    val actions: List<Action> = emptyList()
 ) : Serializable {
 
     /**
      * Create a new builder using the current data.
      */
     fun toBuilder() = newBuilder()
-            .clazz(clazz)
-            .title(title)
-            .properties(properties)
-            .links(links)
-            .entities(entities)
-            .actions(actions)
+        .clazz(clazz)
+        .title(title)
+        .properties(properties)
+        .links(links)
+        .entities(entities)
+        .actions(actions)
 
     /**
      * Generate a representation of this entity by using generic java objects
@@ -109,14 +109,14 @@ data class Root(
      * @return object
      */
     fun toRaw(): Map<String, Any> =
-            LinkedHashMap<String, Any?>().apply {
-                this[Siren.CLASS] = if (clazz.isEmpty()) null else clazz
-                this[Siren.TITLE] = title
-                this[Siren.PROPERTIES] = if (properties.isEmpty()) null else properties
-                this[Siren.ENTITIES] = if (entities.isEmpty()) null else entities.map(Embedded::toRaw)
-                this[Siren.ACTIONS] = if (actions.isEmpty()) null else actions.map(Action::toRaw)
-                this[Siren.LINKS] = if (links.isEmpty()) null else links.map(Link::toRaw)
-            }.skipNulls()
+        LinkedHashMap<String, Any?>().apply {
+            this[Siren.CLASS] = if (clazz.isEmpty()) null else clazz
+            this[Siren.TITLE] = title
+            this[Siren.PROPERTIES] = if (properties.isEmpty()) null else properties
+            this[Siren.ENTITIES] = if (entities.isEmpty()) null else entities.map(Embedded::toRaw)
+            this[Siren.ACTIONS] = if (actions.isEmpty()) null else actions.map(Action::toRaw)
+            this[Siren.LINKS] = if (links.isEmpty()) null else links.map(Link::toRaw)
+        }.skipNulls()
 
     /**
      * Builder for [Root].
@@ -165,7 +165,7 @@ data class Root(
          * @return builder
          */
         fun properties(properties: Map<String, Any?>?) =
-                apply { this.properties = properties ?: emptyMap() }
+            apply { this.properties = properties ?: emptyMap() }
 
         fun property(key: String, value: Any) = apply {
             this.properties = this.properties.plus(Pair(key, value))
@@ -198,7 +198,7 @@ data class Root(
          * @return builder
          */
         fun entities(entities: List<Embedded>?) =
-                apply { this.entities = entities ?: emptyList() }
+            apply { this.entities = entities ?: emptyList() }
 
         /**
          * Set value for entities.
@@ -216,7 +216,7 @@ data class Root(
          * @return builder
          */
         fun actions(actions: List<Action>?) =
-                apply { this.actions = actions ?: emptyList() }
+            apply { this.actions = actions ?: emptyList() }
 
         /**
          * Set value for actions.
@@ -232,12 +232,12 @@ data class Root(
          */
         // TODO: Ensure immutability
         fun build() = Root(
-                clazz = clazz,
-                title = title,
-                properties = properties,
-                links = links,
-                entities = entities,
-                actions = actions
+            clazz = clazz,
+            title = title,
+            properties = properties,
+            links = links,
+            entities = entities,
+            actions = actions
         )
     }
 
@@ -261,15 +261,15 @@ data class Root(
          */
         @JvmStatic
         fun fromRaw(map: Map<String, Any?>): Root = Root(
-                clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
-                title = map[Siren.TITLE] as String?,
-                properties = map[Siren.PROPERTIES]?.asMap() ?: emptyMap(),
-                links = map[Siren.LINKS]?.asList()?.map { Link.fromRaw(it) }
-                        ?: emptyList(),
-                entities = map[Siren.ENTITIES]?.asList()?.map { Embedded.fromRaw(it) }
-                        ?: emptyList(),
-                actions = map[Siren.ACTIONS]?.asList()?.map { Action.fromRaw(it) }
-                        ?: emptyList()
+            clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
+            title = map[Siren.TITLE] as String?,
+            properties = map[Siren.PROPERTIES]?.asMap() ?: emptyMap(),
+            links = map[Siren.LINKS]?.asList()?.map { Link.fromRaw(it) }
+                ?: emptyList(),
+            entities = map[Siren.ENTITIES]?.asList()?.map { Embedded.fromRaw(it) }
+                ?: emptyList(),
+            actions = map[Siren.ACTIONS]?.asList()?.map { Action.fromRaw(it) }
+                ?: emptyList()
         )
 
         /**

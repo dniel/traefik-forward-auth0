@@ -219,13 +219,13 @@ data class Action(
          */
         // TODO: Ensure immutability
         fun build() = Action(
-                name = name,
-                clazz = clazz,
-                method = method,
-                href = href,
-                title = title,
-                type = type,
-                fields = fields
+            name = name,
+            clazz = clazz,
+            method = method,
+            href = href,
+            title = title,
+            type = type,
+            fields = fields
         )
     }
 
@@ -250,14 +250,14 @@ data class Action(
         internal fun fromRaw(map: Any?): Action = fromRaw(map!!.asMap())
 
         private fun fromRaw(map: Map<String, Any?>): Action = Action(
-                name = map[Siren.NAME] as String,
-                clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
-                method = map[Siren.METHOD] as String?,
-                title = map[Siren.TITLE] as String?,
-                href = URI.create(map[Siren.HREF].toString()),
-                type = map[Siren.TYPE] as String?,
-                fields = map[Siren.FIELDS]?.asList()?.map { Field.fromRaw(it) }
-                        ?: emptyList()
+            name = map[Siren.NAME] as String,
+            clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
+            method = map[Siren.METHOD] as String?,
+            title = map[Siren.TITLE] as String?,
+            href = URI.create(map[Siren.HREF].toString()),
+            type = map[Siren.TYPE] as String?,
+            fields = map[Siren.FIELDS]?.asList()?.map { Field.fromRaw(it) }
+                ?: emptyList()
         )
 
         /**

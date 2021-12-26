@@ -20,7 +20,6 @@ import com.github.oxo42.stateless4j.StateMachine
 import com.github.oxo42.stateless4j.StateMachineConfig
 import org.slf4j.LoggerFactory
 
-
 /**
  * Generated from dot file generator.
  *
@@ -102,58 +101,57 @@ class AuthenticatorStateMachine(private val delegate: Delegate) {
         val config = StateMachineConfig<State, Event>()
 
         config.configure(State.AWAIT_AUTHENTICATION)
-                .permit(Event.AUTHENTICATE, State.AUTHENTICATING)
+            .permit(Event.AUTHENTICATE, State.AUTHENTICATING)
 
         config.configure(State.AUTHENTICATING)
-                .permit(Event.VALIDATE_TOKENS, State.VALIDATING_TOKENS)
-                .onEntry(delegate::onStartAuthentication)
+            .permit(Event.VALIDATE_TOKENS, State.VALIDATING_TOKENS)
+            .onEntry(delegate::onStartAuthentication)
 
         config.configure(State.VALIDATING_TOKENS)
-                .substateOf(State.AUTHENTICATING)
-                .permit(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN)
-                .onEntry(delegate::onStartValidateTokens)
+            .substateOf(State.AUTHENTICATING)
+            .permit(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN)
+            .onEntry(delegate::onStartValidateTokens)
 
         config.configure(State.VALIDATING_ACCESS_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
-                .permitIf(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
-                .onEntry(delegate::onValidateAccessToken)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_ID_TOKEN) { !delegate.hasError }
+            .permitIf(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
+            .onEntry(delegate::onValidateAccessToken)
 
         config.configure(State.VALIDATING_ID_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.EMPTY_ID_TOKEN, State.VALID_TOKENS) { !delegate.hasError }
-                .permitIf(Event.VALID_ID_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
-                .permitIf(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
-                .onEntry(delegate::onValidateIdToken)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.EMPTY_ID_TOKEN, State.VALID_TOKENS) { !delegate.hasError }
+            .permitIf(Event.VALID_ID_TOKEN, State.VALIDATING_SAME_SUBS) { !delegate.hasError }
+            .permitIf(Event.INVALID_ID_TOKEN, State.INVALID_TOKEN) { delegate.hasError }
+            .onEntry(delegate::onValidateIdToken)
 
         config.configure(State.VALIDATING_SAME_SUBS)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_SUBS, State.VALID_TOKENS) { !delegate.hasError }
-                .permitIf(Event.INVALID_SUBS, State.INVALID_TOKEN) { delegate.hasError }
-                .onEntry(delegate::onValidateSameSubs)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.VALID_SUBS, State.VALID_TOKENS) { !delegate.hasError }
+            .permitIf(Event.INVALID_SUBS, State.INVALID_TOKEN) { delegate.hasError }
+            .onEntry(delegate::onValidateSameSubs)
 
         config.configure(State.INVALID_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permit(Event.NEXT_STATE, State.ANONYMOUS)
-                .onEntry(this::nextState)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permit(Event.NEXT_STATE, State.ANONYMOUS)
+            .onEntry(this::nextState)
 
         config.configure(State.VALID_TOKENS)
-                .substateOf(State.VALIDATING_TOKENS)
-
-                .permit(Event.NEXT_STATE, State.AUTHENTICATED)
-                .onEntry(this::nextState)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permit(Event.NEXT_STATE, State.AUTHENTICATED)
+            .onEntry(this::nextState)
 
         config.configure(State.ERROR)
-                .substateOf(State.AUTHENTICATING)
-                .onEntry(delegate::onError)
+            .substateOf(State.AUTHENTICATING)
+            .onEntry(delegate::onError)
 
         config.configure(State.AUTHENTICATED)
-                .substateOf(State.AUTHENTICATING)
-                .onEntry(delegate::onAuthenticated)
+            .substateOf(State.AUTHENTICATING)
+            .onEntry(delegate::onAuthenticated)
 
         config.configure(State.ANONYMOUS)
-                .substateOf(State.AUTHENTICATING)
-                .onEntry(delegate::onAnonymous)
+            .substateOf(State.AUTHENTICATING)
+            .onEntry(delegate::onAnonymous)
 
         fsm = StateMachine(State.AWAIT_AUTHENTICATION, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }

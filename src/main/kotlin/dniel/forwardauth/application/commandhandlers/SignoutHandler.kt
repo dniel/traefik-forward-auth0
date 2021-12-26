@@ -19,8 +19,8 @@ package dniel.forwardauth.application.commandhandlers
 import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.Application
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
+import dniel.forwardauth.infrastructure.micronaut.config.Application
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
@@ -30,8 +30,10 @@ import org.slf4j.LoggerFactory
  *
  */
 @Singleton
-class SignoutHandler(val properties: ApplicationConfig,
-                     val auth0Client: Auth0Client) : CommandHandler<SignoutHandler.SignoutCommand> {
+class SignoutHandler(
+    val properties: ApplicationConfig,
+    val auth0Client: Auth0Client
+) : CommandHandler<SignoutHandler.SignoutCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
@@ -41,9 +43,10 @@ class SignoutHandler(val properties: ApplicationConfig,
      * @param accessToken is the user token to use for the signout request to the IDP
      * @param forwardedHost is the name of the host used to signout.
      */
-    data class SignoutCommand(val forwardedHost: String,
-                              val accessToken: String) : Command
-
+    data class SignoutCommand(
+        val forwardedHost: String,
+        val accessToken: String
+    ) : Command
 
     /**
      * This command can produce a set of events as response from the handle method.
@@ -65,7 +68,7 @@ class SignoutHandler(val properties: ApplicationConfig,
         try {
             val signout = auth0Client.signout(app.clientId, app.returnTo)
             if (!signout.isNullOrEmpty()) {
-                LOGGER.debug("Signout done, redirect to ${signout}")
+                LOGGER.debug("Signout done, redirect to $signout")
                 return SignoutEvent.SignoutRedirect(signout, app)
             } else {
                 LOGGER.debug("Signout done.")

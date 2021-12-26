@@ -165,11 +165,11 @@ data class EmbeddedLink(
          */
         // TODO: Ensure immutability
         fun build() = EmbeddedLink(
-                clazz = clazz,
-                rel = rel,
-                href = href,
-                type = type,
-                title = title
+            clazz = clazz,
+            rel = rel,
+            href = href,
+            type = type,
+            title = title
         )
     }
 

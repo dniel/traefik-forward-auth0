@@ -1,32 +1,3 @@
-spring:
-  profiles:
-    active: ${ENV:DEV}
-
-server:
-  port: ${PORT:8080}
-  error:
-    include-exception: false
-    include-message: always
-    include-stacktrace: never
-    whitelabel:
-      enabled: true
-
-logging.pattern.level: "[%-40.-40(%mdc{userId})]"
-
-# for micronaut
-endpoints:
-  prometheus:
-    sensitive: false
-
-  health:
-    enabled: true
-    sensitive: false
-    details-visible: ANONYMOUS
-    disk-space:
-      enabled: false
-    discovery-client:
-      enabled: false
-
 micronaut:
   application:
     name: forwardauth
@@ -34,22 +5,40 @@ micronaut:
   security:
     enabled: true
 
-  metrics:
-    enabled: true
-    export:
-      prometheus:
-        enabled: true
-        step: PT1M
-        descriptions: true
+---
+domain: https://dniel.eu.auth0.com/
+token-endpoint: https://dniel.eu.auth0.com/oauth/token
+authorize-url: https://dniel.eu.auth0.com/authorize
+userinfo-endpoint: https://dniel.eu.auth0.com/userinfo
+logout-endpoint:  https://dniel.eu.auth0.com/v2/logout
 
-credentials:
-  users:
-    smith: smith123
-    scott: scott123
-    piomin: piomin123
-    test: test123
-  roles:
-    smith: ADMIN
-    scott: VIEW
-    piomin: VIEW
-    test: ADMIN
+# set cookie max age for nonce to 5 min.
+nonce-max-age: 300
+
+default:
+  name: default
+  client-id: v1VM3YPVe7gdUELae1or2y7O1Mk3UAbx
+  client-secret: avejbRMB1gWFgBGl1KESv_jb1gSr0eKNvxoHIhD4jkRlv4pyCsT7WXG5eKF0KntP
+  audience: https://example.com
+  scope: "profile openid email"
+  redirect-uri: http://auth.example.test/signin
+  token-cookie-domain: example.test
+  #  return-to: https://vg.no
+  claims:
+    - sub
+    - name
+    - email
+    - given_name
+    - family_name
+    - nickname
+
+apps:
+  - name: whoami.example.test
+    required-permissions:
+      - read:whoami
+  - name: traefik.example.test
+    required-permissions:
+      - dashboard:traefik
+  - name: www.example.test
+    required-permissions:
+      - read:www

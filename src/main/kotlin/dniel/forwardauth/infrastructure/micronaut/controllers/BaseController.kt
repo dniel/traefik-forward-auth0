@@ -17,11 +17,10 @@
 package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import io.micronaut.core.type.Headers
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.cookie.Cookie
-import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
+import java.util.stream.Collectors
 
 /**
  * Just a base class to provide some common functiosn for rest controllers.
@@ -31,17 +30,17 @@ abstract class BaseController {
 
     fun addCookie(response: MutableHttpResponse<Any>, name: String, value: String, domain: String, maxAge: Long) {
         val nonceCookie = Cookie.of(name, value)
-                .domain(domain)
-                .maxAge(maxAge)
-                .path("/")
+            .domain(domain)
+            .maxAge(maxAge)
+            .path("/")
         response.cookies + nonceCookie
     }
 
     fun clearCookie(response: MutableHttpResponse<Any>, name: String, domain: String) {
         val nonceCookie = Cookie.of(name, "deleted")
-                .domain(domain)
-                .maxAge(0)
-                .path("/")
+            .domain(domain)
+            .maxAge(0)
+            .path("/")
         response.cookies + nonceCookie
     }
 

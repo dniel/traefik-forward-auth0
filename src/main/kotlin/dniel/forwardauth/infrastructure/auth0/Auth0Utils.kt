@@ -25,17 +25,16 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.RSAKeyProvider
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
-import org.slf4j.LoggerFactory
 
 @Singleton
 class Auth0Utils(val properties: ApplicationConfig) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-    val DOMAIN = properties.domain;
+    val DOMAIN = properties.domain
     val provider = GuavaCachedJwkProvider(UrlJwkProvider(DOMAIN))
-
 
     fun verifyJWT(token: String): DecodedJWT {
         val jwk = provider.get(JWT.decode(token).keyId)
@@ -51,7 +50,7 @@ class Auth0Utils(val properties: ApplicationConfig) {
     }
 
     private fun createJwtVerifier(algorithm: Algorithm?): JWTVerifier = JWT.require(algorithm)
-            .withIssuer(DOMAIN)
-            .acceptLeeway(10)
-            .build()
+        .withIssuer(DOMAIN)
+        .acceptLeeway(10)
+        .build()
 }

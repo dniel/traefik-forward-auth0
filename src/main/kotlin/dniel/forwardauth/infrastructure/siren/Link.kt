@@ -36,7 +36,7 @@ import java.util.Collections.emptyList
  * only be used when deserializing an existing representation.
  */
 data class Link(
-        /**
+    /**
      * Describes aspects of the link based on the current representation.
      * Possible values are implementation-dependent and should be documented.
      *
@@ -52,20 +52,20 @@ data class Link(
      * @return the value of title attribute
      */
     val title: String? = null,
-        /**
+    /**
      * Defines the relationship of the link to its entity, per Web
      * Linking (RFC5988). Required.
      *
      * @return the value of rel attribute
      */
     val rel: List<String>,
-        /**
+    /**
      * The URI of the linked resource. Required.
      *
      * @return the value of href attribute
      */
     val href: URI,
-        /**
+    /**
      * Defines media type of the linked resource, per Web Linking (RFC5988).
      * For the syntax, see RFC2045 (section 5.1), RFC4288 (section 4.2),
      * RFC6838 (section 4.2)
@@ -168,11 +168,11 @@ data class Link(
          */
         // TODO: Ensure immutability
         fun build() = Link(
-                clazz = clazz,
-                title = title,
-                rel = rel,
-                href = href,
-                type = type
+            clazz = clazz,
+            title = title,
+            rel = rel,
+            href = href,
+            type = type
         )
     }
 
@@ -183,11 +183,11 @@ data class Link(
         internal fun fromRaw(map: Any?): Link = fromRaw(map!!.asMap())
 
         private fun fromRaw(map: Map<String, Any?>): Link = Link(
-                clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
-                title = map[Siren.TITLE] as String?,
-                rel = map.getValue(Siren.REL)!!.asNonNullStringList(),
-                href = URI.create(map[Siren.HREF].toString()),
-                type = map[Siren.TYPE] as String?
+            clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
+            title = map[Siren.TITLE] as String?,
+            rel = map.getValue(Siren.REL)!!.asNonNullStringList(),
+            href = URI.create(map[Siren.HREF].toString()),
+            type = map[Siren.TYPE] as String?
         )
 
         /**

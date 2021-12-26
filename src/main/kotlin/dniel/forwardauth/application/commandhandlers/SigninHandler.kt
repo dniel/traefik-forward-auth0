@@ -20,21 +20,23 @@ import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.authorize.AuthorizeState
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.domain.Application
-import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import dniel.forwardauth.domain.exceptions.ApplicationException
+import dniel.forwardauth.infrastructure.auth0.Auth0Client
+import dniel.forwardauth.infrastructure.micronaut.config.Application
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
-import java.net.URI
 import org.slf4j.LoggerFactory
+import java.net.URI
 
 /**
  * Handle Sign in of user redirected from IDP service after giving Authorization to sign in.
  *
  */
 @Singleton
-class SigninHandler(val properties: ApplicationConfig,
-                    val auth0Client: Auth0Client) : CommandHandler<SigninHandler.SigninCommand> {
+class SigninHandler(
+    val properties: ApplicationConfig,
+    val auth0Client: Auth0Client
+) : CommandHandler<SigninHandler.SigninCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
@@ -42,23 +44,26 @@ class SigninHandler(val properties: ApplicationConfig,
      * This is the input parameter object for the handler to pass inn all
      * needed parameters to the handler.
      */
-    data class SigninCommand(val forwardedHost: String?,
-                             val code: String?,
-                             val error: String?,
-                             val errorDescription: String?,
-                             val state: String?,
-                             val nonce: String?) : Command
-
+    data class SigninCommand(
+        val forwardedHost: String?,
+        val code: String?,
+        val error: String?,
+        val errorDescription: String?,
+        val state: String?,
+        val nonce: String?
+    ) : Command
 
     /**
      * This command can produce a set of events as response from the handle method.
      */
     sealed class SigninEvent() : Event() {
-        class SigninComplete(val accessToken: String,
-                             val idToken: String,
-                             val expiresIn: Long,
-                             val redirectTo: URI,
-                             val app: Application) : SigninEvent()
+        class SigninComplete(
+            val accessToken: String,
+            val idToken: String,
+            val expiresIn: Long,
+            val redirectTo: URI,
+            val app: Application
+        ) : SigninEvent()
 
         class Error(val reason: String, val description: String) : SigninEvent()
     }
@@ -97,5 +102,4 @@ class SigninHandler(val properties: ApplicationConfig,
             return SigninEvent.Error("Unknown request", "login redirect request from Auth0 had no code, authorizeState or error message.")
         }
     }
-
 }

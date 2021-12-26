@@ -24,6 +24,6 @@ import io.micronaut.http.HttpStatus
  * Should stop execution and not give access to be sure that we dont give access to someone that shouldnt be allowed.
  */
 open class AuthenticationException : ApplicationException {
-    constructor(error: AuthenticateHandler.AuthenticationEvent.Error)
-            : super(error.reason, HttpStatus.FORBIDDEN)
+    constructor(error: AuthenticateHandler.AuthenticationEvent.Error) :
+        super(error.reason, HttpStatus.FORBIDDEN)
 }

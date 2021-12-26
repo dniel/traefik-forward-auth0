@@ -16,8 +16,11 @@
 
 package dniel.forwardauth.infrastructure.micronaut.config
 
-import dniel.forwardauth.domain.Application
+import io.micronaut.context.annotation.ConfigurationProperties
+import io.micronaut.context.annotation.EachProperty
 import io.micronaut.context.annotation.Value
+import io.micronaut.core.annotation.Introspected
+import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
@@ -30,36 +33,58 @@ class ApplicationConfig {
     @NotEmpty
     lateinit var domain: String
 
+    @Value("\${token-endpoint}")
     @NotEmpty
     lateinit var tokenEndpoint: String
 
+    @Value("\${logout-endpoint}")
     @NotEmpty
     lateinit var logoutEndpoint: String
 
+    @Value("\${userinfo-endpoint}")
     @NotEmpty
     lateinit var userinfoEndpoint: String
 
+    @Value("\${authorize-url}")
     @NotEmpty
     lateinit var authorizeUrl: String
 
+    @Value("\${nonce-max-age}")
     @Min(-1)
     var nonceMaxAge: Long = 60
 
+    @Value("\${default}")
     @NotNull
     val default = Application()
 
+    @Inject
     @NotNull
+    lateinit var test: List<DefaultApplication>
+
+    @ConfigurationProperties("apps")
+    @Introspected
+    @EachProperty("apps")
+    class DefaultApplication {
+        @Value("\${name}")
+        @NotEmpty
+        lateinit var name: String
+
+        override fun toString(): String {
+            return "DefaultApplication(name='$name')"
+        }
+    }
+
     val apps = ArrayList<Application>()
 
     override fun toString(): String {
-        return "AuthProperties(domain='$domain', tokenEndpoint='$tokenEndpoint', authorizeUrl='$authorizeUrl', default=$default, apps=$apps)"
+        return "AuthProperties(test='$test', domain='$domain', tokenEndpoint='$tokenEndpoint', authorizeUrl='$authorizeUrl', default=$default, apps=$apps)"
     }
 
     /**
      * Return application with application specific values, default values or inherited values.
      */
     fun findApplicationOrDefault(name: String?): Application {
-        if (name.isNullOrEmpty()) return default;
+        if (name.isNullOrEmpty()) return default
 
         val application = apps.firstOrNull { it.name.equals(name, ignoreCase = true) }
         if (application !== null) {
@@ -74,6 +99,6 @@ class ApplicationConfig {
             application.claims = if (application.claims.isNotEmpty()) application.claims else default.claims
             application.requiredPermissions = if (application.requiredPermissions.isNotEmpty()) application.requiredPermissions else default.requiredPermissions
             return application
-        } else return default;
+        } else return default
     }
 }

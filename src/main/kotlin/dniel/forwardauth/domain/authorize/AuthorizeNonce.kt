@@ -37,7 +37,6 @@ class AuthorizeNonce(val value: String) {
         fun generate(): AuthorizeNonce {
             return AuthorizeNonce(UUID.randomUUID().toString().replace("-", ""))
         }
-
     }
     override fun toString(): String = value
     override fun equals(other: Any?): Boolean {
@@ -54,6 +53,4 @@ class AuthorizeNonce(val value: String) {
     override fun hashCode(): Int {
         return value.hashCode()
     }
-
-
 }

@@ -168,11 +168,11 @@ data class Field(
          */
         // TODO: Ensure immutability
         fun build() = Field(
-                name = name,
-                clazz = clazz,
-                type = type,
-                title = title,
-                value = value
+            name = name,
+            clazz = clazz,
+            type = type,
+            title = title,
+            value = value
         )
     }
 
@@ -210,11 +210,11 @@ data class Field(
         internal fun fromRaw(map: Any?): Field = fromRaw(map!!.asMap())
 
         private fun fromRaw(map: Map<String, Any?>): Field = Field(
-                name = map[Siren.NAME] as String,
-                clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
-                type = map[Siren.TYPE] as String?,
-                title = map[Siren.TITLE] as String?,
-                value = map[Siren.VALUE]
+            name = map[Siren.NAME] as String,
+            clazz = map[Siren.CLASS]?.asNonNullStringList() ?: emptyList(),
+            type = map[Siren.TYPE] as String?,
+            title = map[Siren.TITLE] as String?,
+            value = map[Siren.VALUE]
         )
 
         /**

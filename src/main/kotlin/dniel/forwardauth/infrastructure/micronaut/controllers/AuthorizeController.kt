@@ -25,21 +25,26 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
+import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import jakarta.inject.Inject
 import org.slf4j.LoggerFactory
-
 
 /**
  * Authorize Endpoint.
  * This endpoint is used by ForwardAuth to authorize requests.
  */
 @Controller
-class AuthorizeController(val authorizeHandler: AuthorizeHandler,
-                          val commandDispatcher: CommandDispatcher,
-                          val authProperties: ApplicationConfig) : BaseController() {
+@Secured(IS_ANONYMOUS)
+class AuthorizeController(
+    @Inject private val authorizeHandler: AuthorizeHandler,
+    @Inject private val commandDispatcher: CommandDispatcher,
+    @Inject private val authProperties: ApplicationConfig
+) : BaseController() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
@@ -47,35 +52,38 @@ class AuthorizeController(val authorizeHandler: AuthorizeHandler,
      * Authorize Endpoint
      */
     @Operation(
-            summary = "Authorize requests.",
-            description = "This endpoint is called by Traefik to check if a request is authorized to access.",
-            responses = arrayOf(
-                    ApiResponse(
-                            responseCode = "200",
-                            description = "Access granted according to configuration in ForwardAuth and Auth0.",
-                            content = arrayOf(Content())
-                    ),
-                    ApiResponse(
-                            responseCode = "401",
-                            description = "Access denied according to configuration in ForwardAuth and Auth0."
-                    ),
-                    ApiResponse(
-                            responseCode = "307",
-                            description = "Redirect for authentication with Auth0",
-                            content = arrayOf(Content())
-                    )
+        summary = "Authorize requests.",
+        description = "This endpoint is called by Traefik to check if a request is authorized to access.",
+        responses = arrayOf(
+            ApiResponse(
+                responseCode = "200",
+                description = "Access granted according to configuration in ForwardAuth and Auth0.",
+                content = arrayOf(Content())
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Access denied according to configuration in ForwardAuth and Auth0."
+            ),
+            ApiResponse(
+                responseCode = "307",
+                description = "Redirect for authentication with Auth0",
+                content = arrayOf(Content())
             )
+        )
     )
     @Get("/authorize")
+    @Secured(IS_ANONYMOUS)
     fun authorize(
-            authentication: Authentication,
-            headers: HttpHeaders,
-            @Header("Accept") acceptContent: String?,
-            @Header("x-requested-with") requestedWithHeader: String?,
-            @Header("x-forwarded-host") forwardedHostHeader: String,
-            @Header("x-forwarded-proto") forwardedProtoHeader: String,
-            @Header("x-forwarded-uri") forwardedUriHeader: String,
-            @Header("x-forwarded-method") forwardedMethodHeader: String): MutableHttpResponse<Any> {
-        return HttpResponse.ok()
+        authentication: Authentication?,
+        headers: HttpHeaders,
+        @Header("Accept") acceptContent: String?,
+        @Header("x-requested-with") requestedWithHeader: String?,
+        @Header("x-forwarded-host") forwardedHostHeader: String?,
+        @Header("x-forwarded-proto") forwardedProtoHeader: String?,
+        @Header("x-forwarded-uri") forwardedUriHeader: String?,
+        @Header("x-forwarded-method") forwardedMethodHeader: String?
+    ): MutableHttpResponse<Any> {
+        LOGGER.info("authProperties:$authProperties")
+        return HttpResponse.ok(authProperties.test)
     }
 }

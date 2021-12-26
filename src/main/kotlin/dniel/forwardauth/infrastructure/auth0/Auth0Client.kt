@@ -24,12 +24,11 @@ import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
-import java.util.Date
-import java.util.concurrent.TimeUnit
 import org.apache.http.HttpStatus
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 /**
  * Auth0 Client.
@@ -69,16 +68,17 @@ class Auth0Client(val properties: ApplicationConfig) {
     fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
         LOGGER.debug("Perform AuthorizationCodeExchange:  code=$code")
         val tokenRequest = AuthorizationCodeTokenRequest(
-                code = code,
-                clientId = clientId,
-                clientSecret = clientSecret,
-                redirectUrl = redirectUri)
+            code = code,
+            clientId = clientId,
+            clientSecret = clientSecret,
+            redirectUrl = redirectUri
+        )
 
         LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
         val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
-                .header("content-type", "application/json")
-                .body(JSON.writeValueAsString(tokenRequest))
-                .asJson();
+            .header("content-type", "application/json")
+            .body(JSON.writeValueAsString(tokenRequest))
+            .asJson()
 
         return handleResponse(response)
     }
@@ -114,13 +114,13 @@ class Auth0Client(val properties: ApplicationConfig) {
      * @return json object that contains a key "access_token"
      */
     fun clientCredentialsExchange(clientId: String, clientSecret: String, audience: String): JSONObject {
-        LOGGER.debug("Perform Client Credentials Exchange client-id: ${clientId}")
+        LOGGER.debug("Perform Client Credentials Exchange client-id: $clientId")
         var cachedToken = requestClientCredentialsToken(clientId, clientSecret, audience)
 
         // if cached token has expired, invalidate it and reload from Auth0.
         if (cachedToken.hasExpired()) {
             LOGGER.debug("Token has expired in cache, invalidate and re-request a new one from Auth0.")
-            cache.invalidate((clientId+clientSecret+audience).hashCode())
+            cache.invalidate((clientId + clientSecret + audience).hashCode())
             cachedToken = requestClientCredentialsToken(clientId, clientSecret, audience)
         } else {
             LOGGER.debug("Token has not yet expired, valid until ${Date(cachedToken.expires)}")
@@ -135,24 +135,25 @@ class Auth0Client(val properties: ApplicationConfig) {
      * the combination of clientid, clientsect and audience.
      */
     private fun requestClientCredentialsToken(clientId: String, clientSecret: String, audience: String) =
-            cache.get((clientId+clientSecret+audience).hashCode()) {
-                LOGGER.trace("Request Access Token by Client Credentials from Auth0.")
-                val tokenRequest = ClientCredentialsTokenRequest(
-                        clientId = clientId,
-                        clientSecret = clientSecret,
-                        audience = audience)
+        cache.get((clientId + clientSecret + audience).hashCode()) {
+            LOGGER.trace("Request Access Token by Client Credentials from Auth0.")
+            val tokenRequest = ClientCredentialsTokenRequest(
+                clientId = clientId,
+                clientSecret = clientSecret,
+                audience = audience
+            )
 
-                LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
-                val response = Unirest.post(TOKEN_ENDPOINT)
-                        .header("content-type", "application/json")
-                        .body(JSON.writeValueAsString(tokenRequest))
-                        .asJson();
+            LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
+            val response = Unirest.post(TOKEN_ENDPOINT)
+                .header("content-type", "application/json")
+                .body(JSON.writeValueAsString(tokenRequest))
+                .asJson()
 
-                val jsonObject = handleResponse(response)
-                val expiresIn = jsonObject.getInt("expires_in")
+            val jsonObject = handleResponse(response)
+            val expiresIn = jsonObject.getInt("expires_in")
 
-                CachedToken(jsonObject, System.currentTimeMillis() + (expiresIn * 1000))
-            }
+            CachedToken(jsonObject, System.currentTimeMillis() + (expiresIn * 1000))
+        }
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
@@ -162,11 +163,13 @@ class Auth0Client(val properties: ApplicationConfig) {
      */
     fun signout(clientId: String, returnTo: String): String? {
         LOGGER.debug("Perform Sign Out")
-        Unirest.setHttpClient(org.apache.http.impl.client.HttpClients.custom()
+        Unirest.setHttpClient(
+            org.apache.http.impl.client.HttpClients.custom()
                 .disableRedirectHandling()
-                .build())
+                .build()
+        )
 
-        LOGGER.trace("Request Signout Endpoint: ${LOGOUT_ENDPOINT}")
+        LOGGER.trace("Request Signout Endpoint: $LOGOUT_ENDPOINT")
         val response = with(Unirest.get(LOGOUT_ENDPOINT)) {
             queryString("client_id", clientId)
             queryString("returnTo", returnTo)
@@ -194,11 +197,11 @@ class Auth0Client(val properties: ApplicationConfig) {
      * @link https://auth0.com/docs/api/user#get-user-info
      */
     fun userinfo(accesstoken: String): Map<String, Any> {
-        LOGGER.debug("Perform retrieve Userinfo from endpoint: ${USERINFO_ENDPOINT}")
+        LOGGER.debug("Perform retrieve Userinfo from endpoint: $USERINFO_ENDPOINT")
         val response = Unirest
-                .get(USERINFO_ENDPOINT)
-                .header("Authorization", "Bearer ${accesstoken}")
-                .asJson()
+            .get(USERINFO_ENDPOINT)
+            .header("Authorization", "Bearer $accesstoken")
+            .asJson()
 
         val jsonObject = handleResponse(response)
         val userinfo = mutableMapOf<String, Any>()
@@ -215,8 +218,8 @@ class Auth0Client(val properties: ApplicationConfig) {
     private fun handleResponse(response: HttpResponse<JsonNode>): JSONObject {
         val status = response.status
         val body = response.body
-        LOGGER.trace("Response status: ${status}")
-        LOGGER.trace("Response body: ${body}")
+        LOGGER.trace("Response status: $status")
+        LOGGER.trace("Response body: $body")
 
         if (body.`object`.has("error")) {
             val error = body.`object`.getString("error")
@@ -229,22 +232,23 @@ class Auth0Client(val properties: ApplicationConfig) {
     /**
      * Just a simple data class for the token request.
      */
-    private data class AuthorizationCodeTokenRequest(@JsonProperty("grant_type") val grantType: String = "authorization_code",
-                                                     @JsonProperty("client_id") val clientId: String,
-                                                     @JsonProperty("client_secret") val clientSecret: String,
-                                                     @JsonProperty("redirect_uri") val redirectUrl: String,
-                                                     val code: String,
-                                                     val scope: String = "openid id_token"
+    private data class AuthorizationCodeTokenRequest(
+        @JsonProperty("grant_type") val grantType: String = "authorization_code",
+        @JsonProperty("client_id") val clientId: String,
+        @JsonProperty("client_secret") val clientSecret: String,
+        @JsonProperty("redirect_uri") val redirectUrl: String,
+        val code: String,
+        val scope: String = "openid id_token"
     )
 
     /**
      * Just a simple data class for the token request.
      */
-    private data class ClientCredentialsTokenRequest(@JsonProperty("grant_type") val grantType: String = "client_credentials",
-                                                     @JsonProperty("client_id") val clientId: String,
-                                                     @JsonProperty("client_secret") val clientSecret: String,
-                                                     @JsonProperty("audience") val audience: String
+    private data class ClientCredentialsTokenRequest(
+        @JsonProperty("grant_type") val grantType: String = "client_credentials",
+        @JsonProperty("client_id") val clientId: String,
+        @JsonProperty("client_secret") val clientSecret: String,
+        @JsonProperty("audience") val audience: String
 
     )
-
 }

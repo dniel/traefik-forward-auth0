@@ -27,23 +27,23 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @OpenAPIDefinition(
-        info = Info(
-                title = "ForwardAuth for Auth0 API",
-                version = "v2",
-                description = "ForwardAuth for Auth0",
-                contact = Contact(
-                        name = "Daniel",
-                        email = "daniel@engfeldt.net",
-                        url = "http://github.com/dniel"
-                )
+    info = Info(
+        title = "ForwardAuth for Auth0 API",
+        version = "v2",
+        description = "ForwardAuth for Auth0",
+        contact = Contact(
+            name = "Daniel",
+            email = "daniel@engfeldt.net",
+            url = "http://github.com/dniel"
         )
+    )
 )
 @SecurityScheme(
-        name = "forwardauth",
-        paramName = "ACCESS_TOKEN",
-        type = SecuritySchemeType.OAUTH2,
-        `in` = SecuritySchemeIn.COOKIE,
-        bearerFormat = "jwt"
+    name = "forwardauth",
+    paramName = "ACCESS_TOKEN",
+    type = SecuritySchemeType.OAUTH2,
+    `in` = SecuritySchemeIn.COOKIE,
+    bearerFormat = "jwt"
 )
 object Application {
     private val log: Logger = LoggerFactory.getLogger(Application::class.java)
@@ -51,9 +51,8 @@ object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         Micronaut.build()
-            .packages("dniel.forwardauth.infrastructure.micronaut")
+            .packages("dniel.forwardauth")
             .mainClass(Application.javaClass)
-            .banner(false)
             .start()
     }
 }

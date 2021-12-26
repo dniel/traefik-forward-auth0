@@ -21,9 +21,9 @@ import com.google.common.cache.CacheBuilder
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.stereotypes.DomainService
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
-import org.slf4j.LoggerFactory
 
 /**
  * Interface for decoder of Jwt Tokens that is provided to the VerifyTokenService
@@ -56,7 +56,7 @@ class VerifyTokenService(val decoder: JwtDecoder) : DomainService {
                         decodeToken(token)
                     }
                     when {
-                        hasIllegalAudience(decodedJWT, expectedAudience) -> throw IllegalStateException("Verify audience failed, expected ${expectedAudience} but got ${decodedJWT.audience}")
+                        hasIllegalAudience(decodedJWT, expectedAudience) -> throw IllegalStateException("Verify audience failed, expected $expectedAudience but got ${decodedJWT.audience}")
                         hasExpired(decodedJWT) -> throw IllegalStateException("Token has expired ${decodedJWT.expiresAt}")
                         else -> JwtToken(decodedJWT)
                     }

@@ -1,6 +1,8 @@
 package dniel.forwardauth.application
 
 import dniel.forwardauth.ObjectMother
+import static dniel.forwardauth.ObjectMother.getAnonymousUser
+import static dniel.forwardauth.ObjectMother.getAuthenticatedUser
 import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import spock.lang.Specification
 import spock.lang.Unroll

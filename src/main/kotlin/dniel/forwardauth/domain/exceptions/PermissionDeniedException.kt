@@ -20,6 +20,6 @@ import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import io.micronaut.http.HttpStatus
 
 class PermissionDeniedException : ApplicationException {
-    constructor(error: AuthorizeHandler.AuthorizeEvent.AccessDenied)
-            : super(error.reason, HttpStatus.UNAUTHORIZED)
+    constructor(error: AuthorizeHandler.AuthorizeEvent.AccessDenied) :
+        super(error.reason, HttpStatus.UNAUTHORIZED)
 }

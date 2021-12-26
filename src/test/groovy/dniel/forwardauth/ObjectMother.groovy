@@ -2,7 +2,7 @@ package dniel.forwardauth
 
 import com.auth0.jwt.JWT
 import dniel.forwardauth.domain.Anonymous
-import dniel.forwardauth.domain.Application
+import dniel.forwardauth.infrastructure.micronaut.config.Application
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.JwtToken
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig

@@ -25,14 +25,16 @@ import org.slf4j.LoggerFactory
  * @see AuthenticatorStateMachine for configuration of state machine.
  *
  */
-class Authenticator private constructor(val accessToken: Token,
-                                        val idToken: Token) : AuthenticatorStateMachine.Delegate {
+class Authenticator private constructor(
+    val accessToken: Token,
+    val idToken: Token
+) : AuthenticatorStateMachine.Delegate {
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
         fun create(accessToken: Token, idToken: Token):
-                Authenticator = Authenticator(accessToken, idToken)
+            Authenticator = Authenticator(accessToken, idToken)
     }
 
     private var fsm: AuthenticatorStateMachine
@@ -59,7 +61,6 @@ class Authenticator private constructor(val accessToken: Token,
     private var lastError: Error? = null
     override val hasError: Boolean
         get() = lastError != null
-
 
     override fun onStartAuthentication() {
         log("onStartAuthentication")
@@ -95,9 +96,9 @@ class Authenticator private constructor(val accessToken: Token,
              * dont get an id token as response, only access token.
              */
             is EmptyToken -> {
-                if(accessToken is JwtToken && accessToken.isClientCredentials()){
+                if (accessToken is JwtToken && accessToken.isClientCredentials()) {
                     fsm.post(AuthenticatorStateMachine.Event.EMPTY_ID_TOKEN)
-                }else{
+                } else {
                     lastError = Error("An ID Token cant be empty unless using client credentials authentication flow.")
                     fsm.post(AuthenticatorStateMachine.Event.INVALID_ID_TOKEN)
                 }
@@ -117,7 +118,7 @@ class Authenticator private constructor(val accessToken: Token,
     override fun onValidateSameSubs() {
         log("onValidateSameSubs")
         fun hasSameSubs(accessToken: Token, idToken: Token) =
-                accessToken is JwtToken && idToken is JwtToken && idToken.subject() == accessToken.subject()
+            accessToken is JwtToken && idToken is JwtToken && idToken.subject() == accessToken.subject()
 
         // check if both tokens have the same subject
         if (hasSameSubs(accessToken, idToken)) {
@@ -155,5 +156,4 @@ class Authenticator private constructor(val accessToken: Token,
     fun log(message: String) {
         LOGGER.trace(message)
     }
-
 }

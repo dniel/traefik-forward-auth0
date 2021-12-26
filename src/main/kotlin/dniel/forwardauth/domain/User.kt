@@ -27,9 +27,11 @@ interface User {
 /**
  * Authenticated user object
  */
-open class Authenticated(override val accessToken: JwtToken,
-                         override val idToken: Token,
-                         val userinfo: Map<String, String>) : User {
+open class Authenticated(
+    override val accessToken: JwtToken,
+    override val idToken: Token,
+    val userinfo: Map<String, String>
+) : User {
     val sub: String = accessToken.subject()
     val permissions: Array<String> = accessToken.permissions()
     override fun toString(): String = accessToken.subject()

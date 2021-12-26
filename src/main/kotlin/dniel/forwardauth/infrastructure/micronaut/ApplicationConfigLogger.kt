@@ -19,10 +19,10 @@ package dniel.forwardauth.infrastructure.micronaut
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.env.Environment
 import io.micronaut.context.env.PropertySource
-import java.util.regex.Pattern
-import javax.annotation.PostConstruct
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.regex.Pattern
+import javax.annotation.PostConstruct
 
 /**
  * Dump all configuration to log after context has been created.

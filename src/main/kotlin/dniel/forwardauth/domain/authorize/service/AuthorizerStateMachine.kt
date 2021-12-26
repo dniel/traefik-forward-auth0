@@ -20,7 +20,6 @@ import com.github.oxo42.stateless4j.StateMachine
 import com.github.oxo42.stateless4j.StateMachineConfig
 import org.slf4j.LoggerFactory
 
-
 /**
  * Generated from dot file generator.
  *
@@ -86,7 +85,6 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         NEED_REDIRECT,
         INVALID_TOKEN,
         ERROR,
-
     }
 
     enum class Event {
@@ -127,68 +125,68 @@ class AuthorizerStateMachine(private val delegate: Delegate) {
         val config = StateMachineConfig<State, Event>()
 
         config.configure(State.AWAIT_AUTHORIZING)
-                .permit(Event.AUTHORIZE, State.AUTHORIZING)
+            .permit(Event.AUTHORIZE, State.AUTHORIZING)
 
         config.configure(State.AUTHORIZING)
-                .permit(Event.VALIDATE_REQUESTED_URL, State.VALIDATING_REQUESTED_URL)
-                .permitIf(Event.ERROR, State.ERROR) { delegate.hasError }
-                .onEntry(delegate::onStartAuthorizing)
+            .permit(Event.VALIDATE_REQUESTED_URL, State.VALIDATING_REQUESTED_URL)
+            .permitIf(Event.ERROR, State.ERROR) { delegate.hasError }
+            .onEntry(delegate::onStartAuthorizing)
 
         config.configure(State.VALIDATING_REQUESTED_URL)
-                .substateOf(State.AUTHORIZING)
-                .permit(Event.VALIDATE_WHITELISTED_URL, State.VALIDATING_WHITELISTED_URL)
-                .onEntry(delegate::onValidateProtectedUrl)
+            .substateOf(State.AUTHORIZING)
+            .permit(Event.VALIDATE_WHITELISTED_URL, State.VALIDATING_WHITELISTED_URL)
+            .onEntry(delegate::onValidateProtectedUrl)
 
         config.configure(State.VALIDATING_WHITELISTED_URL)
-                .substateOf(State.VALIDATING_REQUESTED_URL)
-                .permit(Event.WHITELISTED_URL, State.ACCESS_GRANTED)
-                .permit(Event.RESTRICTED_URL, State.VALIDATING_RESTRICTED_METHOD)
-                .onEntry(delegate::onValidateWhitelistedUrl)
+            .substateOf(State.VALIDATING_REQUESTED_URL)
+            .permit(Event.WHITELISTED_URL, State.ACCESS_GRANTED)
+            .permit(Event.RESTRICTED_URL, State.VALIDATING_RESTRICTED_METHOD)
+            .onEntry(delegate::onValidateWhitelistedUrl)
 
         config.configure(State.VALIDATING_RESTRICTED_METHOD)
-                .substateOf(State.VALIDATING_REQUESTED_URL)
-                .permit(Event.UNRESTRICTED_METHOD, State.ACCESS_GRANTED)
-                .permit(Event.RESTRICTED_METHOD, State.VALIDATING_TOKENS)
-                .onEntry(delegate::onValidateRestrictedMethod)
+            .substateOf(State.VALIDATING_REQUESTED_URL)
+            .permit(Event.UNRESTRICTED_METHOD, State.ACCESS_GRANTED)
+            .permit(Event.RESTRICTED_METHOD, State.VALIDATING_TOKENS)
+            .onEntry(delegate::onValidateRestrictedMethod)
 
         config.configure(State.VALIDATING_TOKENS)
-                .substateOf(State.AUTHORIZING)
-                .permitIf(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN) { !delegate.hasError }
-                .onEntry(delegate::onStartValidateTokens)
+            .substateOf(State.AUTHORIZING)
+            .permitIf(Event.VALIDATE_ACCESS_TOKEN, State.VALIDATING_ACCESS_TOKEN) { !delegate.hasError }
+            .onEntry(delegate::onStartValidateTokens)
 
         config.configure(State.VALIDATING_ACCESS_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
-                .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
-                .onEntry(delegate::onValidateAccessToken)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.VALID_ACCESS_TOKEN, State.VALIDATING_PERMISSIONS) { !delegate.hasError }
+            .permit(Event.INVALID_ACCESS_TOKEN, State.INVALID_TOKEN)
+            .onEntry(delegate::onValidateAccessToken)
 
         config.configure(State.VALIDATING_PERMISSIONS)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.VALID_PERMISSIONS, State.ACCESS_GRANTED) { !delegate.hasError }
-                .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
-                .onEntry(delegate::onValidatePermissions)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.VALID_PERMISSIONS, State.ACCESS_GRANTED) { !delegate.hasError }
+            .permit(Event.INVALID_PERMISSIONS, State.ACCESS_DENIED)
+            .onEntry(delegate::onValidatePermissions)
 
         config.configure(State.INVALID_TOKEN)
-                .substateOf(State.VALIDATING_TOKENS)
-                .permitIf(Event.NEXT_TRANSITION, State.NEED_REDIRECT) { !delegate.isApi }
-                .permitIf(Event.NEXT_TRANSITION, State.ACCESS_DENIED) { delegate.isApi }
-                .onEntry(this::nextTransition)
+            .substateOf(State.VALIDATING_TOKENS)
+            .permitIf(Event.NEXT_TRANSITION, State.NEED_REDIRECT) { !delegate.isApi }
+            .permitIf(Event.NEXT_TRANSITION, State.ACCESS_DENIED) { delegate.isApi }
+            .onEntry(this::nextTransition)
 
         config.configure(State.ERROR)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onError)
+            .substateOf(State.AUTHORIZING)
+            .onEntry(delegate::onError)
 
         config.configure(State.NEED_REDIRECT)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onNeedRedirect)
+            .substateOf(State.AUTHORIZING)
+            .onEntry(delegate::onNeedRedirect)
 
         config.configure(State.ACCESS_GRANTED)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onAccessGranted)
+            .substateOf(State.AUTHORIZING)
+            .onEntry(delegate::onAccessGranted)
 
         config.configure(State.ACCESS_DENIED)
-                .substateOf(State.AUTHORIZING)
-                .onEntry(delegate::onAccessDenied)
+            .substateOf(State.AUTHORIZING)
+            .onEntry(delegate::onAccessDenied)
 
         fsm = StateMachine(State.AWAIT_AUTHORIZING, config)
         fsm.onUnhandledTrigger { _, _ -> /* ignore unhandled event */ }

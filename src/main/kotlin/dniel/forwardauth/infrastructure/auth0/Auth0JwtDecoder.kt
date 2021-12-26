@@ -26,10 +26,9 @@ import com.auth0.jwt.interfaces.RSAKeyProvider
 import dniel.forwardauth.domain.shared.service.JwtDecoder
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import jakarta.inject.Singleton
+import org.slf4j.LoggerFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
-import org.slf4j.LoggerFactory
-
 
 @Singleton
 class Auth0JwtDecoder(val properties: ApplicationConfig) : JwtDecoder {
@@ -56,8 +55,7 @@ class Auth0JwtDecoder(val properties: ApplicationConfig) : JwtDecoder {
     }
 
     private fun createJwtVerifier(algorithm: Algorithm?, domain: String): JWTVerifier = JWT.require(algorithm)
-            .withIssuer(domain)
-            .acceptLeeway(10)
-            .build()
-
+        .withIssuer(domain)
+        .acceptLeeway(10)
+        .build()
 }

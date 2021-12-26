@@ -18,21 +18,26 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SigninHandler
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import dniel.forwardauth.domain.exceptions.ApplicationException
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import org.slf4j.LoggerFactory
 
 /**
  * Callback Endpoint for Auth0 signin to retrieve JWT token from code.
  */
 @Controller
-class SigninController(val properties: ApplicationConfig,
-                       val signinHandler: SigninHandler,
-                       val commandDispatcher: CommandDispatcher) : BaseController() {
+@Secured(SecurityRule.IS_ANONYMOUS)
+class SigninController(
+    val properties: ApplicationConfig,
+    val signinHandler: SigninHandler,
+    val commandDispatcher: CommandDispatcher
+) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -50,13 +55,14 @@ class SigninController(val properties: ApplicationConfig,
      */
     @Get("/signin")
     fun signin(
-            headers: HttpHeaders,
-            @QueryValue("code") code: String?,
-            @QueryValue("error") error: String?,
-            @QueryValue("error_description") errorDescription: String?,
-            @QueryValue("state") state: String?,
-            @Header("x-forwarded-host") forwardedHost: String?,
-            @CookieValue("AUTH_NONCE") nonce: String?): MutableHttpResponse<Any> {
+        headers: HttpHeaders,
+        @QueryValue("code") code: String?,
+        @QueryValue("error") error: String?,
+        @QueryValue("error_description") errorDescription: String?,
+        @QueryValue("state") state: String?,
+        @Header("x-forwarded-host") forwardedHost: String?,
+        @CookieValue("AUTH_NONCE") nonce: String?
+    ): MutableHttpResponse<Any> {
         printHeaders(headers)
         val command: SigninHandler.SigninCommand = SigninHandler.SigninCommand(forwardedHost, code, error, errorDescription, state, nonce)
         val signinEvent = commandDispatcher.dispatch(signinHandler, command) as SigninHandler.SigninEvent

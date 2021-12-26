@@ -19,14 +19,19 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SignoutHandler
 import io.micronaut.http.annotation.Controller
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 import org.slf4j.LoggerFactory
 
 /**
  * Sign out controller.
  */
 @Controller
-internal class SignoutController(val signoutHandler: SignoutHandler,
-                                 val commandDispatcher: CommandDispatcher) : BaseController() {
+@Secured(SecurityRule.IS_AUTHENTICATED)
+internal class SignoutController(
+    val signoutHandler: SignoutHandler,
+    val commandDispatcher: CommandDispatcher
+) : BaseController() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
@@ -37,7 +42,6 @@ internal class SignoutController(val signoutHandler: SignoutHandler,
 //     * @param response
 //     */
 //    @Get("/signout")
-//    @Secured(SecurityRule.IS_AUTHENTICATED)
 //    fun signout(headers: HttpHeaders,
 //                @Header("x-forwarded-host") forwardedHost: String,
 //                @CookieValue("ACCESS_TOKEN", required = false) accessToken: String): MutableHttpResponse<Any> {

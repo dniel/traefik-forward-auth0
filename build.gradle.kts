@@ -11,7 +11,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen")
     id("jacoco")
     id("org.sonarqube") version "3.3"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+    id("groovy")
+//    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
 group = "dniel.forwardauth"
@@ -29,7 +30,7 @@ repositories {
 
 micronaut {
     runtime("netty")
-    testRuntime("junit5")
+    testRuntime("spock")
     processing {
         incremental(true)
         annotations("dniel.forwardauth.*")
@@ -116,14 +117,15 @@ dependencies {
     /**
      * Test dependency configurations.
      */
-    testImplementation("io.micronaut.test:micronaut-test-junit5")
-    testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.assertj:assertj-core")
     testImplementation("com.github.tomakehurst:wiremock:2.27.2")
     testImplementation("io.mockk:mockk:1.12.1")
 
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testCompileOnly(platform("io.micronaut:micronaut-bom:$micronautVersion"))
+    testImplementation("org.spockframework:spock-core") {
+        exclude("org.codehaus.groovy:groovy-all")
+    }
+    testImplementation("io.micronaut:micronaut-inject-groovy")
+    testImplementation("io.micronaut.test:micronaut-test-spock")
 }
 
 application {
@@ -134,9 +136,9 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     // Optionally configure plugin
-    ktlint {
-        debug.set(true)
-    }
+//    ktlint {
+//        debug.set(true)
+//    }
 }
 
 jacoco {
@@ -155,7 +157,7 @@ tasks {
     test {
         systemProperty("micronaut.environments", "test")
         systemProperty("micronaut.env.deduction", false)
-        dependsOn(ktlintCheck)
+//        dependsOn(ktlintCheck)
     }
 
     compileKotlin {

@@ -16,5 +16,4 @@
 
 package dniel.forwardauth.domain.stereotypes
 
-interface Value {
-}
+interface Value

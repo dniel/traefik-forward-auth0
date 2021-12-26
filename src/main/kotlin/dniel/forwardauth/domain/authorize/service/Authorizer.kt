@@ -18,6 +18,7 @@ package dniel.forwardauth.domain.authorize.service
 
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.authorize.RequestedUrl
+import dniel.forwardauth.infrastructure.micronaut.config.Application
 import org.slf4j.LoggerFactory
 
 /**
@@ -30,17 +31,23 @@ import org.slf4j.LoggerFactory
  * @see AuthorizerStateMachine for configuration of state machine.
  *
  */
-class Authorizer private constructor(private val accessToken: Token,
-                                     private val app: Application,
-                                     private val originUrl: RequestedUrl,
-                                     override val isApi: Boolean) : AuthorizerStateMachine.Delegate {
+class Authorizer private constructor(
+    private val accessToken: Token,
+    private val app: Application,
+    private val originUrl: RequestedUrl,
+    override val isApi: Boolean
+) : AuthorizerStateMachine.Delegate {
 
     companion object Factory {
         val LOGGER = LoggerFactory.getLogger(this::class.java)
 
-        fun create(accessToken: Token, app: Application,
-                   originUrl: RequestedUrl, isApi: Boolean):
-                Authorizer = Authorizer(accessToken, app, originUrl, isApi)
+        fun create(
+            accessToken: Token,
+            app: Application,
+            originUrl: RequestedUrl,
+            isApi: Boolean
+        ):
+            Authorizer = Authorizer(accessToken, app, originUrl, isApi)
     }
 
     private var fsm: AuthorizerStateMachine
@@ -68,7 +75,6 @@ class Authorizer private constructor(private val accessToken: Token,
     override val hasError: Boolean
         get() = lastError != null
 
-
     override fun onStartAuthorizing() {
         log("onStartAuthorizing")
         fsm.post(AuthorizerStateMachine.Event.VALIDATE_REQUESTED_URL)
@@ -82,7 +88,7 @@ class Authorizer private constructor(private val accessToken: Token,
     override fun onValidateWhitelistedUrl() {
         log("onValidateWhitelistedUrl")
         fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
-                originUrl.startsWith(app.redirectUri)
+            originUrl.startsWith(app.redirectUri)
 
         if (isSigninUrl(originUrl, app)) {
             fsm.post(AuthorizerStateMachine.Event.WHITELISTED_URL)
@@ -95,7 +101,7 @@ class Authorizer private constructor(private val accessToken: Token,
         log("onValidateRestrictedMethod")
         val method = originUrl.method
         fun isRestrictedMethod(app: Application, method: String) =
-                app.restrictedMethods.any { t -> t.equals(method, true) }
+            app.restrictedMethods.any { t -> t.equals(method, true) }
 
         when {
             isRestrictedMethod(app, method) -> fsm.post(AuthorizerStateMachine.Event.RESTRICTED_METHOD)
@@ -167,5 +173,4 @@ class Authorizer private constructor(private val accessToken: Token,
     fun log(message: String) {
         LOGGER.trace(message)
     }
-
 }

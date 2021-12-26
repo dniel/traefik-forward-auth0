@@ -25,10 +25,10 @@ import io.micronaut.http.HttpStatus.INTERNAL_SERVER_ERROR
  */
 open class ApplicationException : io.micronaut.http.exceptions.HttpStatusException {
     constructor() : super(
-            INTERNAL_SERVER_ERROR,
-            "Unknown state, dont know what to do, better block access.")
+        INTERNAL_SERVER_ERROR,
+        "Unknown state, dont know what to do, better block access."
+    )
 
     constructor(message: String) : super(INTERNAL_SERVER_ERROR, message)
     constructor(message: String, status: HttpStatus) : super(status, message)
-
 }

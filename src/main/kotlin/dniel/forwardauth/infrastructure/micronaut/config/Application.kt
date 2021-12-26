@@ -14,32 +14,57 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.domain
+package dniel.forwardauth.infrastructure.micronaut.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.micronaut.context.annotation.Value
+import jakarta.inject.Singleton
 import java.util.Arrays
 import javax.validation.constraints.NotEmpty
 
-class Application {
-    @NotEmpty
-    lateinit var name: String
+/**
+ *
+ */
+@Singleton
+open class Application {
 
+    @Value("\${name}")
+    @NotEmpty
+    var name: String = ""
+
+    @Value("\${client-id}")
     @get:JsonIgnore
     var clientId: String = ""
 
+    @Value("\${client-secret}")
     @get:JsonIgnore
     var clientSecret: String = ""
+
+    @Value("\${audience}")
     var audience: String = ""
+
+    @Value("\${scope}")
     var scope: String = "profile openid email"
+
+    @Value("\${redirect-uri}")
     var redirectUri: String = ""
+
+    @Value("\${token-cookie-domain}")
     var tokenCookieDomain: String = ""
+
+    @Value("\${restricted-methods}")
     var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
+
+    @Value("\${required-permissions}")
     var requiredPermissions: Array<String> = emptyArray()
+
+    @Value("\${claims}")
     var claims: Array<String> = emptyArray()
+
+    @Value("\${return-to}")
     var returnTo: String = ""
 
     override fun toString(): String {
         return "Application(name='$name', clientId='$clientId', clientSecret='$clientSecret', audience='$audience', scope='$scope', redirectUri='$redirectUri', tokenCookieDomain='$tokenCookieDomain', restrictedMethods=${Arrays.toString(restrictedMethods)}, requiredPermissions=${Arrays.toString(requiredPermissions)}, claims=${Arrays.toString(claims)})"
     }
-
 }

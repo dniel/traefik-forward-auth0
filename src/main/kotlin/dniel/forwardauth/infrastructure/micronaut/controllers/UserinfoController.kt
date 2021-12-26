@@ -19,9 +19,9 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.Anonymous
+import dniel.forwardauth.domain.exceptions.ApplicationException
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
-import dniel.forwardauth.domain.exceptions.ApplicationException
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -39,8 +39,10 @@ import org.slf4j.LoggerFactory
 
 @Controller
 @Secured(IS_AUTHENTICATED)
-internal class UserinfoController(val userinfoHandler: UserinfoHandler,
-                                  val commandDispatcher: CommandDispatcher) {
+internal class UserinfoController(
+    val userinfoHandler: UserinfoHandler,
+    val commandDispatcher: CommandDispatcher
+) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
@@ -51,27 +53,32 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
      * @param response
      */
     @Operation(
-            tags = arrayOf("userinfo"),
-            summary = "Get userinfo",
-            description = "Get userinfo of authenticated user.",
-            responses = arrayOf(
-                    ApiResponse(
-                            responseCode = "200",
-                            description = "Userinfo about the currently authenticated user.",
-                            content = arrayOf(
-                                    Content(
-                                            schema = Schema(
-                                                    externalDocs = ExternalDocumentation(
-                                                            description = "Link to Siren Hypermedia specification",
-                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json")),
-                                            mediaType = APPLICATION_SIREN_JSON))
-                    ),
-                    ApiResponse(
-                            responseCode = "401",
-                            description = "If no authenticated user.",
-                            content = arrayOf(Content())
+        tags = arrayOf("userinfo"),
+        summary = "Get userinfo",
+        description = "Get userinfo of authenticated user.",
+        responses = arrayOf(
+            ApiResponse(
+                responseCode = "200",
+                description = "Userinfo about the currently authenticated user.",
+                content = arrayOf(
+                    Content(
+                        schema = Schema(
+                            externalDocs = ExternalDocumentation(
+                                description = "Link to Siren Hypermedia specification",
+                                url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                            )
+                        ),
+                        mediaType = APPLICATION_SIREN_JSON
                     )
-            ))
+                )
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "If no authenticated user.",
+                content = arrayOf(Content())
+            )
+        )
+    )
     @Get("/userinfo")
     @Secured(IS_AUTHENTICATED)
     @Produces(APPLICATION_SIREN_JSON)
@@ -87,10 +94,10 @@ internal class UserinfoController(val userinfoHandler: UserinfoHandler,
         return when (userinfoEvent) {
             is UserinfoHandler.UserinfoEvent.Userinfo -> {
                 val root = Root.newBuilder()
-                        .title("Userinfo for ${authentication.name}")
-                        .properties(userinfoEvent.properties)
-                        .clazz("userinfo")
-                        .build()
+                    .title("Userinfo for ${authentication.name}")
+                    .properties(userinfoEvent.properties)
+                    .clazz("userinfo")
+                    .build()
                 HttpResponse.ok(root)
             }
             is UserinfoHandler.UserinfoEvent.Error -> throw ApplicationException(userinfoEvent.reason)

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
  * TODO: implement more advanced repository and/or configuration for events.
  */
 @Singleton
-class EventRepository{
+class EventRepository {
 
     private val cache = CacheBuilder.newBuilder().expireAfterWrite(24, TimeUnit.HOURS).build<UUID, Event>()
 

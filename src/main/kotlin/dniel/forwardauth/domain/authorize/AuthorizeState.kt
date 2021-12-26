@@ -19,7 +19,6 @@ package dniel.forwardauth.domain.authorize
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.util.Base64
 
-
 class AuthorizeState private constructor(val originUrl: RequestedUrl, val nonce: AuthorizeNonce) {
 
     companion object {
@@ -44,6 +43,4 @@ class AuthorizeState private constructor(val originUrl: RequestedUrl, val nonce:
     override fun toString(): String {
         return encode()
     }
-
-
 }
