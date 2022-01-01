@@ -27,8 +27,8 @@ import dniel.forwardauth.domain.authorize.RequestedUrl
 import dniel.forwardauth.domain.authorize.service.Authorizer
 import dniel.forwardauth.domain.authorize.service.AuthorizerStateMachine
 import dniel.forwardauth.domain.events.Event
-import dniel.forwardauth.infrastructure.micronaut.config.Application
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.domain.config.ApplicationSettings
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -54,7 +54,7 @@ import java.net.URI
  * https://github.com/stateless4j
  */
 @Singleton
-class AuthorizeHandler(val properties: ApplicationConfig) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
+class AuthorizeHandler(val properties: ForwardAuthSettings) : CommandHandler<AuthorizeHandler.AuthorizeCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
@@ -74,19 +74,19 @@ class AuthorizeHandler(val properties: ApplicationConfig) : CommandHandler<Autho
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthorizeEvent(val user: User, val application: Application) : Event() {
+    sealed class AuthorizeEvent(val user: User, val applicationSettings: ApplicationSettings) : Event() {
         class NeedRedirect(
-            application: Application,
-            val authorizeUrl: URI,
-            val nonce: AuthorizeNonce,
-            val cookieDomain: String
-        ) : AuthorizeEvent(Anonymous, application)
-        class AccessGranted(user: User, application: Application) : AuthorizeEvent(user, application)
-        class AccessDenied(user: User, application: Application, error: Authorizer.Error?) : AuthorizeEvent(user, application) {
+                applicationSettings: ApplicationSettings,
+                val authorizeUrl: URI,
+                val nonce: AuthorizeNonce,
+                val cookieDomain: String
+        ) : AuthorizeEvent(Anonymous, applicationSettings)
+        class AccessGranted(user: User, applicationSettings: ApplicationSettings) : AuthorizeEvent(user, applicationSettings)
+        class AccessDenied(user: User, applicationSettings: ApplicationSettings, error: Authorizer.Error?) : AuthorizeEvent(user, applicationSettings) {
             val reason: String = error?.message ?: "Unknown error"
         }
 
-        class Error(user: User, application: Application, error: Authorizer.Error?) : AuthorizeEvent(user, application) {
+        class Error(user: User, applicationSettings: ApplicationSettings, error: Authorizer.Error?) : AuthorizeEvent(user, applicationSettings) {
             val reason: String = error?.message ?: "Unknown error"
         }
     }

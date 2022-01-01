@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.domain.exceptions
+package dniel.forwardauth.infrastructure.micronaut.exceptions
 
 import dniel.forwardauth.application.commandhandlers.AuthenticateHandler
 import io.micronaut.http.HttpStatus

@@ -23,14 +23,14 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.interfaces.RSAKeyProvider
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 
 @Singleton
-class Auth0Utils(val properties: ApplicationConfig) {
+class Auth0Utils(val properties: ForwardAuthSettings) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
     val DOMAIN = properties.domain

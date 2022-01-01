@@ -18,7 +18,7 @@ package dniel.forwardauth.domain.authorize.service
 
 import dniel.forwardauth.domain.*
 import dniel.forwardauth.domain.authorize.RequestedUrl
-import dniel.forwardauth.infrastructure.micronaut.config.Application
+import dniel.forwardauth.domain.config.ApplicationSettings
 import org.slf4j.LoggerFactory
 
 /**
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
  */
 class Authorizer private constructor(
     private val accessToken: Token,
-    private val app: Application,
+    private val app: ApplicationSettings,
     private val originUrl: RequestedUrl,
     override val isApi: Boolean
 ) : AuthorizerStateMachine.Delegate {
@@ -43,7 +43,7 @@ class Authorizer private constructor(
 
         fun create(
             accessToken: Token,
-            app: Application,
+            app: ApplicationSettings,
             originUrl: RequestedUrl,
             isApi: Boolean
         ):
@@ -87,7 +87,7 @@ class Authorizer private constructor(
 
     override fun onValidateWhitelistedUrl() {
         log("onValidateWhitelistedUrl")
-        fun isSigninUrl(originUrl: RequestedUrl, app: Application) =
+        fun isSigninUrl(originUrl: RequestedUrl, app: ApplicationSettings) =
             originUrl.startsWith(app.redirectUri)
 
         if (isSigninUrl(originUrl, app)) {
@@ -100,7 +100,7 @@ class Authorizer private constructor(
     override fun onValidateRestrictedMethod() {
         log("onValidateRestrictedMethod")
         val method = originUrl.method
-        fun isRestrictedMethod(app: Application, method: String) =
+        fun isRestrictedMethod(app: ApplicationSettings, method: String) =
             app.restrictedMethods.any { t -> t.equals(method, true) }
 
         when {

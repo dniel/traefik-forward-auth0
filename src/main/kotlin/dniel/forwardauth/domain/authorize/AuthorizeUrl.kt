@@ -16,14 +16,14 @@
 
 package dniel.forwardauth.domain.authorize
 
-import dniel.forwardauth.infrastructure.micronaut.config.Application
+import dniel.forwardauth.domain.config.ApplicationSettings
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 class AuthorizeUrl(
     val authorizeUrl: String,
-    val app: Application,
+    val app: ApplicationSettings,
     val authorizeState: AuthorizeState
 ) {
 

@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.domain.exceptions
+package dniel.forwardauth.infrastructure.micronaut.exceptions
 
+import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
 import io.micronaut.http.HttpStatus
-import io.micronaut.http.HttpStatus.INTERNAL_SERVER_ERROR
 
-/**
- * Generic error, but should stop execution and not give access to be sure
- * that we don't give access to someone that shouldn't be allowed.
- */
-open class ApplicationException : io.micronaut.http.exceptions.HttpStatusException {
-    constructor() : super(
-        INTERNAL_SERVER_ERROR,
-        "Unknown state, dont know what to do, better block access."
-    )
-
-    constructor(message: String) : super(INTERNAL_SERVER_ERROR, message)
-    constructor(message: String, status: HttpStatus) : super(status, message)
+class PermissionDeniedException : ApplicationException {
+    constructor(error: AuthorizeHandler.AuthorizeEvent.AccessDenied) :
+        super(error.reason, HttpStatus.UNAUTHORIZED)
 }

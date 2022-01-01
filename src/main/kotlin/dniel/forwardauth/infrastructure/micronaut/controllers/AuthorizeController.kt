@@ -18,7 +18,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory
 class AuthorizeController(
     @Inject private val authorizeHandler: AuthorizeHandler,
     @Inject private val commandDispatcher: CommandDispatcher,
-    @Inject private val authProperties: ApplicationConfig
+    @Inject private val authProperties: ForwardAuthSettings
 ) : BaseController() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
@@ -84,6 +84,6 @@ class AuthorizeController(
         @Header("x-forwarded-method") forwardedMethodHeader: String?
     ): MutableHttpResponse<Any> {
         LOGGER.info("authProperties:$authProperties")
-        return HttpResponse.ok(authProperties.test)
+        return HttpResponse.ok(authProperties)
     }
 }

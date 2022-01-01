@@ -18,8 +18,8 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SigninHandler
-import dniel.forwardauth.domain.exceptions.ApplicationException
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.exceptions.ApplicationException
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import io.micronaut.http.HttpHeaders
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory
 @Controller
 @Secured(SecurityRule.IS_ANONYMOUS)
 class SigninController(
-    val properties: ApplicationConfig,
-    val signinHandler: SigninHandler,
-    val commandDispatcher: CommandDispatcher
+        val properties: ForwardAuthSettings,
+        val signinHandler: SigninHandler,
+        val commandDispatcher: CommandDispatcher
 ) : BaseController() {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 

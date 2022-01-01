@@ -16,4 +16,8 @@
 
 package dniel.forwardauth.domain.stereotypes
 
+/**
+ * Encapsulates business logic that doesn't naturally fit within a domain object,
+ * and are NOT typical CRUD operations – those would belong to a Repository.
+ */
 interface DomainService

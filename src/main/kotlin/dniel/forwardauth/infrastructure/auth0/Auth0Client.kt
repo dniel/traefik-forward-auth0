@@ -22,7 +22,7 @@ import com.google.common.cache.CacheBuilder
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.apache.http.HttpStatus
 import org.json.JSONObject
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
  *
  */
 @Singleton
-class Auth0Client(val properties: ApplicationConfig) {
+class Auth0Client(val properties: ForwardAuthSettings) {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
     val LOGOUT_ENDPOINT = properties.logoutEndpoint
     val USERINFO_ENDPOINT = properties.userinfoEndpoint

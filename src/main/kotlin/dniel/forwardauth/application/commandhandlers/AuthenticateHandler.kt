@@ -25,8 +25,8 @@ import dniel.forwardauth.domain.authenticate.service.AuthenticatorStateMachine
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.domain.shared.*
 import dniel.forwardauth.domain.shared.service.VerifyTokenService
-import dniel.forwardauth.infrastructure.micronaut.config.Application
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.domain.config.ApplicationSettings
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory
  */
 @Singleton
 class AuthenticateHandler(
-    val properties: ApplicationConfig,
+    val properties: ForwardAuthSettings,
     val verifyTokenService: VerifyTokenService
 ) : CommandHandler<AuthenticateHandler.AuthenticateCommand> {
 
@@ -99,7 +99,7 @@ class AuthenticateHandler(
     /**
      * Get selected userinfo from token claims.
      */
-    private fun getUserinfoFromToken(app: Application, idToken: Token, accessToken: Token): Map<String, String> {
+    private fun getUserinfoFromToken(app: ApplicationSettings, idToken: Token, accessToken: Token): Map<String, String> {
         app.claims.forEach { s -> LOGGER.trace("Should add Claim from token: $s") }
         val userinfo = mutableMapOf<String, String>()
         // use sub claim from access token.

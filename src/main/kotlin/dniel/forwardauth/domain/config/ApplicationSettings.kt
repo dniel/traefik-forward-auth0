@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.domain.exceptions
-
-import dniel.forwardauth.application.commandhandlers.AuthorizeHandler
-import io.micronaut.http.HttpStatus
+package dniel.forwardauth.domain.config
 
 /**
- * Generic Authorization Error.
- * Should stop execution and not give access to be sure that we dont give access to someone that shouldnt be allowed.
+ *
  */
-open class AuthorizationException : ApplicationException {
-    constructor(error: AuthorizeHandler.AuthorizeEvent.Error) :
-        super(error.reason, HttpStatus.UNAUTHORIZED)
+interface ApplicationSettings {
+    var name: String
+    var clientId: String
+    var clientSecret: String
+    var audience: String
+    var scope: String
+    var redirectUri: String
+    var tokenCookieDomain: String
+    var restrictedMethods: Array<String>
+    var requiredPermissions: Array<String>
+    var claims: Array<String>
+    var returnTo: String
 }

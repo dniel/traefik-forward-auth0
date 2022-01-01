@@ -19,7 +19,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
 import dniel.forwardauth.domain.Anonymous
-import dniel.forwardauth.domain.exceptions.ApplicationException
+import dniel.forwardauth.infrastructure.micronaut.exceptions.ApplicationException
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
 import io.micronaut.http.HttpResponse

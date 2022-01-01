@@ -22,7 +22,7 @@ import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.User
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory
  */
 @Singleton
 class UserinfoHandler(
-    val properties: ApplicationConfig,
+    val properties: ForwardAuthSettings,
     val auth0Client: Auth0Client
 ) : CommandHandler<UserinfoHandler.UserinfoCommand> {
 

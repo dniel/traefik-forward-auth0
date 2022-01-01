@@ -18,5 +18,10 @@ package dniel.forwardauth.domain.stereotypes
 
 /**
  * Marker interface for classes of type Repository in Domain Driven Design.
+ *
+ * A REPOSITORY represents all objects of a certain type as a conceptual set (usually emulated).
+ * It acts like a collection, except with more elaborate querying capability....
+ * For each type of object that needs global access, create an object that can provide the illusion
+ * of an in memory collection of all objects of that type.
  */
 interface Repository

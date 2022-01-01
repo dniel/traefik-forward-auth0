@@ -19,7 +19,7 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.User
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import dniel.forwardauth.infrastructure.siren.Action
 import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
@@ -42,7 +42,7 @@ import java.net.URI
 
 @Controller
 @Secured(SecurityRule.IS_ANONYMOUS)
-internal class RootController(val properties: ApplicationConfig) {
+internal class RootController(val properties: ForwardAuthSettings) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 

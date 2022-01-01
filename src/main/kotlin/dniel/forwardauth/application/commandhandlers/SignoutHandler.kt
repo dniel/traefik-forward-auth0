@@ -20,8 +20,8 @@ import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.events.Event
 import dniel.forwardauth.infrastructure.auth0.Auth0Client
-import dniel.forwardauth.infrastructure.micronaut.config.Application
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.domain.config.ApplicationSettings
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory
  */
 @Singleton
 class SignoutHandler(
-    val properties: ApplicationConfig,
-    val auth0Client: Auth0Client
+        val properties: ForwardAuthSettings,
+        val auth0Client: Auth0Client
 ) : CommandHandler<SignoutHandler.SignoutCommand> {
 
     private val LOGGER = LoggerFactory.getLogger(this::class.java)
@@ -51,10 +51,10 @@ class SignoutHandler(
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class SignoutEvent(val app: Application) : Event() {
-        class SignoutComplete(app: Application) : SignoutEvent(app)
-        class SignoutRedirect(val redirectUrl: String, app: Application) : SignoutEvent(app)
-        class Error(val reason: String = "Unknown error", app: Application) : SignoutEvent(app)
+    sealed class SignoutEvent(val app: ApplicationSettings) : Event() {
+        class SignoutComplete(app: ApplicationSettings) : SignoutEvent(app)
+        class SignoutRedirect(val redirectUrl: String, app: ApplicationSettings) : SignoutEvent(app)
+        class Error(val reason: String = "Unknown error", app: ApplicationSettings) : SignoutEvent(app)
     }
 
     /**

@@ -126,6 +126,7 @@ dependencies {
     }
     testImplementation("io.micronaut:micronaut-inject-groovy")
     testImplementation("io.micronaut.test:micronaut-test-spock")
+    testImplementation("org.assertj:assertj-core")
 }
 
 application {

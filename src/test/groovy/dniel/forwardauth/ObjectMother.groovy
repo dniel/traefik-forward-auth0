@@ -2,10 +2,10 @@ package dniel.forwardauth
 
 import com.auth0.jwt.JWT
 import dniel.forwardauth.domain.Anonymous
-import dniel.forwardauth.infrastructure.micronaut.config.Application
+import dniel.forwardauth.infrastructure.micronaut.config.ApplicationSettings
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.infrastructure.micronaut.config.ApplicationConfig
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 
 class ObjectMother {
 
@@ -17,7 +17,7 @@ class ObjectMother {
     static def userinfo = [sub: "daniel@example.com", email: "jrocket@example.com", uknown: "123"]
     static def authenticatedUser = new Authenticated(validJwtToken, validJwtToken, userinfo)
     static def anonymousUser = new Anonymous()
-    static def properties = new ApplicationConfig()
+    static def properties = new ForwardAuthSettings()
 
     static {
         properties.domain = domain
@@ -32,11 +32,11 @@ class ObjectMother {
         properties.default.clientId = "123456789"
         properties.default.clientSecret = "987654321"
 
-        properties.apps << new Application()
+        properties.apps << new ApplicationSettings()
         properties.apps[0].name = "restricted.com"
         properties.apps[0].restrictedMethods = ["POST", "PUT", "DELETE", "PATCH"]
 
-        properties.apps << new Application()
+        properties.apps << new ApplicationSettings()
         properties.apps[1].name = "opaque.com"
         properties.apps[1].audience = "${domain}/userinfo"
     }
