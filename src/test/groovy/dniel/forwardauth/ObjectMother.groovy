@@ -17,28 +17,36 @@ class ObjectMother {
     static def userinfo = [sub: "daniel@example.com", email: "jrocket@example.com", uknown: "123"]
     static def authenticatedUser = new Authenticated(validJwtToken, validJwtToken, userinfo)
     static def anonymousUser = new Anonymous()
-    static def properties = new ForwardAuthSettings()
+    static def properties
 
     static {
+        // create the default app config
+        def defaultApp = new ApplicationSettings("default")
+        defaultApp.audience = exampleAudience
+        defaultApp.name = "this is the default application"
+        defaultApp.redirectUri = "https://www.example.test/oauth2/signin"
+        defaultApp.tokenCookieDomain = "example.com"
+        defaultApp.claims = ["sub", "email"]
+        defaultApp.clientId = "123456789"
+        defaultApp.clientSecret = "987654321"
+
+        // and some more apps.
+        def restricted = new ApplicationSettings("restricted.com")
+        restricted.restrictedMethods = ["POST", "PUT", "DELETE", "PATCH"]
+
+        // even more.
+        def opaque = new ApplicationSettings("opaque.com")
+        opaque.audience = "${domain}/userinfo"
+
+        /**
+         * Create new ForwardAuthSettings.
+         * Use the test data created above to populate.
+         */
+        properties = new ForwardAuthSettings(defaultApp,  [defaultApp, restricted, opaque])
         properties.domain = domain
         properties.authorizeUrl = "${domain}authorize"
         properties.tokenEndpoint = "${domain}oauth/token"
 
-        properties.default.audience = exampleAudience
-        properties.default.name = "this is the default application"
-        properties.default.redirectUri = "https://www.example.test/oauth2/signin"
-        properties.default.tokenCookieDomain = "example.com"
-        properties.default.claims = ["sub", "email"]
-        properties.default.clientId = "123456789"
-        properties.default.clientSecret = "987654321"
-
-        properties.apps << new ApplicationSettings()
-        properties.apps[0].name = "restricted.com"
-        properties.apps[0].restrictedMethods = ["POST", "PUT", "DELETE", "PATCH"]
-
-        properties.apps << new ApplicationSettings()
-        properties.apps[1].name = "opaque.com"
-        properties.apps[1].audience = "${domain}/userinfo"
     }
 
 }

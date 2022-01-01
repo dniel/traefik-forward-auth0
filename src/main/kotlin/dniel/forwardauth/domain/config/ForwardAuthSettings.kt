@@ -18,9 +18,6 @@ package dniel.forwardauth.domain.config
 
 import dniel.forwardauth.domain.config.service.FindApplicationOrDefault
 
-/**
- *
- */
 interface ForwardAuthSettings {
     val domain: String
     val tokenEndpoint: String
