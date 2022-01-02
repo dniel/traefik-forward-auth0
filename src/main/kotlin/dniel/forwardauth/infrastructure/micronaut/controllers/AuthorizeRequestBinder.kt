@@ -27,6 +27,13 @@ import java.util.Optional
 import java.util.stream.Collectors
 import org.slf4j.LoggerFactory
 
+/**
+ * Argument binder for authorize.
+ * This is a request argument binder that reads the
+ * input parameters for the /authorize endpoint.
+ *
+ * @see AuthorizeController
+ */
 @Singleton
 class AuthorizeRequestBinder : TypedRequestArgumentBinder<AuthorizeRequest> {
 

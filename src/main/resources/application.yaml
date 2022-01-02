@@ -1,0 +1,6 @@
+micronaut:
+  application:
+    name: forwardauth
+
+  security:
+    enabled: true

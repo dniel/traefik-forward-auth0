@@ -52,9 +52,6 @@ class AuthorizeController(
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-    /**
-     * Authorize Endpoint
-     */
     @Operation(
             summary = "Authorize requests.",
             description = "This endpoint is called by Traefik to check if a request is authorized to access.",
@@ -75,6 +72,14 @@ class AuthorizeController(
                     )
             )
     )
+    /**
+     * Authorize Endpoint.
+     *
+     * @param authorizeRequest
+     * @param authentication
+     * @param acceptContentHeader
+     * @param requestedWithHeader
+     */
     @Get("/authorize")
     @Secured(IS_ANONYMOUS)
     fun authorize(
@@ -82,7 +87,7 @@ class AuthorizeController(
             authentication: Authentication?,
             @Header("Accept") acceptContentHeader: String?,
             @Header("x-requested-with") requestedWithHeader: String?,
-    ): MutableHttpResponse<Any> {
+    ): MutableHttpResponse<*> {
         return authenticateToken(
                 acceptContent = acceptContentHeader,
                 requestedWith = requestedWithHeader,
@@ -98,7 +103,7 @@ class AuthorizeController(
      *
      */
     private fun authenticateToken(acceptContent: String?, requestedWith: String?, method: String, host: String, protocol: String,
-                                  uri: String, user: User): MutableHttpResponse<Any> {
+                                  uri: String, user: User): MutableHttpResponse<*> {
         val authorizeResult = handleCommand(acceptContent, requestedWith, protocol, host, uri, method, user)
         return when (authorizeResult) {
             is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
@@ -118,9 +123,7 @@ class AuthorizeController(
      */
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
                               protocol: String, host: String, uri: String, method: String, user: User): AuthorizeHandler.AuthorizeEvent {
-        val isApi = (acceptsApiContent(acceptContent)) ||
-                requestedWithHeader != null && requestedWithHeader == "XMLHttpRequest"
-
+        val isApi = isApi(acceptContent, requestedWithHeader)
         val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(user, protocol, host, uri, method, isApi)
         return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
@@ -131,7 +134,7 @@ class AuthorizeController(
      * forward userinfo from tokens to requested resource server.
      * When user is Anonymous just and access granted, just say 200 with no userinfo.
      */
-    private fun accessGranted(authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): MutableHttpResponse<Any>  {
+    private fun accessGranted(authorizeResult: AuthorizeHandler.AuthorizeEvent.AccessGranted): MutableHttpResponse<*> {
         LOGGER.debug("Access Granted to ${authorizeResult.user}")
         return when (authorizeResult.user) {
             is Authenticated -> {
@@ -145,7 +148,7 @@ class AuthorizeController(
                 }
                 response
             }
-            else -> HttpResponse.noContent()
+            else -> HttpResponse.noContent<Any>()
         }
     }
 
@@ -153,15 +156,28 @@ class AuthorizeController(
      * Redirect to Authorize
      *
      */
-    private fun redirect(authorizeResult: AuthorizeHandler.AuthorizeEvent.NeedRedirect): MutableHttpResponse<Any>  {
+    private fun redirect(authorizeResult: AuthorizeHandler.AuthorizeEvent.NeedRedirect): MutableHttpResponse<*> {
         LOGGER.debug("Redirect to ${authorizeResult.authorizeUrl}")
         val response = HttpResponse.temporaryRedirect<Any>(authorizeResult.authorizeUrl)
 
         // add the nonce value to the request to be able to retrieve ut again on the singin endpoint.
-        addCookie(response,"AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, authProperties.nonceMaxAge)
+        addCookie(response, "AUTH_NONCE", authorizeResult.nonce.value, authorizeResult.cookieDomain, authProperties.nonceMaxAge)
         return response
     }
 
+    /**
+     * Try to detect that the request is coming from an ajax api call
+     * by checking the x-requested-with header that is set by some of
+     * the major frameworks when doing ajax requests.
+     */
+    private fun isApi(acceptContent: String?, requestedWithHeader: String?) =
+            acceptsApiContent(acceptContent)
+                    || requestedWithHeader != null
+                    && requestedWithHeader == "XMLHttpRequest"
+
+    /**
+     *
+     */
     private fun acceptsApiContent(acceptContent: String?) =
             acceptContent != null &&
                     (acceptContent.contains("application/json") || acceptContent.contains("text/event-stream"))
