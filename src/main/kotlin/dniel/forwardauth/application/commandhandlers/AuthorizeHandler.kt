@@ -19,6 +19,7 @@ package dniel.forwardauth.application.commandhandlers
 import dniel.forwardauth.application.Command
 import dniel.forwardauth.application.CommandHandler
 import dniel.forwardauth.domain.Anonymous
+import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.User
 import dniel.forwardauth.domain.authorize.AuthorizeNonce
 import dniel.forwardauth.domain.authorize.AuthorizeState
@@ -74,7 +75,7 @@ class AuthorizeHandler(val properties: ForwardAuthSettings) : CommandHandler<Aut
     /**
      * This command can produce a set of events as response from the handle method.
      */
-    sealed class AuthorizeEvent(val user: User, val applicationSettings: ApplicationSettings) : Event() {
+    sealed class AuthorizeEvent(open val user: User, val applicationSettings: ApplicationSettings) : Event() {
         class NeedRedirect(
                 applicationSettings: ApplicationSettings,
                 val authorizeUrl: URI,

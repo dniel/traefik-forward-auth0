@@ -1,0 +1,26 @@
+domain: https://dniel.eu.auth0.com/
+token-endpoint: https://dniel.eu.auth0.com/oauth/token
+authorize-url: https://dniel.eu.auth0.com/authorize
+userinfo-endpoint: https://dniel.eu.auth0.com/userinfo
+logout-endpoint:  https://dniel.eu.auth0.com/v2/logout
+nonce-max-age: 300
+
+apps:
+  default:
+    client-id: v1VM3YPVe7gdUELae1or2y7O1Mk3UAbx
+    client-secret: avejbRMB1gWFgBGl1KESv_jb1gSr0eKNvxoHIhD4jkRlv4pyCsT7WXG5eKF0KntP
+    audience: https://example.com
+    scope: "profile openid email"
+    redirect-uri: http://auth.example.test/signin
+    token-cookie-domain: example.test
+    #  return-to: https://vg.no
+    claims:
+      - sub
+      - name
+      - email
+      - given_name
+      - family_name
+      - nickname
+  "whoami.example.test": {}
+  "traefik.example.test": {}
+  "www.example.test": {}
