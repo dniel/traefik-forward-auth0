@@ -80,13 +80,15 @@ internal class RootController(val properties: ForwardAuthSettings) {
 
     @Get("/")
     @Produces(Siren.APPLICATION_SIREN_JSON)
-    fun root(@Parameter(hidden = true) authentication: Authentication): HttpResponse<Root> {
+    @Secured(SecurityRule.IS_ANONYMOUS)
+    fun root(@Parameter(hidden = true) authentication: Authentication?,
+    ): HttpResponse<Root> {
         LOGGER.debug("Get root context")
 
         // TODO
         // FIXME: 25.12.2021 hardcoded anonymous user
         val user: User = Anonymous
-        val authorities = authentication.roles
+        val authorities = authentication?.roles ?: emptyList()
 
         val links = mutableListOf<Link>()
         val actions = mutableListOf<Action>()

@@ -18,35 +18,43 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
-import io.micronaut.http.MutableHttpRequest
+import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
+import spock.lang.Shared
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.notNullValue
 import static spock.util.matcher.HamcrestSupport.that
 
 @MicronautTest
-class AuthorizeControllerTest extends Specification {
+class RootControllerTest extends Specification {
 
     @Inject
-    @Client("/")
+    @Client('/')
+    @Shared
     HttpClient client
 
-    def "should test the authenticator"() {
-        given: "some input"
-
-        when: "we do something with the authenticator"
-        def httpRequest = HttpRequest.GET('/authorize')
-        httpRequest.header("x-forwarded-host","https://blablabla.com")
-        httpRequest.header("x-forwarded-proto","https")
-        httpRequest.header("x-forwarded-method","GET")
-        httpRequest.header("x-forwarded-uri","/something/something")
+    def "should allow anonymous to access to root"() {
+        when: "we call as anonymous user to root"
+        def httpRequest = HttpRequest.GET('/')
         def result = client.toBlocking().exchange(httpRequest)
 
-        then: "we should verify the outcome"
-        that(result.status, equalTo(HttpStatus.NO_CONTENT))
+        then: "we should get status OK"
+        that(result.status, equalTo(HttpStatus.OK))
+    }
+
+    def "should return siren json from root"() {
+        when: "we call as anonymous user to root"
+        def httpRequest = HttpRequest.GET('/')
+        def result = client.toBlocking().exchange(httpRequest)
+
+        then: "we should get status OK"
+        that(result.contentType.isPresent(), is(()))
+        that(result.contentType.get(), is(notNullValue()))
     }
 }
