@@ -7,7 +7,7 @@
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-    id("io.micronaut.application") version "2.0.8"
+    id("io.micronaut.application") version "3.0.0"
     id("org.jetbrains.kotlin.plugin.allopen")
     id("jacoco")
     id("org.sonarqube") version "3.3"
@@ -148,6 +148,21 @@ jacoco {
 }
 
 tasks {
+    graalvmNative {
+        binaries {
+            named("main") {
+                buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
+                buildArgs.add("-H:ClassInitialization=org.slf4j:build_time")
+            }
+        }
+    }
+
+    // use Google Distroless mostly-static image when generating the
+    // native-image build Dockerfile.
+    dockerfileNative {
+        baseImage("gcr.io/distroless/cc-debian11")
+    }
+
     jacocoTestReport {
         reports {
             xml.required.set(true)
