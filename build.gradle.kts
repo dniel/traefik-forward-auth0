@@ -79,7 +79,6 @@ dependencies {
     implementation("io.micronaut:micronaut-inject")
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut:micronaut-http-client")
-    implementation("io.micronaut:micronaut-tracing")
     implementation("io.micronaut:micronaut-management")
     implementation("io.micronaut.discovery:micronaut-discovery-client")
     implementation("io.micronaut.micrometer:micronaut-micrometer-core")
@@ -88,8 +87,6 @@ dependencies {
 
     implementation("io.micronaut.security:micronaut-security")
     implementation("io.micronaut.security:micronaut-security-jwt")
-
-    implementation("io.micronaut.cache:micronaut-cache-caffeine")
     implementation("io.micronaut.problem:micronaut-problem-json")
 
     /**
