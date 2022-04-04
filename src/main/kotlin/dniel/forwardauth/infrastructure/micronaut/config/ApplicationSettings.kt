@@ -30,38 +30,28 @@ import jakarta.inject.Singleton
 @Singleton
 @EachProperty(value = "apps")
 @Introspected
-class ApplicationSettings(@Parameter override var name: String) : ApplicationSettings {
+open class ApplicationSettings(@Parameter override var name: String) : ApplicationSettings {
 
-    @Value("\${client-id}")
     @get:JsonIgnore
     override var clientId: String = ""
 
-    @Value("\${client-secret}")
     @get:JsonIgnore
     override var clientSecret: String = ""
 
-    @Value("\${audience}")
     override var audience: String = ""
 
-    @Value("\${scope}")
     override var scope: String = "profile openid email"
 
-    @Value("\${redirect-uri}")
     override var redirectUri: String = ""
 
-    @Value("\${token-cookie-domain}")
     override var tokenCookieDomain: String = ""
 
-    @Value("\${restricted-methods}")
     override var restrictedMethods: Array<String> = arrayOf("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT")
 
-    @Value("\${required-permissions}")
     override var requiredPermissions: Array<String> = emptyArray()
 
-    @Value("\${claims}")
     override var claims: Array<String> = emptyArray()
 
-    @Value("\${return-to}")
     override var returnTo: String = ""
 
 

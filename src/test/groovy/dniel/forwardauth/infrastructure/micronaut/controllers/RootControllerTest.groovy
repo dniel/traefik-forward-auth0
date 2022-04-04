@@ -54,7 +54,6 @@ class RootControllerTest extends Specification {
         def result = client.toBlocking().exchange(httpRequest)
 
         then: "we should get status OK"
-        that(result.contentType.isPresent(), is(()))
         that(result.contentType.get(), is(notNullValue()))
     }
 }

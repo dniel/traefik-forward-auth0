@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull
  *
  */
 @Singleton
-class ForwardAuthSettings(@NotNull @Inject @Named("default") override val default: ApplicationSettings,
+open class ForwardAuthSettings(@NotNull @Inject @Named("default") override val default: ApplicationSettings,
                           @NotEmpty @Inject override val apps: List<ApplicationSettings>) : ForwardAuthSettings {
 
     @Value("\${domain}")
