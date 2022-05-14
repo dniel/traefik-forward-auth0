@@ -9,6 +9,8 @@
     </appender>
 
     <logger name="dniel.forwardauth" level="INFO"/>
+    <logger name="io.micronaut" level="DEBUG"/>
+    <logger name="io.netty" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
