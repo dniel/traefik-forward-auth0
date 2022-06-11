@@ -20,6 +20,7 @@ import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.User
 import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
+import dniel.forwardauth.infrastructure.micronaut.security.Auth0Authentication
 import dniel.forwardauth.infrastructure.siren.Action
 import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
@@ -55,40 +56,39 @@ internal class RootController(val properties: ForwardAuthSettings) {
      * @param size is the number of events to return per page
      */
     @Operation(
-        tags = arrayOf("start"),
-        summary = "Starting point of the application",
-        description = "The starting point of the application with hypermedia links is available to available parts " +
-            "of the application depenedning of the authorization level of the user.",
-        responses = arrayOf(
-            ApiResponse(
-                responseCode = "200",
-                description = "",
-                content = arrayOf(
-                    Content(
-                        schema = Schema(
-                            externalDocs = ExternalDocumentation(
-                                description = "Link to Siren Hypermedia specification",
-                                url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+            tags = arrayOf("start"),
+            summary = "Starting point of the application",
+            description = "The starting point of the application with hypermedia links is available to available parts " +
+                    "of the application depenedning of the authorization level of the user.",
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "",
+                            content = arrayOf(
+                                    Content(
+                                            schema = Schema(
+                                                    externalDocs = ExternalDocumentation(
+                                                            description = "Link to Siren Hypermedia specification",
+                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                                                    )
+                                            ),
+                                            mediaType = Siren.APPLICATION_SIREN_JSON
+                                    )
                             )
-                        ),
-                        mediaType = Siren.APPLICATION_SIREN_JSON
                     )
-                )
             )
-        )
     )
 
     @Get("/")
     @Produces(Siren.APPLICATION_SIREN_JSON)
     @Secured(SecurityRule.IS_ANONYMOUS)
-    fun root(@Parameter(hidden = true) authentication: Authentication?,
+    fun root(
+            @Parameter(hidden = true) authentication: Authentication,
     ): HttpResponse<Root> {
-        LOGGER.debug("Get root context")
+        LOGGER.debug("Get root")
 
-        // TODO
-        // FIXME: 25.12.2021 hardcoded anonymous user
-        val user: User = Anonymous
-        val authorities = authentication?.roles ?: emptyList()
+        val user = (authentication as Auth0Authentication).user
+        val authorities = authentication.roles ?: emptyList()
 
         val links = mutableListOf<Link>()
         val actions = mutableListOf<Action>()
@@ -97,38 +97,43 @@ internal class RootController(val properties: ForwardAuthSettings) {
         // links available for authenticated users.
         if (user is Authenticated) {
             // add action to signout
-            actions += Action(name = "signout", method = "GET", href = URI("/signout"), title = "Signout current user")
+            actions += Action(name = "logout", method = "GET", href = URI("/logout"), title = "Logout current user")
 
             // add link to userinfo
             links += Link(
-                type = Siren.APPLICATION_SIREN_JSON,
-                clazz = listOf("userinfo"),
-                title = "Userinfo for current user",
-                rel = listOf("userinfo"),
-                href = URI("/userinfo")
+                    type = Siren.APPLICATION_SIREN_JSON,
+                    clazz = listOf("userinfo"),
+                    title = "Userinfo for current user",
+                    rel = listOf("userinfo"),
+                    href = URI("/userinfo")
             )
-
             // add link to retrieve application events.
             if (isAdministrator(authorities)) {
                 links += Link(
-                    type = Siren.APPLICATION_SIREN_JSON,
-                    clazz = listOf("event", "collection"),
-                    title = "Application events",
-                    rel = listOf("events"),
-                    href = URI("/events")
+                        type = Siren.APPLICATION_SIREN_JSON,
+                        clazz = listOf("event", "collection"),
+                        title = "Application events",
+                        rel = listOf("events"),
+                        href = URI("/events")
                 )
             }
+        } else {
+            actions += Action(name = "login", method = "GET", href = URI("/login"), title = "Login")
         }
 
+        val properties = mutableMapOf<String, String>()
+        properties["access_token"] = user.accessToken.toString()
+        properties["id_token"] = user.idToken.toString()
         val root = Root.newBuilder()
-            .title("ForwardAuth")
-            .links(links)
-            .actions(actions)
-            .build()
+                .title("ForwardAuth")
+                .links(links)
+                .properties(properties)
+                .actions(actions)
+                .build()
 
         return HttpResponse.ok(root)
     }
 
     private fun isAdministrator(authorities: Collection<String>) =
-        authorities.find { it === "admin:forwardauth" } != null
+            authorities.find { it === "admin:forwardauth" } != null
 }

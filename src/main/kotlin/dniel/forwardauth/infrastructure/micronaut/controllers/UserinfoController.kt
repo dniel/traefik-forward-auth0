@@ -18,11 +18,15 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.UserinfoHandler
-import dniel.forwardauth.domain.Anonymous
-import dniel.forwardauth.infrastructure.micronaut.exceptions.ApplicationException
+import dniel.forwardauth.domain.Authenticated
+import dniel.forwardauth.domain.User
+import dniel.forwardauth.infrastructure.micronaut.security.Auth0Authentication
+import dniel.forwardauth.infrastructure.siren.EmbeddedRepresentation
+import dniel.forwardauth.infrastructure.siren.Link
 import dniel.forwardauth.infrastructure.siren.Root
 import dniel.forwardauth.infrastructure.siren.Siren.APPLICATION_SIREN_JSON
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpResponse.ok
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Produces
@@ -35,13 +39,13 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import java.net.URI
 import org.slf4j.LoggerFactory
 
 @Controller
-@Secured(IS_AUTHENTICATED)
 internal class UserinfoController(
-    val userinfoHandler: UserinfoHandler,
-    val commandDispatcher: CommandDispatcher
+        val userinfoHandler: UserinfoHandler,
+        val commandDispatcher: CommandDispatcher
 ) {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
@@ -53,54 +57,65 @@ internal class UserinfoController(
      * @param response
      */
     @Operation(
-        tags = arrayOf("userinfo"),
-        summary = "Get userinfo",
-        description = "Get userinfo of authenticated user.",
-        responses = arrayOf(
-            ApiResponse(
-                responseCode = "200",
-                description = "Userinfo about the currently authenticated user.",
-                content = arrayOf(
-                    Content(
-                        schema = Schema(
-                            externalDocs = ExternalDocumentation(
-                                description = "Link to Siren Hypermedia specification",
-                                url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+            tags = arrayOf("userinfo"),
+            summary = "Get userinfo",
+            description = "Get userinfo of authenticated user.",
+            responses = arrayOf(
+                    ApiResponse(
+                            responseCode = "200",
+                            description = "Userinfo about the currently authenticated user.",
+                            content = arrayOf(
+                                    Content(
+                                            schema = Schema(
+                                                    externalDocs = ExternalDocumentation(
+                                                            description = "Link to Siren Hypermedia specification",
+                                                            url = "https://raw.githubusercontent.com/kevinswiber/siren/master/siren.schema.json"
+                                                    )
+                                            ),
+                                            mediaType = APPLICATION_SIREN_JSON
+                                    )
                             )
-                        ),
-                        mediaType = APPLICATION_SIREN_JSON
+                    ),
+                    ApiResponse(
+                            responseCode = "401",
+                            description = "If no authenticated user.",
+                            content = arrayOf(Content())
                     )
-                )
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "If no authenticated user.",
-                content = arrayOf(Content())
             )
-        )
     )
     @Get("/userinfo")
     @Secured(IS_AUTHENTICATED)
     @Produces(APPLICATION_SIREN_JSON)
     fun userinfo(@Parameter(hidden = true) authentication: Authentication): HttpResponse<Root> {
-        // TODO
-        // FIXME: 25.12.2021 hardcoded anonymous user.
-        val authenticated = Anonymous
+        val user = (authentication as Auth0Authentication).user
+        val properties = mutableMapOf<String, Any>()
+        properties["permissions"] = user.permissions.joinToString()
+        properties["is_authenticated"] = user is Authenticated
 
-        // get userinfo
-        val command: UserinfoHandler.UserinfoCommand = UserinfoHandler.UserinfoCommand(authenticated)
-        val userinfoEvent = commandDispatcher.dispatch(userinfoHandler, command) as UserinfoHandler.UserinfoEvent
+        // create siren response object.
+        val root = Root.newBuilder()
+                .title("Userinfo for ${authentication.name}")
+                .properties(properties)
+                .entities(createEmbeddedRepresentationUser(user))
+                .clazz("userinfo")
 
-        return when (userinfoEvent) {
-            is UserinfoHandler.UserinfoEvent.Userinfo -> {
-                val root = Root.newBuilder()
-                    .title("Userinfo for ${authentication.name}")
-                    .properties(userinfoEvent.properties)
-                    .clazz("userinfo")
-                    .build()
-                HttpResponse.ok(root)
-            }
-            is UserinfoHandler.UserinfoEvent.Error -> throw ApplicationException(userinfoEvent.reason)
-        }
+        return ok(root.build())
+    }
+
+    private fun createEmbeddedRepresentationUser(user: User): EmbeddedRepresentation {
+        return EmbeddedRepresentation.newBuilder("http://x.io/rels/user")
+                .clazz(listOf(user.javaClass.simpleName, "User"))
+                .title("$user")
+                .properties(user.userinfo)
+                .links(
+                        Link(
+                                type = APPLICATION_SIREN_JSON,
+                                clazz = listOf("User"),
+                                title = "$user",
+                                rel = listOf("self"),
+                                href = URI("/userinfo")
+                        )
+                )
+                .build()
     }
 }

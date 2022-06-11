@@ -16,6 +16,7 @@
 
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.Link.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
@@ -45,6 +46,7 @@ data class Link(
      *
      * @return the value of class attribute
      */
+    @JsonProperty("class")
     val clazz: List<String> = emptyList(),
     /**
      * Text describing the nature of a link.

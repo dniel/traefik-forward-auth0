@@ -16,6 +16,7 @@
 
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.Field.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
@@ -47,6 +48,7 @@ data class Field(
      *
      * @return the value of class attribute or an empty list if it is missing
      */
+    @JsonProperty("class")
     val clazz: List<String> = emptyList(),
     /**
      * The input type of the field. This is a subset of the input types

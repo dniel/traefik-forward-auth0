@@ -58,11 +58,11 @@ class SigninHandler(
      */
     sealed class SigninEvent() : Event() {
         class SigninComplete(
-            val accessToken: String,
-            val idToken: String,
-            val expiresIn: Long,
-            val redirectTo: URI,
-            val app: ApplicationSettings
+                val accessToken: String,
+                val idToken: String,
+                val expiresIn: Integer,
+                val redirectTo: URI,
+                val app: ApplicationSettings
         ) : SigninEvent()
 
         class Error(val reason: String, val description: String) : SigninEvent()
@@ -95,7 +95,7 @@ class SigninHandler(
 
             val authorizationCodeExchangeResponse = auth0Client.authorizationCodeExchange(params.code, app.clientId, app.clientSecret, app.redirectUri)
             val accessToken = authorizationCodeExchangeResponse.get("access_token") as String
-            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Long
+            val expiresIn = authorizationCodeExchangeResponse.get("expires_in") as Integer
             val idToken = authorizationCodeExchangeResponse.get("id_token") as String
             return SigninEvent.SigninComplete(accessToken, idToken, expiresIn, decodedState.originUrl.uri(), app)
         } else {

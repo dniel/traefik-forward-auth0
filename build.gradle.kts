@@ -9,8 +9,6 @@ plugins {
     kotlin("kapt")
     id("io.micronaut.application") version "3.2.0"
     id("org.jetbrains.kotlin.plugin.allopen")
-    id("jacoco")
-    id("org.sonarqube") version "3.3"
     id("groovy")
 //    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
@@ -29,6 +27,7 @@ repositories {
 }
 
 micronaut {
+    version(micronautVersion)
     runtime("netty")
     testRuntime("spock")
     processing {
@@ -37,24 +36,10 @@ micronaut {
     }
 }
 
-kotlin {
-    // Opens up the the required compiler packages to ensure KAPT works with JDK16
-    kotlinDaemonJvmArgs = listOf(
-        "-Dfile.encoding=UTF-8",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-        "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
-    )
 
+kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(17))
+        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(18))
     }
 }
 
@@ -97,6 +82,7 @@ dependencies {
     /**
      * Third-party dependencies.
      */
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
     implementation("com.auth0:java-jwt:3.18.2")
     implementation("com.auth0:jwks-rsa:0.20.0")
     implementation("com.github.stateless4j:stateless4j:2.6.0")
@@ -144,10 +130,6 @@ subprojects {
 //    }
 }
 
-jacoco {
-    toolVersion = "0.8.7"
-}
-
 tasks {
     graalvmNative {
         binaries {
@@ -161,21 +143,12 @@ tasks {
     // use Google Distroless mostly-static image when generating the
     // native-image build Dockerfile.
     dockerfileNative {
-        baseImage("gcr.io/distroless/cc-debian11")
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.required.set(true)
-            html.required.set(false)
-            csv.required.set(false)
-        }
+        baseImage("gcr.io/distroless/cc-debian11:nonroot")
     }
 
     test {
         systemProperty("micronaut.environments", "test")
         systemProperty("micronaut.env.deduction", false)
-//        dependsOn(ktlintCheck)
     }
 
     compileKotlin {

@@ -18,9 +18,17 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.application.CommandDispatcher
 import dniel.forwardauth.application.commandhandlers.SignoutHandler
-import io.micronaut.http.annotation.Controller
+import dniel.forwardauth.domain.config.ApplicationSettings
+import dniel.forwardauth.infrastructure.micronaut.exceptions.ApplicationException
+import dniel.forwardauth.infrastructure.micronaut.security.Auth0Authentication
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.MutableHttpResponse
+import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
+import io.swagger.v3.oas.annotations.Parameter
+import java.net.URI
 import org.slf4j.LoggerFactory
 
 /**
@@ -29,45 +37,46 @@ import org.slf4j.LoggerFactory
 @Controller
 @Secured(SecurityRule.IS_AUTHENTICATED)
 internal class SignoutController(
-    val signoutHandler: SignoutHandler,
-    val commandDispatcher: CommandDispatcher
+        val signoutHandler: SignoutHandler,
+        val commandDispatcher: CommandDispatcher
 ) : BaseController() {
 
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-//    /**
-//     * Sign Out endpoint.
-//     *
-//     * @param headers
-//     * @param response
-//     */
-//    @Get("/signout")
-//    fun signout(headers: HttpHeaders,
-//                @Header("x-forwarded-host") forwardedHost: String,
-//                @CookieValue("ACCESS_TOKEN", required = false) accessToken: String): MutableHttpResponse<Any> {
-//        val command: SignoutHandler.SignoutCommand = SignoutHandler.SignoutCommand(forwardedHost, accessToken)
-//        val signoutEvent = commandDispatcher.dispatch(signoutHandler, command) as SignoutHandler.SignoutEvent
-//
-//        return when (signoutEvent) {
-//            is SignoutHandler.SignoutEvent.SignoutComplete -> {
-//                clearSessionCookies(signoutEvent.app, response)
-//                ResponseEntity.noContent().build()
-//            }
-//            is SignoutHandler.SignoutEvent.SignoutRedirect -> {
-//                val response: MutableHttpResponse<Any> = HttpResponse.temporaryRedirect(signinEvent.redirectTo)
-//                clearSessionCookies(signoutEvent.app, response)
-//                ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).header("location", signoutEvent.redirectUrl).build()
-//            }
-//            is SignoutHandler.SignoutEvent.Error -> throw ApplicationException(signoutEvent.reason)
-//        }
-//    }
-//
-//    /**
-//     * Remove session cookies from browser.
-//     */
-//    private fun clearSessionCookies(app: Application, response: HttpServletResponse) {
-//        LOGGER.debug("Clear session cookues, access token and id token.")
-//        clearCookie(response, "ACCESS_TOKEN", app.tokenCookieDomain)
-//        clearCookie(response, "JWT_TOKEN", app.tokenCookieDomain)
-//    }
+    /**
+     * Logout endpoint.
+     *
+     * @param headers
+     * @param response
+     */
+    @Get("/logout")
+    fun logout(@Header("x-forwarded-host") forwardedHost: String,
+               @Parameter(hidden = true) authentication: Authentication): MutableHttpResponse<*> {
+        val authenticated = (authentication as Auth0Authentication).user
+        val command: SignoutHandler.SignoutCommand = SignoutHandler.SignoutCommand(forwardedHost, authenticated.accessToken.toString())
+        val signoutEvent = commandDispatcher.dispatch(signoutHandler, command) as SignoutHandler.SignoutEvent
+
+        return when (signoutEvent) {
+            is SignoutHandler.SignoutEvent.SignoutComplete -> {
+                val noContent = HttpResponse.noContent<Any>()
+                clearSessionCookies(signoutEvent.app, noContent)
+                noContent
+            }
+            is SignoutHandler.SignoutEvent.SignoutRedirect -> {
+                val redirect: MutableHttpResponse<Any> = HttpResponse.temporaryRedirect(URI(signoutEvent.redirectUrl))
+                clearSessionCookies(signoutEvent.app, redirect)
+                redirect
+            }
+            is SignoutHandler.SignoutEvent.Error -> throw ApplicationException(signoutEvent.reason)
+        }
+    }
+
+    /**
+     * Remove session cookies from browser.
+     */
+    private fun clearSessionCookies(app: ApplicationSettings, response: MutableHttpResponse<*>) {
+        LOGGER.debug("Clear session cookies, access token and id token.")
+        clearCookie(response, "ACCESS_TOKEN", app.tokenCookieDomain)
+        clearCookie(response, "ID_TOKEN", app.tokenCookieDomain)
+    }
 }

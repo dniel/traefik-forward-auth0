@@ -34,7 +34,7 @@ script:
       mvn clean install;
     fi;
 after_success:
-  - docker build -t dniel/forwardauth .
+  - docker build -f Docker/Dockerfile -t dniel/forwardauth .
 
 deploy:
   - provider: script
@@ -52,4 +52,3 @@ deploy:
 notifications:
   slack:
     secure: "A0lnSoFq8Rm15jHJS+yNt1MqAoWG7jpu0Nj1VjfMRxkaLDJ4sj+wufRZqH9E04rpdjVnNp3W8HSj6p9a0Qd98OVC2clhv99H26c5SdxXGteF7/WwC7FU5W59pQg/bYi3F/WDljXyvXnVPs9CrKWFrlwEowFSsrZJ8zMs8rmibsw7ye+GQVdLRxI8FKRNl2Rrwg5M354glxtyaXu9R/HbI5XdRSdfOVBCfVTTseuaNGSKNnBRKqTMHGf7eEIuoABtps8LsHsZnI5dmEqJ3pW9mrniZHHbgf2u4Nmjojg9Foe98n4GwNzmcGi2u4hprxNGqDBxw6GjoY1ww3CAOZRHdd0LzaL1o2r/7mEJlMtw6awLmbceYq588Yt79nlu45RgEnxJoarG3e77LBb+D5PN2lFjbFBXBITGSCQ0dt3WbDRiGlxL9ipJEAl4h8F1CDbV3zxblteANYns7YS8wEb3W8NDhdIaUuLA95eyP/l5n+1ReOMXjkvIgiTeU1G8yZ/+mVm5sDS2+ayfJtHezzeC+3fnttwCoUjw/DnyCG8qJBK5prQ8lC6ORiIL7t24TKMUWiqQvZ6ngCzfaCZab27JpxjqFgJNa/eivOfTtwQAPoeA+FUlCuj5bXkLJ1LZzGsDsWOY2/Xj0Rjado5VToadL2V4fX7alL86v15Z8v2iDaw="
-#    - dniel:7Efn86xOzM4GvPdWaGoiNC99

@@ -16,6 +16,7 @@
 
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.internal.util.asList
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
@@ -49,25 +50,25 @@ abstract class Embedded : Serializable {
 
             return if (map[Siren.HREF] != null) {
                 EmbeddedLink(
-                    clazz = clazz,
-                    rel = rel,
-                    href = URI.create(map[Siren.HREF].toString()),
-                    type = map[Siren.TYPE] as String?,
-                    title = map[Siren.TITLE] as String?
+                        clazz = clazz,
+                        rel = rel,
+                        href = URI.create(map[Siren.HREF].toString()),
+                        type = map[Siren.TYPE] as String?,
+                        title = map[Siren.TITLE] as String?
                 )
             } else {
                 EmbeddedRepresentation(
-                    clazz = clazz,
-                    title = map[Siren.TITLE] as String?,
-                    rel = rel,
-                    properties = map[Siren.PROPERTIES]?.asMap()
-                        ?: emptyMap(),
-                    links = map[Siren.LINKS]?.asList()?.map { Link.fromRaw(it) }
-                        ?: emptyList(),
-                    entities = map[Siren.ENTITIES]?.asList()?.map { fromRaw(it) }
-                        ?: emptyList(),
-                    actions = map[Siren.ACTIONS]?.asList()?.map { Action.fromRaw(it) }
-                        ?: emptyList()
+                        clazz = clazz,
+                        title = map[Siren.TITLE] as String?,
+                        rel = rel,
+                        properties = map[Siren.PROPERTIES]?.asMap()
+                                ?: emptyMap(),
+                        links = map[Siren.LINKS]?.asList()?.map { Link.fromRaw(it) }
+                                ?: emptyList(),
+                        entities = map[Siren.ENTITIES]?.asList()?.map { fromRaw(it) }
+                                ?: emptyList(),
+                        actions = map[Siren.ACTIONS]?.asList()?.map { Action.fromRaw(it) }
+                                ?: emptyList()
                 )
             }
         }

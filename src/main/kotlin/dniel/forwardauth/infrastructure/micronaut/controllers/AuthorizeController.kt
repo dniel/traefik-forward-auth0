@@ -22,8 +22,10 @@ import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.User
 import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
+import dniel.forwardauth.infrastructure.micronaut.controllers.requests.AuthorizeRequest
 import dniel.forwardauth.infrastructure.micronaut.exceptions.AuthorizationException
 import dniel.forwardauth.infrastructure.micronaut.exceptions.PermissionDeniedException
+import dniel.forwardauth.infrastructure.micronaut.security.Auth0Authentication
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Controller
@@ -88,14 +90,16 @@ class AuthorizeController(
             @Header("Accept") acceptContentHeader: String?,
             @Header("x-requested-with") requestedWithHeader: String?,
     ): MutableHttpResponse<*> {
+        val user = (authentication as Auth0Authentication?)?.user ?: Anonymous
+
         return authenticateToken(
                 acceptContent = acceptContentHeader,
                 requestedWith = requestedWithHeader,
                 host = authorizeRequest.forwardedHost,
-                method = authorizeRequest.forwardedHost,
-                protocol = authorizeRequest.forwardedHost,
-                uri = authorizeRequest.forwardedHost,
-                user = Anonymous)
+                method = authorizeRequest.forwardedMethod,
+                protocol = authorizeRequest.forwardedProto,
+                uri = authorizeRequest.forwardedUri,
+                user = user)
     }
 
     /**
@@ -104,7 +108,14 @@ class AuthorizeController(
      */
     private fun authenticateToken(acceptContent: String?, requestedWith: String?, method: String, host: String, protocol: String,
                                   uri: String, user: User): MutableHttpResponse<*> {
-        val authorizeResult = handleCommand(acceptContent, requestedWith, protocol, host, uri, method, user)
+        val authorizeResult = handleCommand(
+                acceptContent = acceptContent,
+                requestedWithHeader = requestedWith,
+                protocol = protocol,
+                host = host,
+                uri = uri,
+                method = method,
+                user = user)
         return when (authorizeResult) {
             is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
             is AuthorizeHandler.AuthorizeEvent.Error -> throw AuthorizationException(authorizeResult)
@@ -124,7 +135,9 @@ class AuthorizeController(
     private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
                               protocol: String, host: String, uri: String, method: String, user: User): AuthorizeHandler.AuthorizeEvent {
         val isApi = isApi(acceptContent, requestedWithHeader)
-        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(user, protocol, host, uri, method, isApi)
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(
+                user = user,
+                protocol = protocol, host = host, uri = uri, method = method, isApi = isApi)
         return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
 

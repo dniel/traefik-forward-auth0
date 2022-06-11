@@ -18,9 +18,7 @@ package dniel.forwardauth.infrastructure.micronaut.config
 
 import dniel.forwardauth.domain.config.ForwardAuthSettings
 import io.micronaut.context.annotation.Value
-import io.micronaut.core.annotation.Introspected
 import jakarta.inject.Inject
-import jakarta.inject.Named
 import jakarta.inject.Singleton
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotEmpty
@@ -30,8 +28,9 @@ import javax.validation.constraints.NotNull
  *
  */
 @Singleton
-open class ForwardAuthSettings(@NotNull @Inject @Named("default") override val default: ApplicationSettings,
-                          @NotEmpty @Inject override val apps: List<ApplicationSettings>) : ForwardAuthSettings {
+open class ForwardAuthSettings(
+        @NotNull @Inject override val default: DefaultApplicationSettings,
+        @NotEmpty @Inject override val apps: List<ApplicationSettings>) : ForwardAuthSettings {
 
     @Value("\${domain}")
     @NotEmpty

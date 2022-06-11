@@ -98,7 +98,7 @@ class TestController : TestApi {
      * If there are any subscribers to the sink, new updates
      * will be added every second.
      */
-    @Scheduled(fixedDelay = "1s")
+//    @Scheduled(fixedDelay = "1s")
     fun emitEvents() {
         if (sink.currentSubscriberCount() > 0) {
             val changeEvent = ChangeEvent(randomString(), counter.incrementAndGet())

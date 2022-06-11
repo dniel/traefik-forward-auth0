@@ -48,14 +48,6 @@ services:
       - "traefik.http.routers.www.entrypoints=https"
       - "traefik.http.routers.www.rule=Host(`www.example.test`)"
 
-  graphql:
-    image: dniel/api-graphql
-    labels:
-      - "traefik.http.routers.graphql.tls"
-      - "traefik.http.routers.graphql.rule=Host(`graphql.example.test`)"
-      - "traefik.http.routers.graphql.entrypoints=https"
-      - "traefik.http.routers.graphql.middlewares=secured@file"
-
 #################################################################
 # ForwardAuth service.
 # This is used when running the whole stack in docker-compose.

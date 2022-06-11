@@ -63,7 +63,7 @@ class UserinfoHandler(
         return when (params.user) {
             is Authenticated -> {
                 try {
-                    LOGGER.debug("Get userinfo for user ${params.user.sub}")
+                    LOGGER.debug("Get userinfo for user ${params.user.id}")
                     val userinfo = auth0Client.userinfo(params.user.accessToken.raw)
                     UserinfoEvent.Userinfo(userinfo, params.user)
                 } catch (e: Exception) {

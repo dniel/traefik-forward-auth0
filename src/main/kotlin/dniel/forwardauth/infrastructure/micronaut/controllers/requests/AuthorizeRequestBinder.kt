@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.infrastructure.micronaut.controllers
+package dniel.forwardauth.infrastructure.micronaut.controllers.requests
 
 import io.micronaut.core.bind.ArgumentBinder.BindingResult
 import io.micronaut.core.convert.ArgumentConversionContext
@@ -53,10 +53,16 @@ class AuthorizeRequestBinder : TypedRequestArgumentBinder<AuthorizeRequest> {
         val method = httpHeaders.get("x-forwarded-method")
 
         // need all of these to authorize request, throw validation exception if missing.
-        if(host== null || proto== null || uri== null || method == null)
+        if (host == null || proto == null || uri == null || method == null)
             throw IllegalArgumentException("Missing required parameter host, proto, uri or method")
 
-        return BindingResult { Optional.of(AuthorizeRequest(host, proto, uri, method)) }
+        return BindingResult {
+            Optional.of(AuthorizeRequest(
+                    forwardedHost = host,
+                    forwardedProto = proto,
+                    forwardedMethod = method,
+                    forwardedUri = uri))
+        }
     }
 
     override fun argumentType(): Argument<AuthorizeRequest> {

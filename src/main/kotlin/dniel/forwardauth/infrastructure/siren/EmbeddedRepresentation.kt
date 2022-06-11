@@ -16,6 +16,7 @@
 
 package dniel.forwardauth.infrastructure.siren
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.EmbeddedRepresentation.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
 import java.io.Serializable
@@ -44,6 +45,7 @@ data class EmbeddedRepresentation(
      *
      * @return the value of class attribute or an empty list if it is missing
      */
+    @JsonProperty("class")
     override val clazz: List<String> = emptyList(),
     /**
      * Descriptive text about the entity.

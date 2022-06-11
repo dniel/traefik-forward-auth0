@@ -22,18 +22,22 @@ package dniel.forwardauth.domain
 interface User {
     val accessToken: Token
     val idToken: Token
+    val id: String
+    val userinfo: Map<String, String>
+    val permissions: Array<String>
 }
 
 /**
  * Authenticated user object
  */
 open class Authenticated(
-    override val accessToken: JwtToken,
-    override val idToken: Token,
-    val userinfo: Map<String, String>
+        override val accessToken: JwtToken,
+        override val idToken: Token,
+        override val userinfo: Map<String, String>,
+        override val permissions: Array<String> = accessToken.permissions()
 ) : User {
-    val sub: String = accessToken.subject()
-    val permissions: Array<String> = accessToken.permissions()
+    override val id: String = accessToken.subject()
+
     override fun toString(): String = accessToken.subject()
 }
 
@@ -41,10 +45,17 @@ open class Authenticated(
  * Anonymous user object.
  */
 object Anonymous : User {
+
+    override val id: String
+        get() = "Anonymous"
     override val accessToken: Token
         get() = InvalidToken("anonymous")
     override val idToken: Token
         get() = InvalidToken("anonymous")
+    override val userinfo: Map<String, String>
+        get() = emptyMap()
+    override val permissions: Array<String>
+        get() = emptyArray()
 
     override fun toString(): String {
         return "anonymous"

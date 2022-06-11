@@ -21,6 +21,9 @@ import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.cookie.Cookie
 import org.slf4j.LoggerFactory
 import java.util.stream.Collectors
+import mu.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Just a base class to provide some common functiosn for rest controllers.
@@ -28,28 +31,36 @@ import java.util.stream.Collectors
 abstract class BaseController {
     private val LOGGER = LoggerFactory.getLogger(this.javaClass)
 
-    fun addCookie(response: MutableHttpResponse<Any>, name: String, value: String, domain: String, maxAge: Long) {
+    fun addCookie(response: MutableHttpResponse<*>, name: String, value: String, domain: String, maxAge: Long) {
         val nonceCookie = Cookie.of(name, value)
             .domain(domain)
             .maxAge(maxAge)
             .path("/")
-        response.cookies + nonceCookie
+        response.cookie(nonceCookie)
     }
 
-    fun clearCookie(response: MutableHttpResponse<Any>, name: String, domain: String) {
+    fun clearCookie(response: MutableHttpResponse<*>, name: String, domain: String) {
         val nonceCookie = Cookie.of(name, "deleted")
             .domain(domain)
             .maxAge(0)
             .path("/")
-        response.cookies + nonceCookie
+        response.cookie(nonceCookie)
     }
 
     fun trace(message: String) {
-        LOGGER.trace(message)
+        logger.trace { message }
     }
 
     fun error(message: String) {
-        LOGGER.error(message)
+        logger.error { message }
+    }
+
+    fun info(message: String){
+        logger.info { message }
+    }
+
+    fun debug(message: String){
+        logger.info { message }
     }
 
     fun printHeaders(headers: Headers) {

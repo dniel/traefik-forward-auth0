@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package dniel.forwardauth.infrastructure.micronaut.controllers
+package dniel.forwardauth.infrastructure.micronaut.security
 
-data class AuthorizeRequest(
-        val forwardedHost: String,
-        val forwardedProto: String,
-        val forwardedMethod: String,
-        val forwardedUri: String,
-)
+import dniel.forwardauth.domain.User
+import io.micronaut.security.authentication.ServerAuthentication
+
+class Auth0Authentication private constructor(
+        val user: User,
+        name: String,
+        roles: List<String>,
+        attributes: Map<String, Any>) : ServerAuthentication(name, roles, attributes) {
+
+    companion object {
+        fun fromUser(user: User) = Auth0Authentication(user, user.id, user.permissions.toList(), user.userinfo)
+    }
+}

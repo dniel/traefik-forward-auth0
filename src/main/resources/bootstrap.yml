@@ -16,7 +16,19 @@ micronaut:
     name: forwardauth
 
   security:
+    authentication: cookie
     enabled: true
+    token:
+      jwt:
+        bearer:
+          enabled: true
+        cookie:
+          enabled: true
+          cookie-name: ACCESS_TOKEN
+        signatures:
+          jwks:
+            auth0:
+              url: https://${domain}/.well-known/jwks.json
 
   metrics:
     enabled: true

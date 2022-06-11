@@ -18,19 +18,18 @@ package dniel.forwardauth.infrastructure.micronaut.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import dniel.forwardauth.domain.config.ApplicationSettings
-import io.micronaut.context.annotation.EachProperty
-import io.micronaut.context.annotation.Parameter
-import io.micronaut.context.annotation.Value
-import io.micronaut.core.annotation.Introspected
+import io.micronaut.context.annotation.ConfigurationProperties
+import io.micronaut.context.annotation.Property
 import jakarta.inject.Singleton
-import javax.validation.constraints.NotEmpty
 
 /**
  *
  */
 @Singleton
-@EachProperty(value = "apps")
-open class ApplicationSettings(@Parameter override var name: String) : ApplicationSettings {
+@ConfigurationProperties("default")
+open class DefaultApplicationSettings : ApplicationSettings {
+
+    override var name = "default"
 
     @get:JsonIgnore
     override var clientId: String = ""
@@ -54,13 +53,20 @@ open class ApplicationSettings(@Parameter override var name: String) : Applicati
 
     override var returnTo: String = ""
 
-
     override fun toString(): String {
-        return "ApplicationSettings(" +
-                "name='$name', audience='$audience', scope='$scope', redirectUri='$redirectUri', " +
+        return "DefaultApplicationSettings(" +
+                "name='$name', " +
+                "clientId='$clientId', " +
+                "clientSecret='$clientSecret', " +
+                "audience='$audience', " +
+                "scope='$scope', " +
+                "redirectUri='$redirectUri', " +
                 "tokenCookieDomain='$tokenCookieDomain', " +
                 "restrictedMethods=${restrictedMethods.contentToString()}, " +
                 "requiredPermissions=${requiredPermissions.contentToString()}, " +
-                "claims=${claims.contentToString()}, returnTo='$returnTo')"
+                "claims=${claims.contentToString()}, " +
+                "returnTo='$returnTo')"
     }
+
+
 }
