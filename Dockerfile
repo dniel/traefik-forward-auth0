@@ -1,7 +1,21 @@
-FROM azul/zulu-openjdk-alpine:8
+FROM gcr.io/distroless/java17-debian11:nonroot
+ENV USER=appuser
+ENV GROUP=$USER \
+    HOME=/home/$USER
 
-ADD /target/forwardauth.jar forwardauth.jar
+RUN addgroup -S $GROUP && \
+    adduser -S $USER -G $GROUP && \
+    chown -R $USER $HOME
+
+WORKDIR $HOME
 
 EXPOSE 8080
-ENV JAVA_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XshowSettings:vm"
-ENTRYPOINT java $JAVA_OPTS -jar forwardauth.jar
+
+COPY --chown=$USER Docker/runapp.sh $HOME/
+RUN chmod 755 $HOME/*.sh
+
+COPY --chown=$USER build/docker/main/layers/libs $HOME/application/libs
+COPY --chown=$USER build/docker/main/layers/resources $HOME/application/resources
+COPY --chown=$USER build/docker/main/layers/application.jar $HOME/application/application.jar
+
+CMD [ "./runapp.sh" ]
