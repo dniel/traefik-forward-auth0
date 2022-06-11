@@ -35,7 +35,7 @@ jobs:
           arguments: build
       - name: List Build Folder
         shell: bash
-        run: ls -laR build
+        run: pwd && ls -laR build
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -52,7 +52,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ../
+          context: ..
           file: Docker/Dockerfile
           push: true
           tags: |
