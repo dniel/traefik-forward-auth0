@@ -52,7 +52,7 @@ jobs:
           tags: |
             dniel/${{ steps.vars.outputs.application }}:latest
             dniel/${{ steps.vars.outputs.application }}:${{ steps.vars.outputs.branch }}
-            dniel/${{ steps.vars.outputs.application }}:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}
+            dniel/${{ steps.vars.outputs.application }}:${{ steps.vars.outputs.sha_short }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
