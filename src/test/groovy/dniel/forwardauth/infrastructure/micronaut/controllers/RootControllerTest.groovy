@@ -53,7 +53,8 @@ class RootControllerTest extends Specification {
         def httpRequest = HttpRequest.GET('/')
         def result = client.toBlocking().exchange(httpRequest)
 
-        then: "we should get status OK"
-        that(result.contentType.get(), is(notNullValue()))
+        then: "we should get siren content back"
+        that(result.contentType.isPresent(), equalTo(Boolean.TRUE))
+        that(result.contentType.get(), equalTo(MediaType.of("application/vnd.siren+json")))
     }
 }

@@ -28,31 +28,22 @@ import static spock.util.matcher.HamcrestSupport.that
 
 class ApplicationSettingsTest extends Specification {
 
-    def "should read list of default application values"() {
+    def "should read list of application values"() {
         given: "config parameters"
         def map = [
-                "apps.default.name": "default.example.test",
-                "apps.0.name"      : "0.example.test",
-                "apps.1.name"      : "1.example.test",
-                "apps.2.name"      : "2.example.test"
+                "apps.0.name": "0.example.test",
+                "apps.1.name": "1.example.test",
+                "apps.2.name": "2.example.test"
         ]
 
         when: "we start the application context"
         def ctx = ApplicationContext.run(map)
 
         then: "the configuration should be available"
-        def defaultlist = ctx.getBeansOfType(ApplicationSettings.class)
-        def defaultApp = ctx.getBean(
-                ApplicationSettings.class, Qualifiers.byName("default"))
-
-
-        // assert that we have all apps in configuration.
-        that(map.size(), is(equalTo(defaultlist.size())))
-        that(defaultlist, is(notNullValue()))
-
-        // that we have one named default.
-        that(defaultApp, is(notNullValue()))
-        that(defaultApp.name, is("default.example.test"))
+        def apps = ctx.getBeansOfType(ApplicationSettings.class)
+        apps.count { it.name == "0.example.test" } == 1
+        apps.count { it.name == "1.example.test" } == 1
+        apps.count { it.name == "2.example.test" } == 1
 
         ctx.close()
     }
@@ -66,7 +57,6 @@ class ApplicationSettingsTest extends Specification {
                 "logout-endpoint"  : "https://1234data",
                 "authorize-url"    : "https://1234data",
                 "nonce-max-age"    : "1234",
-                "apps.default.name": "default.example.test",
                 "apps.0.name"      : "0.example.test",
                 "apps.1.name"      : "1.example.test",
                 "apps.2.name"      : "2.example.test"
@@ -76,12 +66,12 @@ class ApplicationSettingsTest extends Specification {
         def ctx = ApplicationContext.run(map)
 
         then: "the configuration should be available"
-        def defaultlist = ctx.getBeansOfType(ApplicationSettings.class)
-        def defaultApp = ctx.getBean(ApplicationSettings.class, Qualifiers.byName("default"))
+        def apps = ctx.getBeansOfType(ApplicationSettings.class)
+        def defaultApp = ctx.getBean(DefaultApplicationSettings.class)
 
-        that(defaultApp.name, is(equalTo("default.example.test")))
+        that(defaultApp.name, is(equalTo("default")))
         that(defaultApp, is(notNullValue()))
-        that(defaultlist, is(notNullValue()))
+        that(apps, is(notNullValue()))
 
         ctx.close()
     }

@@ -18,7 +18,6 @@ package dniel.forwardauth.infrastructure.micronaut.controllers
 
 import dniel.forwardauth.domain.Anonymous
 import dniel.forwardauth.domain.Authenticated
-import dniel.forwardauth.domain.User
 import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import dniel.forwardauth.infrastructure.micronaut.security.Auth0Authentication
 import dniel.forwardauth.infrastructure.siren.Action
@@ -83,12 +82,11 @@ internal class RootController(val properties: ForwardAuthSettings) {
     @Produces(Siren.APPLICATION_SIREN_JSON)
     @Secured(SecurityRule.IS_ANONYMOUS)
     fun root(
-            @Parameter(hidden = true) authentication: Authentication,
+            @Parameter(hidden = true) authentication: Authentication?,
     ): HttpResponse<Root> {
         LOGGER.debug("Get root")
-
-        val user = (authentication as Auth0Authentication).user
-        val authorities = authentication.roles ?: emptyList()
+        val user = (authentication as Auth0Authentication?)?.user ?: Anonymous
+        val permissions = user.permissions
 
         val links = mutableListOf<Link>()
         val actions = mutableListOf<Action>()
@@ -108,7 +106,7 @@ internal class RootController(val properties: ForwardAuthSettings) {
                     href = URI("/userinfo")
             )
             // add link to retrieve application events.
-            if (isAdministrator(authorities)) {
+            if (isAdministrator(permissions)) {
                 links += Link(
                         type = Siren.APPLICATION_SIREN_JSON,
                         clazz = listOf("event", "collection"),
@@ -134,6 +132,6 @@ internal class RootController(val properties: ForwardAuthSettings) {
         return HttpResponse.ok(root)
     }
 
-    private fun isAdministrator(authorities: Collection<String>) =
+    private fun isAdministrator(authorities: Array<String>) =
             authorities.find { it === "admin:forwardauth" } != null
 }

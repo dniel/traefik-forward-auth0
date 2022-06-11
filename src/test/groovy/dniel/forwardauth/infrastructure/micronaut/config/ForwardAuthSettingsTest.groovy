@@ -34,10 +34,10 @@ class ForwardAuthSettingsTest extends Specification {
                 "logout-endpoint"  : "https://1234data",
                 "authorize-url"    : "https://1234data",
                 "nonce-max-age"    : "1234",
-                "apps.default.audience": "default.example.test",
-                "apps.0.audience"      : "0.example.test",
-                "apps.1.audience"      : "1.example.test",
-                "apps.2.audience"      : "2.example.test"
+                "default.audience" : "default.example.test",
+                "apps.0.audience"  : "0.example.test",
+                "apps.1.audience"  : "1.example.test",
+                "apps.2.audience"  : "2.example.test"
         ]
 
         when: "we start the application context"
@@ -45,9 +45,9 @@ class ForwardAuthSettingsTest extends Specification {
 
         then: "the default configuration should be available"
         def settings = ctx.getBean(ForwardAuthSettings.class)
-        that(settings.default,is(notNullValue()))
-        that(settings.default.name,is(equalTo("default")))
-        that(settings.default.audience,is(equalTo("default.example.test")))
+        that(settings.default, is(notNullValue()))
+        that(settings.default.name, is(equalTo("default")))
+        that(settings.default.audience, is(equalTo("default.example.test")))
 
         ctx.close()
     }

@@ -25,7 +25,7 @@ import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
 /**
- *
+ * # Application settings
  */
 @Singleton
 open class ForwardAuthSettings(

@@ -23,6 +23,7 @@ import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.equalTo
@@ -35,6 +36,7 @@ class AuthorizeControllerTest extends Specification {
     @Client("/")
     HttpClient client
 
+    @Ignore("write a working test that actually test something")
     def "should test the authenticator"() {
         given: "some input"
 

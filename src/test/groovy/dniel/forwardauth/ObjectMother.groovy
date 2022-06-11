@@ -2,10 +2,11 @@ package dniel.forwardauth
 
 import com.auth0.jwt.JWT
 import dniel.forwardauth.domain.Anonymous
+import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import dniel.forwardauth.infrastructure.micronaut.config.ApplicationSettings
+import dniel.forwardauth.infrastructure.micronaut.config.DefaultApplicationSettings
 import dniel.forwardauth.domain.Authenticated
 import dniel.forwardauth.domain.JwtToken
-import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 
 class ObjectMother {
 
@@ -21,7 +22,7 @@ class ObjectMother {
 
     static {
         // create the default app config
-        def defaultApp = new ApplicationSettings("default")
+        def defaultApp = new DefaultApplicationSettings()
         defaultApp.audience = exampleAudience
         defaultApp.name = "this is the default application"
         defaultApp.redirectUri = "https://www.example.test/oauth2/signin"
@@ -42,7 +43,7 @@ class ObjectMother {
          * Create new ForwardAuthSettings.
          * Use the test data created above to populate.
          */
-        properties = new ForwardAuthSettings(defaultApp,  [defaultApp, restricted, opaque])
+        properties = new ForwardAuthSettings(defaultApp,  [restricted, opaque])
         properties.domain = domain
         properties.authorizeUrl = "${domain}authorize"
         properties.tokenEndpoint = "${domain}oauth/token"

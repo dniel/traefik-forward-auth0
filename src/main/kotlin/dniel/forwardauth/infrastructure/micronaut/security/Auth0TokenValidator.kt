@@ -53,11 +53,8 @@ class Auth0TokenValidator(val properties: ForwardAuthSettings,
         val idToken = readCookie(request, "ID_TOKEN")
         val host = request.headers["x-forwarded-host"]
 
-        // authorize user adn return the authenticated user object.
-        if (host != null && token.isNotBlank() && token.isNotEmpty()) {
-            return Flux.just(authorize(accessToken, idToken, host))
-        }
-        return Flux.empty()
+        // authorize user and return the authenticated user object or anonymous user object
+        return Flux.just(authorize(accessToken, idToken, host))
     }
 
     /**
