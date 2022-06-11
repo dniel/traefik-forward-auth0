@@ -52,7 +52,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ../
           file: Docker/Dockerfile
           push: true
           tags: |
