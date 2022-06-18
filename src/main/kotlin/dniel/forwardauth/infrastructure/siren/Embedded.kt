@@ -35,6 +35,7 @@ import java.util.Collections.emptyList
  */
 @Serdeable
 abstract class Embedded : Serializable {
+
     abstract val clazz: List<String>
     abstract val rel: List<String>
 

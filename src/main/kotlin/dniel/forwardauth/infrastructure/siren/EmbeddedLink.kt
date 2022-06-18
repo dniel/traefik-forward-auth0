@@ -109,6 +109,7 @@ data class EmbeddedLink(
          * implementation-dependent and should be documented.
          * @return builder
          */
+        @JsonProperty("class")
         fun clazz(clazz: List<String>?) = apply { this.clazz = clazz ?: emptyList() }
 
         /**

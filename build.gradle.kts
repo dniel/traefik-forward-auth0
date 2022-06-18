@@ -102,8 +102,7 @@ dependencies {
     implementation("com.mashape.unirest:unirest-java:1.4.9")
     implementation("com.google.guava:guava:31.0.1-jre")
 
-    runtimeOnly("ch.qos.logback:logback-classic:1.2.6")
-    runtimeOnly("net.logstash.logback:logstash-logback-encoder:6.6")
+    runtimeOnly("ch.qos.logback:logback-classic:1.2.11")
     runtimeOnly("org.slf4j:jcl-over-slf4j:1.7.32")
     runtimeOnly("org.slf4j:jul-to-slf4j:1.7.32")
     runtimeOnly("org.slf4j:log4j-over-slf4j:1.7.32")
@@ -112,14 +111,13 @@ dependencies {
     /**
      * TODO To much json serialization stuff, clean up and remove.
      */
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.micronaut.serde:micronaut-serde-jackson:1.1.0")
+    compileOnly("com.fasterxml.jackson.core:jackson-databind")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+
     /**
      * Test dependency configurations.
      */
-    testImplementation("com.github.tomakehurst:wiremock:2.27.2")
     testImplementation("io.mockk:mockk:1.12.1")
 
     testCompileOnly(platform("io.micronaut:micronaut-bom:$micronautVersion"))
@@ -151,7 +149,6 @@ tasks {
                 verbose.set(true)
                 buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
                 buildArgs.add("-H:ClassInitialization=org.slf4j:build_time")
-                buildArgs.add("-H:ReflectionConfigurationFiles=${project.projectDir}/src/main/resources/META-INF/reflect-config.json")
             }
         }
         metadataRepository {
