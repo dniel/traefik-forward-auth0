@@ -1,5 +1,5 @@
-FROM gcr.io/distroless/cc-debian11:nonroot
+FROM gcr.io/distroless/base
 EXPOSE 8080
 
-COPY --chown=$USER build/native/nativeCompile/forwardauth /app/forwardauth
+COPY build/native/nativeCompile/forwardauth /app/forwardauth
 CMD [ "/app/forwardauth" ]

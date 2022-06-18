@@ -12,7 +12,6 @@ plugins {
     id("io.micronaut.application") version "3.2.0"
     id("org.jetbrains.kotlin.plugin.allopen")
     id("groovy")
-    id("org.graalvm.buildtools.native") version "0.9.11"
 //    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
@@ -147,19 +146,15 @@ tasks {
         binaries {
             named("main") {
                 verbose.set(true)
-                buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
-                buildArgs.add("-H:ClassInitialization=org.slf4j:build_time")
+                buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
             }
-        }
-        metadataRepository {
-            enabled.set(true)
         }
     }
 
     // use Google Distroless mostly-static image when generating the
     // native-image build Dockerfile.
     dockerfileNative {
-        baseImage("gcr.io/distroless/cc-debian11:nonroot")
+        baseImage("gcr.io/distroless/base:debug-nonroot")
     }
 
     test {
