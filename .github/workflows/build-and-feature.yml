@@ -11,7 +11,7 @@ on:
 
 jobs:
   docker:
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
