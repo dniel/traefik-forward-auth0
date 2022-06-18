@@ -2,5 +2,4 @@
 *
 
 # allowed files in the docker build context
-!Docker/runapp.sh
-!build/docker/main/layers/
+!build/native/nativeCompile/
