@@ -12,6 +12,9 @@ endpoints:
       enabled: false
 
 micronaut:
+  config:
+    files: /config/application.yml
+
   application:
     name: forwardauth
 

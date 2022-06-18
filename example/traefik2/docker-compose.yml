@@ -66,13 +66,15 @@ services:
 # auth.example.test to your development environment 
 # on your local machineConfig where you can update the code faster.
 #################################################################
-#  auth:
-#    image: dniel/forwardauth
-#    mem_limit: 512m
-#    mem_reservation: 256m
-#    ports:
-#      - 8080
-#    labels:
-#      - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
-#    volumes:
-#      - ../../config/application.yaml:/config/application.yaml
+  auth:
+      image: dniel/forwardauth:3.0-alpha-micronaut
+      mem_limit: 512m
+      mem_reservation: 256m
+      ports:
+        - 8080
+      labels:
+        - "traefik.http.routers.auth.rule=Host(`auth.example.test`)"
+      volumes:
+        - ../../config/application.yaml:/config/application.yaml
+      environment:
+        MICRONAUT_CONFIG_FILES: /config/application.yaml
