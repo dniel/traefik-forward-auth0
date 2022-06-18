@@ -1,5 +1,0 @@
-# Ignore everything
-*
-
-# allowed files in the docker build context
-!build/native/nativeCompile/
