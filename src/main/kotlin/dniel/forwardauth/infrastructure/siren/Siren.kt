@@ -16,11 +16,14 @@
 
 package dniel.forwardauth.infrastructure.siren
 
+import io.micronaut.serde.annotation.Serdeable
+
 /**
  * Class provides constants related to the Siren specification.
  *
  * **See also:** [Siren specification](https://github.com/kevinswiber/siren.entities)
  */
+@Serdeable
 object Siren {
     const val ACTIONS = "actions"
     const val APPLICATION_SIREN_JSON = "application/vnd.siren+json"

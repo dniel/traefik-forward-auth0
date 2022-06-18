@@ -19,6 +19,7 @@ package dniel.forwardauth.infrastructure.siren
 import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.EmbeddedLink.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections
@@ -35,6 +36,7 @@ import java.util.Collections
  * constructor, as the constructor has some relaxed checking which should
  * only be used when deserializing an existing representation.
  */
+@Serdeable
 data class EmbeddedLink(
     /**
      * Describes the nature of an entity's content based on the current

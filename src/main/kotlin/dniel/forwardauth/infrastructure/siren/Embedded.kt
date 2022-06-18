@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import dniel.forwardauth.infrastructure.siren.internal.util.asList
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
@@ -32,6 +33,7 @@ import java.util.Collections.emptyList
  *
  * **See also:** [Sub-entity specification](https://github.com/kevinswiber/siren.sub-entities)
  */
+@Serdeable
 abstract class Embedded : Serializable {
     abstract val clazz: List<String>
     abstract val rel: List<String>

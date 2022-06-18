@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+
 @OpenAPIDefinition(
     info = Info(
         title = "ForwardAuth for Auth0 API",

@@ -21,6 +21,7 @@ import dniel.forwardauth.infrastructure.siren.Field.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.util.Collections.emptyList
 
@@ -33,6 +34,7 @@ import java.util.Collections.emptyList
  * constructor, as the constructor has some relaxed checking which should
  * only be used when deserializing an existing representation.
  */
+@Serdeable
 data class Field(
     /**
      * A name describing the control. Field names MUST be unique within the set

@@ -22,6 +22,7 @@ import dniel.forwardauth.infrastructure.siren.internal.util.asList
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.util.Collections.emptyList
 import java.util.Collections.emptyMap
@@ -41,6 +42,7 @@ import java.util.Collections.emptyMap
  * constructor, as the constructor has some relaxed checking which should
  * only be used when deserializing an existing representation.
  */
+@Serdeable
 data class Root(
         /**
          * Describes the nature of an entity's content based on the current

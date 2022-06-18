@@ -32,10 +32,6 @@ class AuthorizeState private constructor(val originUrl: RequestedUrl, val nonce:
         }
     }
 
-    fun toJson(): String {
-        return JSON.writeValueAsString(this)
-    }
-
     fun encode(): String {
         return Base64.getEncoder().encodeToString(JSON.writeValueAsBytes(this))
     }

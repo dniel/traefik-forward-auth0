@@ -21,10 +21,12 @@ import dniel.forwardauth.infrastructure.siren.Link.Companion.newBuilder
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
 
+@Serdeable
 /**
  * Links represent navigational transitions in the Siren specification. In
  * JSON Siren, links are represented as an array inside the entity, such as

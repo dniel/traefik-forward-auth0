@@ -10,6 +10,7 @@ plugins {
     id("io.micronaut.application") version "3.2.0"
     id("org.jetbrains.kotlin.plugin.allopen")
     id("groovy")
+    id("org.graalvm.buildtools.native") version "0.9.11"
 //    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
@@ -39,11 +40,21 @@ micronaut {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(18))
+        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(17))
+        this.vendor.set(JvmVendorSpec.GRAAL_VM)
+    }
+}
+
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("io.micronaut:micronaut-jackson-databind"))
+                .using(module("io.micronaut.serde:micronaut-serde-jackson:1.1.0"))
     }
 }
 
 dependencies {
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor:1.1.0")
+
     /**
      * Kotlin dependencies.
      */
@@ -97,10 +108,9 @@ dependencies {
 
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
-    implementation("com.fasterxml.jackson.module:jackson-module-blackbird")
+
+    implementation("io.micronaut.serde:micronaut-serde-jackson:1.1.0")
 
     /**
      * Test dependency configurations.
@@ -134,9 +144,14 @@ tasks {
     graalvmNative {
         binaries {
             named("main") {
+                verbose.set(true)
                 buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
                 buildArgs.add("-H:ClassInitialization=org.slf4j:build_time")
+                buildArgs.add("-H:ReflectionConfigurationFiles=/home/daniel/code/traefik-forward-auth0/src/main/resources/META-INF/reflect-config.json")
             }
+        }
+        metadataRepository {
+            enabled.set(true)
         }
     }
 

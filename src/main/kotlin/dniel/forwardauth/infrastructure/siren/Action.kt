@@ -21,6 +21,7 @@ import dniel.forwardauth.infrastructure.siren.internal.util.asList
 import dniel.forwardauth.infrastructure.siren.internal.util.asMap
 import dniel.forwardauth.infrastructure.siren.internal.util.asNonNullStringList
 import dniel.forwardauth.infrastructure.siren.internal.util.skipNulls
+import io.micronaut.serde.annotation.Serdeable
 import java.io.Serializable
 import java.net.URI
 import java.util.Collections.emptyList
@@ -36,6 +37,7 @@ import java.util.Collections.emptyList
  * constructor, as the constructor has some relaxed checking which should
  * only be used when deserializing an existing representation.
  */
+@Serdeable
 data class Action(
     /**
      * A string that identifies the action to be performed. Action names MUST be

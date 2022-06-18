@@ -52,7 +52,5 @@ open class ForwardAuthSettings(
     @NotEmpty
     override lateinit var authorizeUrl: String
 
-    @Value("\${nonce-max-age}")
-    @Min(-1)
     override var nonceMaxAge: Long = 60
 }
