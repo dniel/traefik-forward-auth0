@@ -20,7 +20,9 @@ import dniel.forwardauth.domain.config.ApplicationSettings
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import kotlinx.serialization.Serializable
 
+@Serializable
 class AuthorizeUrl(
     val authorizeUrl: String,
     val app: ApplicationSettings,

@@ -17,6 +17,7 @@
 package dniel.forwardauth.domain.authorize
 
 import java.util.UUID
+import kotlinx.serialization.Serializable
 
 /**
  * The nonce parameter value needs to include per-session authorizeState and be unguessable to attackers.
@@ -31,6 +32,8 @@ import java.util.UUID
  * https://tools.ietf.org/html/draft-ietf-oauth-v2-threatmodel-06#section-4.6.2
  * https://tools.ietf.org/html/draft-ietf-oauth-v2-threatmodel-06#section-3.6
  */
+
+@Serializable
 class AuthorizeNonce(val value: String) {
 
     companion object {
@@ -38,6 +41,7 @@ class AuthorizeNonce(val value: String) {
             return AuthorizeNonce(UUID.randomUUID().toString().replace("-", ""))
         }
     }
+
     override fun toString(): String = value
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

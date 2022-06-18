@@ -17,7 +17,9 @@
 package dniel.forwardauth.domain.authorize
 
 import java.net.URI
+import kotlinx.serialization.Serializable
 
+@Serializable
 class RequestedUrl(val protocol: String, val host: String, val uri: String, val method: String) {
 
     override fun toString(): String {

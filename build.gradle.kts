@@ -5,7 +5,9 @@
  * @see <a href="https://kotlinlang.org/docs/reference/using-gradle.html">Using Gradle in Official Kotlin doc.</a
  */
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.0"
+
     kotlin("kapt")
     id("io.micronaut.application") version "3.2.0"
     id("org.jetbrains.kotlin.plugin.allopen")
@@ -105,13 +107,15 @@ dependencies {
     runtimeOnly("org.slf4j:jcl-over-slf4j:1.7.32")
     runtimeOnly("org.slf4j:jul-to-slf4j:1.7.32")
     runtimeOnly("org.slf4j:log4j-over-slf4j:1.7.32")
-
     implementation("io.swagger.core.v3:swagger-annotations")
+
+    /**
+     * TODO To much json serialization stuff, clean up and remove.
+     */
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-
     implementation("io.micronaut.serde:micronaut-serde-jackson:1.1.0")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     /**
      * Test dependency configurations.
      */
@@ -147,7 +151,7 @@ tasks {
                 verbose.set(true)
                 buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
                 buildArgs.add("-H:ClassInitialization=org.slf4j:build_time")
-                buildArgs.add("-H:ReflectionConfigurationFiles=/home/daniel/code/traefik-forward-auth0/src/main/resources/META-INF/reflect-config.json")
+                buildArgs.add("-H:ReflectionConfigurationFiles=${project.projectDir}/src/main/resources/META-INF/reflect-config.json")
             }
         }
         metadataRepository {

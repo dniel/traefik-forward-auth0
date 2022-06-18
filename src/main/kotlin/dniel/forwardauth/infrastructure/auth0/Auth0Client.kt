@@ -16,19 +16,20 @@
 
 package dniel.forwardauth.infrastructure.auth0
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.common.cache.CacheBuilder
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import dniel.forwardauth.infrastructure.micronaut.config.ForwardAuthSettings
 import jakarta.inject.Singleton
+import java.util.Date
+import java.util.concurrent.TimeUnit
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.apache.http.HttpStatus
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
-import java.util.Date
-import java.util.concurrent.TimeUnit
 
 /**
  * Auth0 Client.
@@ -41,7 +42,6 @@ class Auth0Client(val properties: ForwardAuthSettings) {
     val LOGOUT_ENDPOINT = properties.logoutEndpoint
     val USERINFO_ENDPOINT = properties.userinfoEndpoint
     val TOKEN_ENDPOINT = properties.tokenEndpoint
-    val JSON = jacksonObjectMapper()
 
     /**
      * Object to cache, contains both the received token and when it expires for refresh.
@@ -68,19 +68,21 @@ class Auth0Client(val properties: ForwardAuthSettings) {
     fun authorizationCodeExchange(code: String, clientId: String, clientSecret: String, redirectUri: String): JSONObject {
         LOGGER.debug("Perform AuthorizationCodeExchange:  code=$code")
         val tokenRequest = AuthorizationCodeTokenRequest(
-            code = code,
-            clientId = clientId,
-            clientSecret = clientSecret,
-            redirectUrl = redirectUri
+                code = code,
+                clientId = clientId,
+                clientSecret = clientSecret,
+                redirectUrl = redirectUri,
+                grantType = "authorization_code",
+                scope = "openid id_token"
         )
 
-        LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
-        val response: HttpResponse<JsonNode> = Unirest.post(TOKEN_ENDPOINT)
-            .header("content-type", "application/json")
-            .body(JSON.writeValueAsString(tokenRequest))
-            .asJson()
+        val requestBody = Json.encodeToString(AuthorizationCodeTokenRequest.serializer(), tokenRequest)
+        LOGGER.trace("tokenRequest: $requestBody")
 
-        return handleResponse(response)
+        return handleResponse(Unirest.post(TOKEN_ENDPOINT)
+                .header("content-type", "application/json")
+                .body(requestBody)
+                .asJson())
     }
 
     /**
@@ -135,25 +137,28 @@ class Auth0Client(val properties: ForwardAuthSettings) {
      * the combination of clientid, clientsect and audience.
      */
     private fun requestClientCredentialsToken(clientId: String, clientSecret: String, audience: String) =
-        cache.get((clientId + clientSecret + audience).hashCode()) {
-            LOGGER.trace("Request Access Token by Client Credentials from Auth0.")
-            val tokenRequest = ClientCredentialsTokenRequest(
-                clientId = clientId,
-                clientSecret = clientSecret,
-                audience = audience
-            )
+            cache.get((clientId + clientSecret + audience).hashCode()) {
+                LOGGER.trace("Request Access Token by Client Credentials from Auth0.")
+                val clientCredentialsRequest = ClientCredentialsTokenRequest(
+                        clientId = clientId,
+                        clientSecret = clientSecret,
+                        audience = audience,
+                        grantType = "client_credentials"
+                )
 
-            LOGGER.trace("tokenRequest: " + JSON.writeValueAsString(tokenRequest))
-            val response = Unirest.post(TOKEN_ENDPOINT)
-                .header("content-type", "application/json")
-                .body(JSON.writeValueAsString(tokenRequest))
-                .asJson()
+                val clientCredentialsRequestBody = Json.encodeToString(ClientCredentialsTokenRequest.serializer(), clientCredentialsRequest)
+                LOGGER.trace("tokenRequest: $clientCredentialsRequestBody")
 
-            val jsonObject = handleResponse(response)
-            val expiresIn = jsonObject.getInt("expires_in")
+                val response = Unirest.post(TOKEN_ENDPOINT)
+                        .header("content-type", "application/json")
+                        .body(clientCredentialsRequestBody)
+                        .asJson()
 
-            CachedToken(jsonObject, System.currentTimeMillis() + (expiresIn * 1000))
-        }
+                val jsonObject = handleResponse(response)
+                val expiresIn = jsonObject.getInt("expires_in")
+
+                CachedToken(jsonObject, System.currentTimeMillis() + (expiresIn * 1000))
+            }
 
     /**
      * Call Auth0 to exchange received code with a JWT Token to decode.
@@ -162,14 +167,13 @@ class Auth0Client(val properties: ForwardAuthSettings) {
      * @return url to redirect to if one is requested, or empty if no redirect returned.
      */
     fun signout(clientId: String, returnTo: String): String? {
-        LOGGER.debug("Perform Sign Out")
+        LOGGER.debug("Perform Sign Out $LOGOUT_ENDPOINT")
         Unirest.setHttpClient(
-            org.apache.http.impl.client.HttpClients.custom()
-                .disableRedirectHandling()
-                .build()
+                org.apache.http.impl.client.HttpClients.custom()
+                        .disableRedirectHandling()
+                        .build()
         )
 
-        LOGGER.trace("Request Signout Endpoint: $LOGOUT_ENDPOINT")
         val response = with(Unirest.get(LOGOUT_ENDPOINT)) {
             queryString("client_id", clientId)
             queryString("returnTo", returnTo)
@@ -199,9 +203,9 @@ class Auth0Client(val properties: ForwardAuthSettings) {
     fun userinfo(accesstoken: String): Map<String, Any> {
         LOGGER.debug("Perform retrieve Userinfo from endpoint: $USERINFO_ENDPOINT")
         val response = Unirest
-            .get(USERINFO_ENDPOINT)
-            .header("Authorization", "Bearer $accesstoken")
-            .asJson()
+                .get(USERINFO_ENDPOINT)
+                .header("Authorization", "Bearer $accesstoken")
+                .asJson()
 
         val jsonObject = handleResponse(response)
         val userinfo = mutableMapOf<String, Any>()
@@ -232,23 +236,25 @@ class Auth0Client(val properties: ForwardAuthSettings) {
     /**
      * Just a simple data class for the token request.
      */
+    @Serializable
     private data class AuthorizationCodeTokenRequest(
-        @JsonProperty("grant_type") val grantType: String = "authorization_code",
-        @JsonProperty("client_id") val clientId: String,
-        @JsonProperty("client_secret") val clientSecret: String,
-        @JsonProperty("redirect_uri") val redirectUrl: String,
-        val code: String,
-        val scope: String = "openid id_token"
+            @SerialName("grant_type") val grantType: String,
+            @SerialName("client_id") val clientId: String,
+            @SerialName("client_secret") val clientSecret: String,
+            @SerialName("redirect_uri") val redirectUrl: String,
+            val code: String,
+            val scope: String
     )
 
     /**
      * Just a simple data class for the token request.
      */
+    @Serializable
     private data class ClientCredentialsTokenRequest(
-        @JsonProperty("grant_type") val grantType: String = "client_credentials",
-        @JsonProperty("client_id") val clientId: String,
-        @JsonProperty("client_secret") val clientSecret: String,
-        @JsonProperty("audience") val audience: String
+            @SerialName("grant_type") val grantType: String,
+            @SerialName("client_id") val clientId: String,
+            @SerialName("client_secret") val clientSecret: String,
+            @SerialName("audience") val audience: String
 
     )
 }
