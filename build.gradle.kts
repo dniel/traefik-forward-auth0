@@ -7,12 +7,15 @@
 plugins {
     kotlin("jvm") version "1.7.0"
     kotlin("plugin.serialization") version "1.7.0"
-
     kotlin("kapt")
+
     id("io.micronaut.application") version "3.2.0"
     id("org.jetbrains.kotlin.plugin.allopen")
     id("groovy")
-//    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
+
+// TODO
+//  disabled ktlint because of to much lint errors.
+//  id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
 group = "dniel.forwardauth"
@@ -54,8 +57,6 @@ configurations.all {
 }
 
 dependencies {
-    annotationProcessor("io.micronaut.serde:micronaut-serde-processor:1.1.0")
-
     /**
      * Kotlin dependencies.
      */
@@ -110,8 +111,9 @@ dependencies {
     /**
      * TODO To much json serialization stuff, clean up and remove.
      */
-    implementation("io.micronaut.serde:micronaut-serde-jackson:1.1.0")
-    compileOnly("com.fasterxml.jackson.core:jackson-databind")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
     /**
@@ -154,7 +156,7 @@ tasks {
     // use Google Distroless mostly-static image when generating the
     // native-image build Dockerfile.
     dockerfileNative {
-        baseImage("gcr.io/distroless/base:debug-nonroot")
+        baseImage("gcr.io/distroless/base:nonroot")
     }
 
     test {

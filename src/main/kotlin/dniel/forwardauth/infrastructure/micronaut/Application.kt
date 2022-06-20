@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory
 @OpenAPIDefinition(
     info = Info(
         title = "ForwardAuth for Auth0 API",
-        version = "v2",
+        version = "v3",
         description = "ForwardAuth for Auth0",
         contact = Contact(
             name = "Daniel",
-            email = "daniel@engfeldt.net",
+            email = "me@danielnord.no",
             url = "http://github.com/dniel"
         )
     )
