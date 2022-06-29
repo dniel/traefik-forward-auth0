@@ -17,10 +17,17 @@ micronaut:
 
   application:
     name: forwardauth
+  router:
+    static-resources:
+      views:
+        paths: classpath:views
+        mapping: /**
 
   security:
     authentication: cookie
     enabled: true
+    redirect:
+      enabled: false
     token:
       jwt:
         bearer:

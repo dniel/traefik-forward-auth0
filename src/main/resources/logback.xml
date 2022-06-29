@@ -11,8 +11,9 @@
     <logger name="io.micronaut.http" level="TRACE"/>
     <logger name="io.micronaut.security" level="TRACE"/>
 
-    <logger name="io.micronaut" level="INFO"/>
-    <logger name="io.netty" level="INFO"/>
+    <logger name="io.micronaut" level="DEBUG"/>
+    <logger name="io.micronaut.context" level="INFO"/>
+    <logger name="io.netty" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

@@ -9,7 +9,9 @@ plugins {
     kotlin("plugin.serialization") version "1.7.0"
     kotlin("kapt")
 
-    id("io.micronaut.application") version "3.2.0"
+    id("io.micronaut.application") version "3.4.1"
+    id("io.micronaut.library") version "3.4.1"
+
     id("org.jetbrains.kotlin.plugin.allopen")
     id("groovy")
 
@@ -91,6 +93,7 @@ dependencies {
     implementation("io.micronaut.security:micronaut-security")
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.problem:micronaut-problem-json")
+    implementation("io.micronaut.views:micronaut-views-thymeleaf")
 
     /**
      * Third-party dependencies.
@@ -108,18 +111,20 @@ dependencies {
     runtimeOnly("org.slf4j:log4j-over-slf4j:1.7.32")
     implementation("io.swagger.core.v3:swagger-annotations")
 
+
+
     /**
      * TODO To much json serialization stuff, clean up and remove.
      */
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("com.fasterxml.jackson.core:jackson-databind")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
     /**
      * Test dependency configurations.
      */
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.4")
 
     testCompileOnly(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     testImplementation("org.spockframework:spock-core") {

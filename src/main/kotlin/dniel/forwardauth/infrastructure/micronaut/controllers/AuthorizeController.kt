@@ -92,32 +92,16 @@ class AuthorizeController(
             @Header("x-requested-with") requestedWithHeader: String?,
     ): MutableHttpResponse<*> {
         val user = (authentication as Auth0Authentication?)?.user ?: Anonymous
-
-        return authenticateToken(
-                acceptContent = acceptContentHeader,
-                requestedWith = requestedWithHeader,
-                host = authorizeRequest.forwardedHost,
-                method = authorizeRequest.forwardedMethod,
+        val isApi = isApi(acceptContentHeader, requestedWithHeader)
+        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(
+                user = user,
                 protocol = authorizeRequest.forwardedProto,
-                uri = authorizeRequest.forwardedUri,
-                user = user)
-    }
+                host = authorizeRequest.forwardedHost,
+                uri =  authorizeRequest.forwardedUri,
+                method = authorizeRequest.forwardedMethod,
+                isApi = isApi)
 
-    /**
-     * Authenticate
-     *
-     */
-    private fun authenticateToken(acceptContent: String?, requestedWith: String?, method: String, host: String, protocol: String,
-                                  uri: String, user: User): MutableHttpResponse<*> {
-        val authorizeResult = handleCommand(
-                acceptContent = acceptContent,
-                requestedWithHeader = requestedWith,
-                protocol = protocol,
-                host = host,
-                uri = uri,
-                method = method,
-                user = user)
-        return when (authorizeResult) {
+        return when (val authorizeResult =  commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent) {
             is AuthorizeHandler.AuthorizeEvent.AccessDenied -> throw PermissionDeniedException(authorizeResult)
             is AuthorizeHandler.AuthorizeEvent.Error -> throw AuthorizationException(authorizeResult)
             is AuthorizeHandler.AuthorizeEvent.NeedRedirect -> {
@@ -127,19 +111,6 @@ class AuthorizeController(
                 accessGranted(authorizeResult)
             }
         }
-    }
-
-    /**
-     * Execute AuthorizeCommand
-     *
-     */
-    private fun handleCommand(acceptContent: String?, requestedWithHeader: String?,
-                              protocol: String, host: String, uri: String, method: String, user: User): AuthorizeHandler.AuthorizeEvent {
-        val isApi = isApi(acceptContent, requestedWithHeader)
-        val command: AuthorizeHandler.AuthorizeCommand = AuthorizeHandler.AuthorizeCommand(
-                user = user,
-                protocol = protocol, host = host, uri = uri, method = method, isApi = isApi)
-        return commandDispatcher.dispatch(authorizeHandler, command) as AuthorizeHandler.AuthorizeEvent
     }
 
     /**
@@ -181,8 +152,8 @@ class AuthorizeController(
 
     /**
      * Try to detect that the request is coming from an ajax api call
-     * by checking the x-requested-with header that is set by some of
-     * the major frameworks when doing ajax requests.
+     * by checking the x-requested-with header that is set by some major
+     * frameworks when doing ajax requests.
      */
     private fun isApi(acceptContent: String?, requestedWithHeader: String?) =
             acceptsApiContent(acceptContent)
