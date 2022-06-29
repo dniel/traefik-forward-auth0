@@ -153,7 +153,7 @@ tasks {
         binaries {
             named("main") {
                 verbose.set(true)
-                buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
+                //buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
             }
         }
     }
