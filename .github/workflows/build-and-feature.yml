@@ -66,38 +66,38 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-      - name: Zip Folder
-        id: zip_and_upload
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-
-        shell: bash
-        run: |
-          ARTIFACT_FILENAME=${{ steps.vars.outputs.application }}-${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}.zip
-          S3_FILENAME=s3://${{ secrets.AWS_BUCKET }}/$ARTIFACT_FILENAME
-          zip -r $ARTIFACT_FILENAME terraform
-          aws s3 cp $ARTIFACT_FILENAME $S3_FILENAME
-          echo "::set-output name=s3_filename::$S3_FILENAME"
-          echo "::set-output name=artifact_filename::$ARTIFACT_FILENAME"
-      - name: Uploaded file
-        run: |
-          echo ${{ steps.zip_and_upload.outputs.s3_filename }}
-          echo ${{ steps.zip_and_upload.outputs.artifact_filename }}
-      - name: Publish SNS Topic
-        uses: nothingalike/sns-publish-topic@v1.6
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        with:
-          MESSAGE: |
-            {
-              "reference":"${{ steps.zip_and_upload.outputs.s3_filename }}",
-              "name": "${{ steps.vars.outputs.application }}",
-              "commit": "${{ steps.vars.outputs.sha_short }}",
-              "branch": "${{ steps.vars.outputs.branch }}",
-              "provenance": "test123"
-            }
-          TOPIC_ARN: ${{ secrets.TOPIC_ARN }}
+#      - name: Zip Folder
+#        id: zip_and_upload
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+#          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+#
+#       shell: bash
+#       run: |
+#         ARTIFACT_FILENAME=${{ steps.vars.outputs.application }}-${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}.zip
+#         S3_FILENAME=s3://${{ secrets.AWS_BUCKET }}/$ARTIFACT_FILENAME
+#         zip -r $ARTIFACT_FILENAME terraform
+#         aws s3 cp $ARTIFACT_FILENAME $S3_FILENAME
+#         echo "::set-output name=s3_filename::$S3_FILENAME"
+#         echo "::set-output name=artifact_filename::$ARTIFACT_FILENAME"
+#     - name: Uploaded file
+#       run: |
+#         echo ${{ steps.zip_and_upload.outputs.s3_filename }}
+#         echo ${{ steps.zip_and_upload.outputs.artifact_filename }}
+#     - name: Publish SNS Topic
+#       uses: nothingalike/sns-publish-topic@v1.6
+#       env:
+#         AWS_REGION: ${{ secrets.AWS_REGION }}
+#         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       with:
+#         MESSAGE: |
+#           {
+#             "reference":"${{ steps.zip_and_upload.outputs.s3_filename }}",
+#             "name": "${{ steps.vars.outputs.application }}",
+#             "commit": "${{ steps.vars.outputs.sha_short }}",
+#             "branch": "${{ steps.vars.outputs.branch }}",
+#             "provenance": "test123"
+#           }
+#         TOPIC_ARN: ${{ secrets.TOPIC_ARN }}
