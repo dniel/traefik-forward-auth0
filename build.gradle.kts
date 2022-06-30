@@ -10,8 +10,6 @@ plugins {
     kotlin("kapt")
 
     id("io.micronaut.application") version "3.4.1"
-    id("io.micronaut.library") version "3.4.1"
-
     id("org.jetbrains.kotlin.plugin.allopen")
     id("groovy")
 
@@ -153,7 +151,7 @@ tasks {
         binaries {
             named("main") {
                 verbose.set(true)
-                //buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
+                buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
             }
         }
     }
