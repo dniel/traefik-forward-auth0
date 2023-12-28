@@ -46,17 +46,9 @@ class SignoutHandler(val properties: AuthProperties,
     override fun handle(params: SignoutCommand): Event {
         LOGGER.debug("Sign out from Auth0")
         val app = properties.findApplicationOrDefault(params.forwardedHost)
-        try {
-            val signout = auth0Client.signout(app.clientId, app.returnTo)
-            if (!signout.isNullOrEmpty()) {
-                LOGGER.debug("Signout done, redirect to ${signout}")
-                return SignoutEvent.SignoutRedirect(signout, app)
-            } else {
-                LOGGER.debug("Signout done.")
-                return SignoutEvent.SignoutComplete(app)
-            }
-        } catch (e: Exception) {
-            return SignoutEvent.Error(e.message!!, app)
-        }
+
+        val url = "%s?client_id=%s&returnTo=%s".format(properties.logoutEndpoint, app.clientId, java.net.URLEncoder.encode(app.returnTo, "utf-8"))
+
+        return SignoutEvent.SignoutRedirect(url, app)
     }
 }
